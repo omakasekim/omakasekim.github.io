@@ -54,7 +54,7 @@
 
 - ### 📘 Data Structures
   * [Array](./dump/dsArray.md) 
-  * [Linked List](./dump/dsLinkedList.md)
+  * [Linked List](./dump/algoLinkedList.md)
   * [Stack](./dump/dsStack.md)
   * [Queue](./dump/dsQueue.md)
   * [Hash Table](./dump/dsHashTable.md)
