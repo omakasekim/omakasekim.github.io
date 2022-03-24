@@ -11,7 +11,7 @@
 - ### 📖 CSS3
   * [CSS 작성법](./dump/firstCSS.md)
   * [CSS 위치별 차이](./dump/secondCSS.md)
-  * * [CSS 규칙 및 우선순위](./dump/thirdCSS.md)
+  * [CSS 규칙 및 우선순위](./dump/thirdCSS.md)
 - ### 📖 JavaScript
 
 
