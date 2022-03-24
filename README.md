@@ -9,6 +9,8 @@
 
 - ### 📖 HTML5
   * [기본 문서 만들기](./dump/firstStep.md)
+  * [시맨틱 마크업](./dump/secondHTML.md)
+  * [스크립트 로딩 기준](./dump/thirdHTML.md)
 
 
 - ### 📖 CSS3
