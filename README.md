@@ -44,3 +44,16 @@
 - ### 📘 Data Structures
 
 - ### 📘 Algorithms
+  * [Assembly Line Scheduling](./dump/algoALS.md)
+  * [Connected Component](./dump/algoConComp.md)
+  * [Counting](./dump/algoCounting.md)
+  * [Dijkstra's Algorithm](./dump/algoDijkstra.md)
+  * [Finding Same Keys](./dump/algoFSK.md)
+  * [Heap Sort](./dump/algoHeap.md)
+  * [Huffman](./dump/algoHuffman.md)
+  * [Insertion](./dump/algoInsert.md)
+  * [Matrix Chain](./dump/algoMatChain.md)
+  * [Merge](./dump/algoMerge.md)
+  * [Priority Queue](./dump/algoPriQueue.md)
+  * [Rod Cutting](./dump/algoRodCutt.md)
+  * [Topological Sort](./dump/algoTopoSort.md)
