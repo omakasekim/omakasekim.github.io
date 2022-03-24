@@ -37,9 +37,8 @@
 - ### 📖 Clean Code
 
 
+## 📙 Other Secondary Things I do for "fun"
 
-## 📙 Other Secondary Things I do for fun
+- ### 📘 Data Structures
 
-- ### 📖 Python
-
-- ### 📖 C,C++
+- ### 📘 Alrorithms
