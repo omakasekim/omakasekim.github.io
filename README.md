@@ -43,4 +43,4 @@
 
 - ### 📘 Data Structures
 
-- ### 📘 Alrorithms
+- ### 📘 Algorithms
