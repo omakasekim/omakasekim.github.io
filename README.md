@@ -19,7 +19,8 @@
   * [CSS 규칙 및 우선순위](./dump/fourthCSS.md)
   * [CSS 셀렉터](./dump/fifthCSS.md)
   * [박스 모델](./dump/sixthCSS.md)
-
+  * [배치](./dump/seventhCSS.md) !
+  * [애니메이션 효과](./dump/eighthCSS.md) !
 
 - ### 📖 JavaScript
 
