@@ -1,6 +1,6 @@
 # 📚 Frontend & Many Other Things
 
-##### Collection of my journey into Frontend.
+#### Collection of my journey into Frontend.
 
 **Collaborators** : [omakasekim](https://github.com/omakasekim)
 
