@@ -1,8 +1,6 @@
 # 📚 Frontend & Many Other Things
 
-#### Collection of my journey into Frontend.
-
-**Collaborators** : [omakasekim](https://github.com/omakasekim)
+#### Collection of my journey into Computer Science.
 
 Exclamation means incomplete thread.
 <br>
