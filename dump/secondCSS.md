@@ -80,8 +80,8 @@ CSS 스타일 시트만 떼어내서 **.css** 확장자를 가진 파일에 저�
         }
 ```
 
-<br>
 `@import` 문을 이용해서 .css 파일을 웹 페이지에 불러올 수 있다. `@import` 문은 `<style>` 안에서만 사용되며, 여러번 사용할 수 있다.
+
 ```HTML
   <style>
     @import url(style.css);
