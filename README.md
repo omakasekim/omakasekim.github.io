@@ -9,7 +9,8 @@
 - ### 📖 HTML5
   * [기본 문서 만들기](./dump/firstStep.md)
 - ### 📖 CSS3
-  * [CSS 작성법 및 위치별 차이](./dump/firstCSS.md)
+  * [CSS 작성법](./dump/firstCSS.md)
+  * [CSS 위치별 차이](./dump/secondCSS.md)
 - ### 📖 JavaScript
 
 
