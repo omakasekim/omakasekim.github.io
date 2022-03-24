@@ -1,6 +1,7 @@
 # 📚 Frontend & Many Other Things
 
 ##### Collection of my journey into Frontend.
+
 **Collaborators** : [omakasekim](https://github.com/omakasekim)
 <br>
 
@@ -8,10 +9,14 @@
 
 - ### 📖 HTML5
   * [기본 문서 만들기](./dump/firstStep.md)
+
+
 - ### 📖 CSS3
   * [CSS 작성법](./dump/firstCSS.md)
   * [CSS 위치별 차이](./dump/secondCSS.md)
   * [CSS 규칙 및 우선순위](./dump/thirdCSS.md)
+
+
 - ### 📖 JavaScript
 
 - ### 📖 Networks
@@ -43,6 +48,14 @@
 ## 📙 Other Secondary Things I do for "fun"
 
 - ### 📘 Data Structures
+  * [Array](./dump/dsArray.md) 
+  * [Linked List](./dump/dsLinkedList.md)
+  * [Stack](./dump/dsStack.md)
+  * [Queue](./dump/dsQueue.md)
+  * [Hash Table](./dump/dsHashTable.md)
+  * [Tree](./dump/dsTree.md)
+  * [Heap](./dump/dsHeap.md)
+  * [Graph](./dump/dsGraph.md)
 
 - ### 📘 Algorithms
   * [Assembly Line Scheduling](./dump/algoALS.md)
