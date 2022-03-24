@@ -3,6 +3,8 @@
 ##### Collection of my journey into Frontend.
 
 **Collaborators** : [omakasekim](https://github.com/omakasekim)
+
+Exclamation means incomplete thread.
 <br>
 
 ## 📒 First step
