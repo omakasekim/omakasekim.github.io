@@ -90,8 +90,8 @@ Exclamation means incomplete thread.
 - ### 📖 TypeScript
 
 ## 📘 Database
-* RDBMS & NoSQL
-* SQL JOIN
+* [RDBMS & NoSQL](./dump/firstDB.md)
+* [SQL JOIN](./dump/secondDB.md)
 
 ## 📘 Yikes
 
