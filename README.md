@@ -23,33 +23,33 @@ Exclamation means incomplete thread.
   * [애니메이션 효과](./dump/eighthCSS.md) !
 
 - ### 📖 JavaScript
-  * [타입 (Type)]
-  * [값 (Value)]
-  * [네이티브]
-  * [강제 변환]
-  * [문법]
-  * [스코프]
-  * [호이스팅 (Hoisting)]
-  * [클로져 (Closure)]
-  * [this]
-  * [네이브 객체와 호스트 객체]
-  * [클래스와 객체의 혼합]
-  * [프로토타입 (Prototype)]
-  * [Ajax]
-  * [이벤트 위임]
-  * [실행 컨텍스트]
-  * [var vs let vs const]
-  * [IIFE (Immediately Invoked Function Expression)]
-  * [모듈 시스템]
-  * [콜 스택과 힙]
-  * [이벤트 루프]
-  * [== vs ===]
-  * [엄격 모드 (strict mode)]
-  * [new 의 동작 방식]
-  * [ES6의 특징]
-  * [ES7 ~ ES8 의 특징]
-  * [ES9 ~ ES10의 특징]
-  * [ES11 의 특징]
+  * [타입 (Type)](./dump/firstJS.md)
+  * [값 (Value)](./dump/secondJS.md)
+  * [네이티브](./dump/thirdJS.md)
+  * [강제 변환](./dump/fourthJS.md)
+  * [문법](./dump/fifthJS.md)
+  * [스코프](./dump/sixthJS.md)
+  * [호이스팅 (Hoisting)](./dump/seventhJS.md)
+  * [클로져 (Closure)](./dump/eighthJS.md)
+  * [this](./dump/ninthJS.md)
+  * [네이브 객체와 호스트 객체](./dump/tenthJS.md)
+  * [클래스와 객체의 혼합](./dump/eleventhJS.md)
+  * [프로토타입 (Prototype)](./dump/twelvethJS.md)
+  * [Ajax](./dump/thirteenthJS.md)
+  * [이벤트 위임](./dump/fourteenthJS.md)
+  * [실행 컨텍스트](./dump/fifteenthJS.md)
+  * [var vs let vs const](./dump/sixteenthJS.md)
+  * [IIFE (Immediately Invoked Function Expression)](./dump/seventeenthJS.md)
+  * [모듈 시스템](./dump/eighteenthJS.md)
+  * [콜 스택과 힙](./dump/nineteenthJS.md)
+  * [이벤트 루프](./dump/twentiethJS.md)
+  * [== vs ===](./dump/twentyfirstJS.md)
+  * [엄격 모드 (strict mode)](./dump/twentysecondJS.md)
+  * [new 의 동작 방식](./dump/twentythirdJS.md)
+  * [ES6의 특징](./dump/twentyfourthJS.md)
+  * [ES7 ~ ES8 의 특징](./dump/twentyfifthJS.md)
+  * [ES9 ~ ES10의 특징](./dump/twentysixthJS.md)
+  * [ES11 의 특징](./dump/twentyseventhJS.md)
   
   
   
