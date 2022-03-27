@@ -32,7 +32,7 @@ Exclamation means incomplete thread.
   * [호이스팅 (Hoisting)](./dump/seventhJS.md)
   * [클로져 (Closure)](./dump/eighthJS.md)
   * [this](./dump/ninthJS.md)
-  * [네이브 객체와 호스트 객체](./dump/tenthJS.md)
+  * [네이티브 객체와 호스트 객체](./dump/tenthJS.md)
   * [클래스와 객체의 혼합](./dump/eleventhJS.md)
   * [프로토타입 (Prototype)](./dump/twelvethJS.md)
   * [Ajax](./dump/thirteenthJS.md)
