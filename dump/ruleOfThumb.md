@@ -86,9 +86,6 @@ HTML5은 내용물을 정확히 설명할 수 있는 여러가지 시맨틱 (의
 
 ### 접근성
 
-Accessibility shouldn't be an afterthought. You don't have to be a WCAG expert to improve your
-website, you can start immediately by fixing the little things that make a huge difference, such as:
-
 접근성은 제발 추후에 생각하지 마세요. WCAG 전문가 아니여도 사이트 충분히 개선시킬 수 있습니다. 예를 들어:
 
 * `alt` 속성을 올바르게 쓰는 법을 배우세요.
