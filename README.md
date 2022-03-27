@@ -1,12 +1,11 @@
 # 📚 Frontend & Many Other Things
 
+  * [국룰](./dump/ruleOfThumb.md)
+  
 #### Collection of my journey into Computer Science.
 
 Exclamation means incomplete thread.
-<br>
 
-## Frontend General Guideline
-  * [국룰](./dump/ruleOfThumb.md)
 
 ## 📒 First step
 
