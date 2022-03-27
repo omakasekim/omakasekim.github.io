@@ -59,9 +59,9 @@ Exclamation means incomplete thread.
   * OSI 7 계층
   * HTTP의 GET과 POST 비교
   * [TCP 와 UDP](./dump/thirdNW.md)
-  * HTTP
-  * HTTPS
-  * HTTP/1.1 vs HTTP/2
+  * [HTTP](./dump/fourthNW.md)
+  * [HTTPS](./dump/fifthNW.md)
+  * [HTTP/1.1 vs HTTP/2](./dump/sixthNW.md)
   * URL 과 URN을 포함하는 URI
   * [REST API](.dump/eighthNW.md)
   * [Cookie vs Session](./dump/ninthNW.md)
