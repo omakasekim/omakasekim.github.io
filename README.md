@@ -62,7 +62,7 @@ Exclamation means incomplete thread.
   * HTTP/1.1 vs HTTP/2
   * URL 과 URN을 포함하는 URI
   * REST API
-  * Cookie vs Session
+  * [Cookie vs Session](./dump/ninthNW.md)
   * URL을 입력하면 일어나는 일
   * CDN
   * [동일 출처 정책 (Same Origin Policy)](./dump/twelfthNW.md)
