@@ -29,7 +29,7 @@ TCP가 호스트 간에 연결을 설정하는 방법으로 SYN/ACK 패킷을 �
 
 ### TCP 헤더의 구조
 TCP의 세그먼트는 데이터 본체에 TCP 헤더가 붙은 형태로 구성된다.  
-<img src="/image/TCP_Header.jpg" height="350px">
+<img src="/image/TCP_Header.jpeg" height="350px">
 
 * `일련번호(sequence number)` : 송신한 바이트 수
 * `확인 응답 번호(acknowledgement number)` : 수신한 바이트 수
@@ -69,7 +69,7 @@ TCP와 달리 데이터의 신뢰성을 보장하지 않는 프로토콜이며 �
 ### UDP 헤더 구조
 UDP에서는 패킷에 해당하는 것을 `데이터그램`이라고 부른다.  
   
-<img src="/image/UDP_Header.jpg" height="170px"> 
+<img src="/image/UDP_Header.jpeg" height="170px"> 
   
 * `패킷 길이(UDP length)` : 헤더 길이와 데이터 길이의 합계
 * `체크섬(checksum)` : 데이터가 훼손되었는지 확인하기 위한 정보
