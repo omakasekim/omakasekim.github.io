@@ -65,8 +65,8 @@ Exclamation means incomplete thread.
   * Cookie vs Session
   * URL을 입력하면 일어나는 일
   * CDN
-  * 동일 출처 정책 (Same Origin Policy)
-  * XSS와 CSRF
+  * [동일 출처 정책 (Same Origin Policy)](./dump/twelfthNW.md)
+  * [XSS와 CSRF](./dump/thirteenthhNW.md)
   * Bearer 토큰
   * target=“_blank” 취약성
 
