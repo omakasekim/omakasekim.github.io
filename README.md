@@ -5,6 +5,9 @@
 Exclamation means incomplete thread.
 <br>
 
+## Frontend General Guideline
+  * [국룰](./dump/ruleOfThumb.md)
+
 ## 📒 First step
 
 - ### 📖 HTML5
@@ -67,8 +70,6 @@ Exclamation means incomplete thread.
   * CDN
   * [동일 출처 정책 (Same Origin Policy)](./dump/twelfthNW.md)
   * [XSS와 CSRF](./dump/thirteenthhNW.md)
-  * Bearer 토큰
-  * target=“_blank” 취약성
 
 - #### TCP/IP in depth
   * 컴퓨터 네트워크
