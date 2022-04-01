@@ -62,7 +62,7 @@ Exclamation means incomplete thread.
   * [HTTP](./dump/fourthNW.md)
   * [HTTPS](./dump/fifthNW.md)
   * [HTTP/1.1 vs HTTP/2](./dump/sixthNW.md)
-  * URL 과 URN을 포함하는 URI
+  * [URL 과 URN을 포함하는 URI](./dump/seventhNW.md)
   * [REST API](.dump/eighthNW.md)
   * [Cookie vs Session](./dump/ninthNW.md)
   * URL을 입력하면 일어나는 일
