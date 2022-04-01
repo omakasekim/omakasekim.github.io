@@ -57,7 +57,7 @@ Exclamation means incomplete thread.
   
 - ### 📖 Networks
   * OSI 7 계층
-  * HTTP의 GET과 POST 비교
+  * [HTTP의 GET과 POST 비교](./dump/secondNW.md)
   * [TCP 와 UDP](./dump/thirdNW.md)
   * [HTTP](./dump/fourthNW.md)
   * [HTTPS](./dump/fifthNW.md)
