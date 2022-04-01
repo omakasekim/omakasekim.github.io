@@ -35,5 +35,5 @@
   * ftp://example.com/download.zip (프로토콜: ftp)
   * mailto:user@example.com (프로토콜: mailto)
 * **URN**
-  * urn:isbn:0451450523 (책을 식별하는 ISBN 번호)
-  * urn:uuid:6e8bc430-9c3a-11d9-9669-0800200c9a66 (전 세계에서 유일한 번호)
+  * urn:isbn:8484450523 (책을 식별하는 ISBN 번호)
+  * urn:uuid:523jc430-9c3a-11d1-9669-0799599c9a66 (전 세계에서 유일한 번호)
