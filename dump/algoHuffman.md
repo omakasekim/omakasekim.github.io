@@ -56,9 +56,9 @@ int main() {
 		node.pop();
 
 		if(Left.second.first != 0)
-			tree[Left.second.second] = {{-1,-1},Left.second.first};
+			tree[Left.second.second] = { {-1,-1}, Left.second.first};
 		if(Right.second.first != 0)
-			tree[Right.second.second] = {{-1,-1},Right.second.first};
+			tree[Right.second.second] = { {-1,-1}, Right.second.first};
 
 		tree[c] = {{Left.second.second,Right.second.second},0};
 		node.push({Left.first+Right.first,{0, c++}});
