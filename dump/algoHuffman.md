@@ -36,7 +36,7 @@ int main() {
 	for (int i = 0; i < N; i++) {
 		string str;
 		cin >> str >> v[i];
-		node.push({-v[i],{v[i],c++}});
+		node.push( {-v[i], {v[i],c++} } );
 	}
 	scanf("%d", &total);
 
@@ -60,8 +60,8 @@ int main() {
 		if(Right.second.first != 0)
 			tree[Right.second.second] = { {-1,-1}, Right.second.first};
 
-		tree[c] = {{Left.second.second,Right.second.second},0};
-		node.push({Left.first+Right.first,{0, c++}});
+		tree[c] = { {Left.second.second,Right.second.second}, 0};
+		node.push( {Left.first+Right.first, {0, c++}});
 	}
 	Huffman(c-1,0);
 	printf("%d\n",res);
