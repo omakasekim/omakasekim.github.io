@@ -8,16 +8,17 @@
 * Java EE 디자인 패턴
   
 ## 📒 Java Web
-	- 자바 웹 프로그래밍 Next Step
-  - 스프링 부트로 시작하는 JAVA 웹개발
+
+* 자바 웹 프로그래밍 Next Step
+* 스프링 부트로 시작하는 JAVA 웹개발
 
 ## 📒 Kotlin
-	* 코틀린 완벽 가이드
+	
+  * 코틀린 완벽 가이드
   
 ## 📒 Kopring Boot
-	*스프링 부트와 AWS로 혼자 구현하는 웹 서비스
-
-
+	
+  * 스프링 부트와 AWS로 혼자 구현하는 웹 서비스
 
 ## 📒 Django + Bootstrap
   * Do it! 장고+부트스트랩 파이썬 웹 개발의 정석
