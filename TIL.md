@@ -1,4 +1,4 @@
-# 📚 Thinks I've Learned
+# 📚 My Path Ahead
 
 
 
