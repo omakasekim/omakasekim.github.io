@@ -40,7 +40,7 @@ Exclamation means incomplete thread.
   * [Ajax](./dump/thirteenthJS.md)
   * [이벤트 위임](./dump/fourteenthJS.md)
   * [실행 컨텍스트](./dump/fifteenthJS.md)
-  * [var vs let vs const](./dump/sixteenthJS.md)
+  * [var vs let vs const](./dump/fifteenthJS.md)
   * [IIFE (Immediately Invoked Function Expression)](./dump/seventeenthJS.md)
   * [모듈 시스템](./dump/eighteenthJS.md)
   * [콜 스택과 힙](./dump/nineteenthJS.md)
