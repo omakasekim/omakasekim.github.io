@@ -32,8 +32,8 @@
   <header>
     <div>
       <span class="header-badge">LIVE WEBASSEMBLY WORKBENCH</span>
-      <h1>Zircon RV32I Micro-Emulator</h1>
-      <p>Cycle-accurate, bidirectional RISC-V RV32I pipeline stepper compiled into a 3.1 KB freestanding WebAssembly module. Comptime opcode decoding, fixed-buffer RAM, and zero libc imports.</p>
+      <h1>Zircon RV32IM Micro-Emulator</h1>
+      <p>A reversible RISC-V RV32IM stepper with a 5-stage pipeline timing model, assembler and disassembler, compiled into a 25 KB WebAssembly module with no imports. Write assembly below, step forward and back, and watch load-use stalls, branch flushes and forwarding.</p>
     </div>
   </header>
 
@@ -51,9 +51,10 @@
       </div>
 
       <div class="presets">
-        <span class="preset-chip" data-call="loadProgram" data-args='["fib"]'>Fibonacci (x10 = 55)</span>
-        <span class="preset-chip" data-call="loadProgram" data-args='["sum"]'>Sum 1..10 (x10 = 55)</span>
-        <span class="preset-chip" data-call="loadProgram" data-args='["mem"]'>RAM Store / Load</span>
+        <span class="preset-chip" data-call="loadProgram" data-args='["fib"]'>Fibonacci (a0 = 55)</span>
+        <span class="preset-chip" data-call="loadProgram" data-args='["sum"]'>Sum 1..10 (a0 = 55)</span>
+        <span class="preset-chip" data-call="loadProgram" data-args='["mem"]'>Store / Load (load-use stall)</span>
+        <span class="preset-chip" data-call="loadProgram" data-args='["sort"]'>Bubble Sort + RV32M</span>
       </div>
 
       <div class="metric-grid">
@@ -71,14 +72,33 @@
         </div>
         <div class="metric-card">
           <div class="title">Binary Size (WASM)</div>
-          <div class="value" style="color: var(--accent);">3.1 KB</div>
+          <div class="value" style="color: var(--accent);">25 KB</div>
         </div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric-card"><div class="title">Load-use Stalls</div><div class="value" id="val-stalls">0</div></div>
+        <div class="metric-card"><div class="title">Flush Cycles</div><div class="value" id="val-flush">0</div></div>
+        <div class="metric-card"><div class="title">Forwarded Operands</div><div class="value" id="val-fwd">0</div></div>
+        <div class="metric-card"><div class="title">Cycles per Instruction</div><div class="value" id="val-cpi">-</div></div>
+      </div>
+      <div style="margin-top: 12px; font-family: monospace; font-size: 13px;">
+        <div>Next: <span id="val-next">-</span></div>
+        <div>State: <span id="val-trap">-</span></div>
       </div>
     </div>
 
     <div class="card">
       <label>RISC-V Integer Registers (x0 – x31)</label>
       <div class="reg-grid" id="reg-grid"></div>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label for="asm-src">RV32IM Assembly</label>
+        <button class="btn-outline" data-call="assembleSource">Assemble &amp; Load</button>
+      </div>
+      <textarea id="asm-src" spellcheck="false" rows="16" style="width: 100%; margin-top: 10px; font-family: monospace; font-size: 13px; background: #090d13; color: inherit; border: 1px solid var(--line); border-radius: 6px; padding: 10px; box-sizing: border-box;"></textarea>
+      <div id="asm-status" style="font-family: monospace; font-size: 12px; margin-top: 6px;">-</div>
     </div>
   </main>
 
