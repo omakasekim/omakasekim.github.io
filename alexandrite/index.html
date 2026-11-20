@@ -24,9 +24,9 @@
       </div>
       <div class="row">
         <input type="text" id="pattern-input" value="\d\d\d-\d\d-\d\d\d\d" placeholder="Enter regex pattern...">
-        <button class="btn-outline" onclick="setPreset('\\d\\d\\d-\\d\\d-\\d\\d\\d\\d', 'Audit log: SSN 123-45-6789 verified')">SSN PII</button>
-        <button class="btn-outline" onclick="setPreset('GET|POST|DELETE|PATCH', 'POST')">HTTP Methods</button>
-        <button class="btn-outline" onclick="setPreset('[a-zA-Z_][a-zA-Z0-9_]*', 'user_token_99')">Identifier</button>
+        <button class="btn-outline" data-call="setPreset" data-args='["\\d\\d\\d-\\d\\d-\\d\\d\\d\\d", "Audit log: SSN 123-45-6789 verified"]'>SSN PII</button>
+        <button class="btn-outline" data-call="setPreset" data-args='["GET|POST|DELETE|PATCH", "POST"]'>HTTP Methods</button>
+        <button class="btn-outline" data-call="setPreset" data-args='["[a-zA-Z_][a-zA-Z0-9_]*", "user_token_99"]'>Identifier</button>
       </div>
 
       <div class="metric-grid">

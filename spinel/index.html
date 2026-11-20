@@ -35,14 +35,14 @@
       </div>
 
       <div class="presets">
-        <span class="preset-chip" onclick="loadSample('elf')">Sample ELF Header</span>
-        <span class="preset-chip" onclick="loadSample('packed')">Packed / Obfuscated Shellcode</span>
-        <span class="preset-chip" onclick="loadSample('text')">Plain Text / Zero Entropy</span>
-        <span class="preset-chip" onclick="loadSample('mixed')">Multi-Section Mixed Binary</span>
+        <span class="preset-chip" data-call="loadSample" data-args='["elf"]'>Sample ELF Header</span>
+        <span class="preset-chip" data-call="loadSample" data-args='["packed"]'>Packed / Obfuscated Shellcode</span>
+        <span class="preset-chip" data-call="loadSample" data-args='["text"]'>Plain Text / Zero Entropy</span>
+        <span class="preset-chip" data-call="loadSample" data-args='["mixed"]'>Multi-Section Mixed Binary</span>
       </div>
 
       <div class="row" style="margin-top: 14px;">
-        <input type="file" id="file-input" onchange="handleFileUpload(event)" style="flex: 1;">
+        <input type="file" id="file-input" data-call="handleFileUpload" data-args='["$event"]' data-event="change" style="flex: 1;">
       </div>
 
       <div class="metric-grid">

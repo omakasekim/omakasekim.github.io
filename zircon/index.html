@@ -44,16 +44,16 @@
         <div id="wasm-status" class="status-pill">Loading WebAssembly...</div>
       </div>
       <div class="row">
-        <button id="btn-step" onclick="stepForward()">Step Forward &rarr;</button>
-        <button id="btn-step-back" class="btn-outline" onclick="stepBack()">&larr; Step Back</button>
-        <button id="btn-run" class="btn-outline" onclick="toggleRun()">Auto Run</button>
-        <button id="btn-reset" class="btn-outline" onclick="resetCPU()">Reset CPU</button>
+        <button id="btn-step" data-call="stepForward">Step Forward &rarr;</button>
+        <button id="btn-step-back" class="btn-outline" data-call="stepBack">&larr; Step Back</button>
+        <button id="btn-run" class="btn-outline" data-call="toggleRun">Auto Run</button>
+        <button id="btn-reset" class="btn-outline" data-call="resetCPU">Reset CPU</button>
       </div>
 
       <div class="presets">
-        <span class="preset-chip" onclick="loadProgram('fib')">Fibonacci (x10 = 55)</span>
-        <span class="preset-chip" onclick="loadProgram('sum')">Sum 1..10 (x10 = 55)</span>
-        <span class="preset-chip" onclick="loadProgram('mem')">RAM Store / Load</span>
+        <span class="preset-chip" data-call="loadProgram" data-args='["fib"]'>Fibonacci (x10 = 55)</span>
+        <span class="preset-chip" data-call="loadProgram" data-args='["sum"]'>Sum 1..10 (x10 = 55)</span>
+        <span class="preset-chip" data-call="loadProgram" data-args='["mem"]'>RAM Store / Load</span>
       </div>
 
       <div class="metric-grid">

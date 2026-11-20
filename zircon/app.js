@@ -164,3 +164,13 @@ function toggleRun() {
 }
 
 window.addEventListener("DOMContentLoaded", init);
+
+// Bind controls here: the page CSP (script-src 'self') blocks inline event handlers.
+document.querySelectorAll("[data-call]").forEach((el) => {
+  el.addEventListener(el.dataset.event || "click", (e) => {
+    const fn = window[el.dataset.call];
+    if (typeof fn !== "function") return;
+    const args = JSON.parse(el.dataset.args || "[]").map((a) => (a === "$event" ? e : a));
+    fn(...args);
+  });
+});

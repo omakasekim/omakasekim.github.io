@@ -95,28 +95,28 @@
       </div>
 
       <div class="row">
-        <button id="btn-audio" onclick="toggleAudio()">Enable WebAudio Output</button>
-        <button class="btn-outline" onclick="setPreset('lead')">Preset: 80s Synth Lead</button>
-        <button class="btn-outline" onclick="setPreset('bass')">Preset: Acid Bass</button>
-        <button class="btn-outline" onclick="setPreset('bell')">Preset: FM Crystal Bell</button>
+        <button id="btn-audio" data-call="toggleAudio">Enable WebAudio Output</button>
+        <button class="btn-outline" data-call="setPreset" data-args='["lead"]'>Preset: 80s Synth Lead</button>
+        <button class="btn-outline" data-call="setPreset" data-args='["bass"]'>Preset: Acid Bass</button>
+        <button class="btn-outline" data-call="setPreset" data-args='["bell"]'>Preset: FM Crystal Bell</button>
       </div>
 
       <div class="knob-grid">
         <div class="knob-control">
           <label><span>Filter Cutoff</span><span id="txt-cutoff">1200 Hz</span></label>
-          <input type="range" id="param-cutoff" min="100" max="8000" value="1200" oninput="updateParam(4, this.value); document.getElementById('txt-cutoff').textContent = this.value + ' Hz';">
+          <input type="range" id="param-cutoff" min="100" max="8000" value="1200" data-param="4" data-label="txt-cutoff" data-fmt="hz">
         </div>
         <div class="knob-control">
           <label><span>Resonance (Q)</span><span id="txt-q">2.5</span></label>
-          <input type="range" id="param-q" min="0.5" max="8.0" step="0.1" value="2.5" oninput="updateParam(5, this.value); document.getElementById('txt-q').textContent = this.value;">
+          <input type="range" id="param-q" min="0.5" max="8.0" step="0.1" value="2.5" data-param="5" data-label="txt-q" data-fmt="raw">
         </div>
         <div class="knob-control">
           <label><span>FM Mod Depth</span><span id="txt-fm">0.4</span></label>
-          <input type="range" id="param-fm" min="0" max="2.0" step="0.05" value="0.4" oninput="updateParam(3, this.value); document.getElementById('txt-fm').textContent = this.value;">
+          <input type="range" id="param-fm" min="0" max="2.0" step="0.05" value="0.4" data-param="3" data-label="txt-fm" data-fmt="raw">
         </div>
         <div class="knob-control">
           <label><span>Master Volume</span><span id="txt-vol">80%</span></label>
-          <input type="range" id="param-vol" min="0" max="1.0" step="0.05" value="0.8" oninput="updateParam(0, this.value); document.getElementById('txt-vol').textContent = Math.round(this.value*100) + '%';">
+          <input type="range" id="param-vol" min="0" max="1.0" step="0.05" value="0.8" data-param="0" data-label="txt-vol" data-fmt="pct">
         </div>
       </div>
 

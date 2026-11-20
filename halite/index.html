@@ -37,15 +37,15 @@
       </div>
 
       <div class="row">
-        <button id="btn-pause" onclick="togglePause()">Pause Simulation</button>
-        <button id="btn-reset" class="btn-outline" onclick="resetFluid()">Reset Grid</button>
-        <button id="btn-clear-obs" class="btn-outline" onclick="clearObstacles()">Clear Obstacles</button>
+        <button id="btn-pause" data-action="togglePause">Pause Simulation</button>
+        <button id="btn-reset" class="btn-outline" data-action="resetFluid">Reset Grid</button>
+        <button id="btn-clear-obs" class="btn-outline" data-action="clearObstacles">Clear Obstacles</button>
       </div>
 
       <div class="presets">
-        <span class="preset-chip" onclick="loadPreset('cylinder')">Von Kármán Cylinder</span>
-        <span class="preset-chip" onclick="loadPreset('airfoil')">Airfoil Wedge</span>
-        <span class="preset-chip" onclick="loadPreset('slits')">Double Slit Barrier</span>
+        <span class="preset-chip" data-preset="cylinder">Von Kármán Cylinder</span>
+        <span class="preset-chip" data-preset="airfoil">Airfoil Wedge</span>
+        <span class="preset-chip" data-preset="slits">Double Slit Barrier</span>
       </div>
 
       <div class="metric-grid">

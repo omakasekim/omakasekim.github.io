@@ -154,3 +154,12 @@ function setupCanvasEvents() {
 }
 
 window.addEventListener("DOMContentLoaded", init);
+
+// Bind controls here: the page CSP (script-src 'self') blocks inline onclick handlers.
+document.querySelectorAll("[data-action]").forEach((el) => {
+  const fn = { togglePause, resetFluid, clearObstacles }[el.dataset.action];
+  if (fn) el.addEventListener("click", fn);
+});
+document.querySelectorAll("[data-preset]").forEach((el) => {
+  el.addEventListener("click", () => loadPreset(el.dataset.preset));
+});

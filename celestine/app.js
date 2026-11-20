@@ -202,3 +202,22 @@ function renderScope() {
 }
 
 window.addEventListener("DOMContentLoaded", init);
+
+// Bind controls here: the page CSP (script-src 'self') blocks inline event handlers.
+document.querySelectorAll("[data-call]").forEach((el) => {
+  el.addEventListener(el.dataset.event || "click", (e) => {
+    const fn = window[el.dataset.call];
+    if (typeof fn !== "function") return;
+    const args = JSON.parse(el.dataset.args || "[]").map((a) => (a === "$event" ? e : a));
+    fn(...args);
+  });
+});
+document.querySelectorAll("input[data-param]").forEach((el) => {
+  el.addEventListener("input", () => {
+    updateParam(Number(el.dataset.param), el.value);
+    const label = document.getElementById(el.dataset.label);
+    if (!label) return;
+    const fmt = el.dataset.fmt;
+    label.textContent = fmt === "pct" ? Math.round(el.value * 100) + "%" : fmt === "hz" ? el.value + " Hz" : el.value;
+  });
+});
