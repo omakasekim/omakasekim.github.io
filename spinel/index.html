@@ -23,7 +23,7 @@
     <div>
       <span class="header-badge">LIVE WEBASSEMBLY WORKBENCH</span>
       <h1>Spinel Binary Entropy Scanner</h1>
-      <p>Instant binary section mapping, format detection (ELF, Mach-O, PE), and sliding-window Shannon entropy visualization running in a 1.3 KB freestanding WebAssembly engine.</p>
+      <p>Instant binary section mapping, format detection (ELF, Mach-O, PE), and sliding-window Shannon entropy visualization running in a 16 KB freestanding WebAssembly engine with ELF, PE and Mach-O section parsers and packer detection.</p>
     </div>
   </header>
 
@@ -60,7 +60,7 @@
         </div>
         <div class="metric-card">
           <div class="title">WASM Engine Size</div>
-          <div class="value" style="color: var(--accent);">1.3 KB</div>
+          <div class="value" style="color: var(--accent);">16 KB</div>
         </div>
       </div>
     </div>
@@ -71,6 +71,19 @@
         <span style="font-size: 11px; color: var(--dim);">Red line indicates high-entropy packed threshold (&gt; 7.2)</span>
       </div>
       <canvas id="entropy-canvas" width="800" height="220"></canvas>
+    </div>
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label>Section Table</label>
+        <span id="val-packer" style="font-size: 12px; color: var(--dim);">-</span>
+      </div>
+      <p style="font-size: 12px; color: var(--dim);">Upload a real ELF, PE or Mach-O binary to list its sections with per-section entropy. The samples above are synthetic byte patterns without section tables.</p>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; font-size: 12px; font-family: monospace; border-collapse: collapse;">
+          <thead><tr><th align="left">Section</th><th align="left">Offset</th><th align="left">Size</th><th align="left">Entropy</th><th align="left">Flags</th></tr></thead>
+          <tbody id="sections-body"></tbody>
+        </table>
+      </div>
     </div>
   </main>
 

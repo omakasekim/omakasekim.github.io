@@ -27,13 +27,19 @@ async function init() {
 function analyzeBuffer(u8arr) {
   if (!wasmInstance) return;
 
-  // Allocate memory inside WASM linear memory
-  // Place input at offset 1024
-  const inOffset = 1024;
+  const ex = wasmInstance.exports;
   const inLen = u8arr.length;
-
-  // Ensure wasm memory capacity
-  const mem = new Uint8Array(wasmInstance.exports.memory.buffer);
+  const outCap = 512;
+  const SECTION_CAP = 64;
+  // spinel_buffer returns a scratch area above the stack and static data and
+  // grows memory as needed, so large uploads never overwrite the stack.
+  const scratch = 64 + outCap * 8 + 48 + SECTION_CAP * 64;
+  const inOffset = ex.spinel_buffer(inLen + scratch);
+  if (!inOffset) {
+    document.getElementById("wasm-status").textContent = "File too large for WASM memory";
+    return;
+  }
+  const mem = new Uint8Array(ex.memory.buffer);
   mem.set(u8arr, inOffset);
 
   // 1. Overall Entropy
@@ -60,8 +66,7 @@ function analyzeBuffer(u8arr) {
   // 4. Sliding Window Entropy Calculation
   const winSize = Math.max(16, Math.floor(inLen / 50));
   const step = Math.max(4, Math.floor(winSize / 4));
-  const outCap = 512;
-  const outOffset = inOffset + inLen + 64;
+  const outOffset = (inOffset + inLen + 64 + 7) & ~7;
 
   const count = wasmInstance.exports.spinel_sliding_window(
     inOffset, inLen, winSize, step, outOffset, outCap
@@ -69,6 +74,59 @@ function analyzeBuffer(u8arr) {
 
   const f64View = new Float64Array(wasmInstance.exports.memory.buffer, outOffset, count);
   drawGraph(Array.from(f64View));
+
+  // 5. Section table and packer verdict (0.2.0 exports)
+  const recOffset = outOffset + outCap * 8;
+  const secOffset = recOffset + 48;
+  renderSections(ex, inOffset, inLen, recOffset, secOffset, SECTION_CAP);
+}
+
+const PACKERS = ["none", "UPX", "ASPack", "MPRESS", "Petite", "Themida", "VMProtect", "Enigma", "NsPack", "high-entropy code"];
+const INSPECT_ERRORS = { "-1": "truncated", "-2": "malformed", "-3": "no such slice", "-4": "out of range" };
+
+function renderSections(ex, inOffset, inLen, recOffset, secOffset, cap) {
+  const body = document.getElementById("sections-body");
+  const verdict = document.getElementById("val-packer");
+  body.textContent = "";
+  const rc = ex.spinel_inspect(inOffset, inLen, 0, recOffset);
+  if (rc !== 0) {
+    verdict.textContent = "No section table (" + (INSPECT_ERRORS[rc] || rc) + ")";
+    return;
+  }
+  const rec = new DataView(ex.memory.buffer, recOffset, 48);
+  if (rec.getUint32(0, true) === 0) {
+    verdict.textContent = "No section table (raw data)";
+    return;
+  }
+  const packer = rec.getUint32(20, true);
+  verdict.textContent = "Packer verdict: " + (PACKERS[packer] || "unknown");
+  const total = ex.spinel_sections(inOffset, inLen, 0, secOffset, cap);
+  if (total <= 0) return;
+  const mem = new Uint8Array(ex.memory.buffer);
+  const dec = new TextDecoder();
+  const str = (ptr, len) => dec.decode(mem.subarray(ptr, ptr + len));
+  for (let i = 0; i < Math.min(total, cap); i++) {
+    const v = new DataView(ex.memory.buffer, secOffset + i * 64, 64);
+    const off = Number(v.getBigUint64(0, true));
+    const size = Number(v.getBigUint64(8, true));
+    const ent = v.getFloat64(32, true);
+    const name = str(v.getUint32(40, true), v.getUint32(44, true));
+    const seg = str(v.getUint32(48, true), v.getUint32(52, true));
+    const flags = v.getUint32(56, true);
+    const tags = [];
+    if (flags & 1) tags.push("exec");
+    if (flags & 2) tags.push("write");
+    if (flags & 4) tags.push("packed");
+    if (flags & 8) tags.push("no file data");
+    const tr = document.createElement("tr");
+    for (const cell of [seg ? seg + "," + name : name, "0x" + off.toString(16), size.toLocaleString(), (flags & 64) ? "-" : ent.toFixed(3), tags.join(" ")]) {
+      const td = document.createElement("td");
+      td.textContent = cell;
+      tr.appendChild(td);
+    }
+    body.appendChild(tr);
+  }
+  if (total > cap) verdict.textContent += " (showing " + cap + " of " + total + " sections)";
 }
 
 function drawGraph(points) {
