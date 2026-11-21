@@ -1695,7 +1695,7 @@ async function fetchLiveCveFeed() {
   } catch {}
 
   try {
-    const res = await fetch('https://api.github.com/advisories?per_page=6&severity=critical,high');
+    const res = await fetch('https://api.github.com/advisories?per_page=6&severity=critical');
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
