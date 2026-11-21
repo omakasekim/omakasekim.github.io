@@ -4,15 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self';">
-  <title>Alexandrite: Deterministic DFA Regex & Lexer Workbench</title>
+  <title>Alexandrite v0.2.0: Deterministic DFA Regex &amp; Lexer Workbench</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <div>
-      <span class="header-badge">LIVE WEBASSEMBLY WORKBENCH</span>
+      <span class="header-badge">LIVE WEBASSEMBLY WORKBENCH (v0.2.0)</span>
       <h1>Alexandrite DFA Engine</h1>
-      <p>Interactive compile-time and runtime Deterministic Finite Automata (DFA) regular expression matcher running freestanding WebAssembly directly in your browser with guaranteed O(n) execution and zero backtracking.</p>
+      <p>Interactive compile-time and runtime Deterministic Finite Automata (DFA) regular expression matcher with Hopcroft state minimization, byte equivalence classes, bounded repetitions, and multi-span scanning running freestanding WebAssembly directly in your browser with guaranteed O(n) execution and zero backtracking.</p>
     </div>
   </header>
 
@@ -23,10 +23,23 @@
         <div id="wasm-status" class="status-pill">Loading WebAssembly...</div>
       </div>
       <div class="row">
-        <input type="text" id="pattern-input" value="\d\d\d-\d\d-\d\d\d\d" placeholder="Enter regex pattern...">
-        <button class="btn-outline" data-call="setPreset" data-args='["\\d\\d\\d-\\d\\d-\\d\\d\\d\\d", "Audit log: SSN 123-45-6789 verified"]'>SSN PII</button>
-        <button class="btn-outline" data-call="setPreset" data-args='["GET|POST|DELETE|PATCH", "POST"]'>HTTP Methods</button>
-        <button class="btn-outline" data-call="setPreset" data-args='["[a-zA-Z_][a-zA-Z0-9_]*", "user_token_99"]'>Identifier</button>
+        <input type="text" id="pattern-input" value="\d{3}-\d{2}-\d{4}" placeholder="Enter regex pattern...">
+        <button class="btn-outline" data-call="setPreset" data-args='["\\d{3}-\\d{2}-\\d{4}", "Audit log: SSN 123-45-6789 and backup SSN 987-65-4321 verified"]'>SSN PII ({m,n})</button>
+        <button class="btn-outline" data-call="setPreset" data-args='["GET|POST|DELETE|PATCH", "POST /api/v1/tokens and GET /healthz"]'>HTTP Methods</button>
+        <button class="btn-outline" data-call="setPreset" data-args='["0x[0-9a-fA-F]{2,8}", "Registers: RAX=0xdeadbeef RBX=0x42 RCX=0x00ff11"]'>Hex Literals</button>
+        <button class="btn-outline" data-call="setPreset" data-args='["[a-zA-Z_][a-zA-Z0-9_]{2,15}", "user_token_99 = auth_session_01"]'>Identifiers</button>
+      </div>
+
+      <div class="row" style="margin-top: 10px; gap: 16px; font-size: 13px; color: var(--dim);">
+        <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="flag-ci"> Case-insensitive ((?i))
+        </label>
+        <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="flag-dotall"> Dot matches newline ((?s))
+        </label>
+        <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="flag-minimize" checked> Hopcroft DFA Minimization
+        </label>
       </div>
 
       <div class="metric-grid">
@@ -35,16 +48,16 @@
           <div class="value" id="metric-states">-</div>
         </div>
         <div class="metric-card">
+          <div class="title">Equivalence Classes</div>
+          <div class="value" id="metric-equiv">-</div>
+        </div>
+        <div class="metric-card">
+          <div class="title">Language Cardinality</div>
+          <div class="value" id="metric-language">-</div>
+        </div>
+        <div class="metric-card">
           <div class="title">WASM Compile Latency</div>
           <div class="value" id="metric-compile-time">-</div>
-        </div>
-        <div class="metric-card">
-          <div class="title">Backtracking Steps</div>
-          <div class="value" id="metric-backtracking">0 (Guaranteed)</div>
-        </div>
-        <div class="metric-card">
-          <div class="title">Execution Mode</div>
-          <div class="value" style="color: var(--accent);">wasm32-freestanding</div>
         </div>
       </div>
     </div>
@@ -54,27 +67,35 @@
         <label for="sample-input">Test Input String / Stream Buffer</label>
         <div id="match-result" class="status-pill">Evaluating...</div>
       </div>
-      <textarea id="sample-input">Audit record login event: customer SSN 123-45-6789 authenticated from 192.168.1.1</textarea>
+      <textarea id="sample-input">Audit record login event: customer SSN 123-45-6789 and secondary SSN 987-65-4321 authenticated from 192.168.1.1</textarea>
 
       <div class="metric-grid">
         <div class="metric-card">
-          <div class="title">Match Time</div>
+          <div class="title">Scan Latency</div>
           <div class="value" id="metric-match-time">-</div>
         </div>
         <div class="metric-card">
-          <div class="title">Matched Substring Span</div>
+          <div class="title">First Match Span</div>
           <div class="value" id="metric-span">-</div>
+        </div>
+        <div class="metric-card">
+          <div class="title">Total Matches Found</div>
+          <div class="value" id="metric-scan-count">-</div>
+        </div>
+        <div class="metric-card">
+          <div class="title">Backtracking Steps</div>
+          <div class="value" id="metric-backtracking">0 (Guaranteed O(n))</div>
         </div>
       </div>
 
       <div style="margin-top: 16px;">
-        <label>Highlighted Search Extraction</label>
+        <label>Multi-Span Highlighted Stream Extraction</label>
         <div id="span-preview" style="background: #090d13; border: 1px solid var(--line); border-radius: 6px; padding: 12px; margin-top: 6px; font-family: ui-monospace, monospace; white-space: pre-wrap;">-</div>
       </div>
     </div>
 
     <div class="card">
-      <label>DFA State Transition Table (Sample Sample Matrix)</label>
+      <label>DFA State Transition Table (Active Byte Transitions)</label>
       <table>
         <thead>
           <tr>
@@ -90,7 +111,7 @@
     </div>
 
     <div style="text-align: center; margin-top: 24px;">
-      <a href="../" style="color: var(--dim); text-decoration: none; font-size: 13px;">&larr; Back to Aether Systems & Research Lab Portal</a>
+      <a href="../" style="color: var(--dim); text-decoration: none; font-size: 13px;">&larr; Back to Aether Systems &amp; Research Lab Portal</a>
     </div>
   </main>
 

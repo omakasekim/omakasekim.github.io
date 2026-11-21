@@ -1,1 +1,204 @@
-const A="The model needs these lines. Banks, insurers and many service firms do not report them all.";function g(n,e,t,l,a,c,i){return{id:n,layer:e,title:t,status:l,detail:a,value:i,evidence:[c]}}function b(n,e){return e.filter(t=>n[t]===void 0)}function u(n,e=3){return Number(n.toFixed(e))}function y(n){return`KRW ${(n/1e9).toLocaleString("en-US",{minimumFractionDigits:1,maximumFractionDigits:1})} bn`}export function integrityChecks(n){const e=n.unit*2,{current:t,prior:l}=n,a=[],c=(s,o,r,f)=>{if(r.left===void 0||r.right.some(h=>h===void 0)){a.push(g(s,"integrity",o,"unavailable",`Needs ${f}, and the source did not give every figure.`,n.evidence));return}const d=r.left-r.right.reduce((h,m)=>h+m,0),v=Math.abs(d)<=e;a.push(g(s,"integrity",o,v?"pass":"flag",v?`${f} holds within rounding.`:`${f} is off by ${y(d)}.`,n.evidence,d))};c("integrity.balance","Assets equal liabilities plus equity",{left:t.totalAssets,right:[t.totalLiabilities,t.totalEquity]},"assets = liabilities + equity"),c("integrity.balance-prior","Prior year balances too",{left:l.totalAssets,right:[l.totalLiabilities,l.totalEquity]},"prior-year assets = liabilities + equity");const i=(s,o,r,f)=>s===void 0||o===void 0||r===void 0||!f?0:Math.abs(s-o-r)>e&&Math.abs(s-o-r-f)<=e?f:0;if(c("integrity.assets-split","Current and non-current assets add up",{left:t.totalAssets,right:[t.currentAssets,t.nonCurrentAssets,i(t.totalAssets,t.currentAssets,t.nonCurrentAssets,t.assetsHeldForSale)]},"assets = current + non-current"),c("integrity.liabilities-split","Current and non-current liabilities add up",{left:t.totalLiabilities,right:[t.currentLiabilities,t.nonCurrentLiabilities,i(t.totalLiabilities,t.currentLiabilities,t.nonCurrentLiabilities,t.liabilitiesHeldForSale)]},"liabilities = current + non-current"),t.costOfSales!==void 0&&c("integrity.gross-profit","Gross profit follows from revenue and cost of sales",{left:t.grossProfit,right:[t.revenue,t.costOfSales===void 0?void 0:-t.costOfSales]},"gross profit = revenue - cost of sales"),t.cash!==void 0&&l.cash!==void 0&&t.cfo!==void 0&&t.cfi!==void 0&&t.cff!==void 0){const s=t.cash-l.cash,o=t.cfo+t.cfi+t.cff;if(t.fxEffect!==void 0){const r=s-o-t.fxEffect-(t.cashOther??0),f=Math.abs(r)<=e*2;a.push(g("integrity.cash-roll","integrity","Cash flows explain the change in cash",f?"pass":"flag",f?"Opening cash plus the three cash flows, FX and any filed reclassification equals closing cash.":`Cash does not roll forward, off by ${y(r)}.`,n.evidence,r))}else a.push(g("integrity.cash-roll","integrity","Cash flows explain the change in cash","info",`The source gives no FX line. Cash moved ${y(s)} against flows of ${y(o)}, leaving ${y(s-o)} for FX and other items.`,n.evidence,s-o))}else a.push(g("integrity.cash-roll","integrity","Cash flows explain the change in cash","unavailable","Needs cash in both years and all three cash flow totals.",n.evidence));return a}export function beneish(n){const{current:e,prior:t}=n,l="Beneish M-score",a=["tradeReceivables","revenue","grossProfit","currentAssets","ppe","totalAssets","sga","totalLiabilities","netIncome","cfo"],c=[...new Set([...b(e,a),...b(t,a)])];if(c.length)return g("quality.beneish","earnings-quality",l,"unavailable",`Missing ${c.join(", ")}. ${A}`,n.evidence);const i=e.tradeReceivables/e.revenue/(t.tradeReceivables/t.revenue),s=t.grossProfit/t.revenue/(e.grossProfit/e.revenue),o=p=>1-(p.currentAssets+p.ppe)/p.totalAssets,r=o(e)/o(t),f=e.revenue/t.revenue,d=e.depreciation!==void 0&&t.depreciation!==void 0,v=p=>p.depreciation/(p.depreciation+p.ppe),h=d?v(t)/v(e):1,m=e.sga/e.revenue/(t.sga/t.revenue),w=e.totalLiabilities/e.totalAssets/(t.totalLiabilities/t.totalAssets),$=(e.netIncome-e.cfo)/e.totalAssets,q=-4.84+.92*i+.528*s+.404*r+.892*f+.115*h-.172*m+4.679*$-.327*w,L=q>-1.78?"flag":q>-2.22?"watch":"pass",I=`DSRI ${u(i)}, GMI ${u(s)}, AQI ${u(r)}, SGI ${u(f)}, DEPI ${d?u(h):"neutral (no depreciation figure)"}, SGAI ${u(m)}, TATA ${u($)}, LVGI ${u(w)}`;return g("quality.beneish","earnings-quality",l,L,`M = ${u(q)}. Above -1.78 flags, -2.22 to -1.78 is a watch. ${I}. Fast growth alone can raise this score, and it was calibrated on US firms.`,n.evidence,u(q))}export function altman(n){const e=n.current,l=b(e,["currentAssets","currentLiabilities","totalAssets","retainedEarnings","operatingIncome","totalEquity","totalLiabilities"]),a="Altman Z'' distress score";if(l.length)return g("quality.altman","earnings-quality",a,"unavailable",`Missing ${l.join(", ")}. ${A}`,n.evidence);const c=e.totalAssets,i=6.56*((e.currentAssets-e.currentLiabilities)/c)+3.26*(e.retainedEarnings/c)+6.72*(e.operatingIncome/c)+1.05*(e.totalEquity/e.totalLiabilities),s=i<1.1?"flag":i<2.6?"watch":"pass",o=i<1.1?"distress":i<2.6?"grey":"safe";return g("quality.altman","earnings-quality",a,s,`Z'' = ${u(i,2)}, ${o} zone. Below 1.1 is distress, above 2.6 is safe.`,n.evidence,u(i,2))}export function piotroski(n){const{current:e,prior:t}=n,l="Piotroski F-score",a=["netIncome","totalAssets","cfo","nonCurrentLiabilities","currentAssets","currentLiabilities","grossProfit","revenue"],c=[...new Set([...b(e,a),...b(t,a).filter(d=>d!=="cfo")])];if(c.length)return g("quality.piotroski","earnings-quality",l,"unavailable",`Missing ${c.join(", ")}. ${A}`,n.evidence);const i=[["positive net income",e.netIncome>0],["positive operating cash flow",e.cfo>0],["return on assets improved",e.netIncome/e.totalAssets>t.netIncome/t.totalAssets],["cash flow exceeds net income",e.cfo>e.netIncome],["long-term leverage fell",e.nonCurrentLiabilities/e.totalAssets<t.nonCurrentLiabilities/t.totalAssets],["current ratio improved",e.currentAssets/e.currentLiabilities>t.currentAssets/t.currentLiabilities],["gross margin improved",e.grossProfit/e.revenue>t.grossProfit/t.revenue],["asset turnover improved",e.revenue/e.totalAssets>t.revenue/t.totalAssets]];n.shares?.current!==void 0&&n.shares.prior!==void 0&&i.push(["no new shares issued",n.shares.current<=n.shares.prior]);const s=i.filter(([,d])=>d).length,o=s/i.length,r=o<=2/9?"flag":o<=4/9?"watch":"pass",f=i.filter(([,d])=>!d).map(([d])=>d);return g("quality.piotroski","earnings-quality",l,r,`${s} of ${i.length} tests passed.${f.length?` Failed: ${f.join(", ")}.`:""}`,n.evidence,`${s}/${i.length}`)}export function earningsQuality(n){const{current:e,prior:t}=n,l=[beneish(n),altman(n),piotroski(n)],a=(i,s,o,r,f)=>{l.push(g(i,"earnings-quality",s,o,r,n.evidence,f))};if(e.netIncome!==void 0&&e.cfo!==void 0&&e.cfi!==void 0&&e.totalAssets!==void 0&&t.totalAssets!==void 0){const i=(e.netIncome-e.cfo-e.cfi)/((e.totalAssets+t.totalAssets)/2),s=Math.abs(i);a("quality.accruals","Sloan accruals ratio",s>.25?"flag":s>.1?"watch":"pass",`${(i*100).toFixed(1)}% of average assets. Rule of thumb: within 10% is normal, beyond 25% needs explaining. Heavy investment pushes this up, so read it alongside capex.`,u(i))}if(e.netIncome!==void 0&&e.cfo!==void 0)if(e.netIncome>0){const i=e.cfo/e.netIncome;a("quality.cash-conversion","Profit turning into cash",e.cfo<0?"flag":i<.5?"watch":"pass",`Operating cash flow is ${i.toFixed(2)} times net income.`,u(i,2))}else a("quality.cash-conversion","Profit turning into cash",e.cfo<0?"flag":"watch",e.cfo<0?"Both net income and operating cash flow are negative.":"Net loss, with positive operating cash flow.");const c=(i,s,o)=>{if(e[o]===void 0||t[o]===void 0||!t[o]||!t.revenue||e.revenue===void 0)return;const r=e[o]/t[o]-e.revenue/t.revenue;a(i,s,r>.5?"flag":r>.2?"watch":"pass",`Grew ${(r*100).toFixed(1)} points faster than revenue.`,u(r))};if(c("quality.receivables","Receivables against revenue growth","tradeReceivables"),c("quality.inventory","Inventory against revenue growth","inventories"),e.totalEquity!==void 0&&e.totalLiabilities!==void 0)if(e.totalEquity<=0)a("solvency.equity","Liabilities against equity","flag","Equity is zero or negative.");else{const i=e.totalLiabilities/e.totalEquity;a("solvency.equity","Liabilities against equity",i>4?"flag":i>2?"watch":"pass",`Liabilities are ${(i*100).toFixed(0)}% of equity. Normal levels differ a lot between sectors.`,u(i,2))}if(e.currentAssets!==void 0&&e.currentLiabilities){const i=e.currentAssets/e.currentLiabilities;a("solvency.current","Current ratio",i<1?"watch":"pass",`Current assets are ${i.toFixed(2)} times current liabilities.`,u(i,2))}if(e.intangibles!==void 0&&e.totalEquity&&e.totalEquity>0){const i=e.intangibles/e.totalEquity;a("solvency.intangibles","Intangibles against equity",i>1?"flag":i>.5?"watch":"pass",`Intangible assets are ${(i*100).toFixed(1)}% of equity.`,u(i,3))}if(e.ppe!==void 0&&t.ppe!==void 0&&e.capex!==void 0&&e.depreciation!==void 0){const s=(e.ppe-(t.ppe+e.capex-e.depreciation))/e.ppe;a("quality.ppe-roll","Investment explains the change in PP&E",Math.abs(s)>.1?"watch":"pass",`Opening PP&E plus capex minus depreciation misses closing PP&E by ${(s*100).toFixed(1)}%. Acquisitions, FX and disposals can explain a gap.`,u(s))}return l}
+const FINANCIAL_SECTOR_NOTE = 'The model needs these lines. Banks, insurers and many service firms do not report them all.';
+function finding(id, layer, title, status, detail, evidence, value) {
+    return { id, layer, title, status, detail, value, evidence: [evidence] };
+}
+function missing(period, lines) {
+    return lines.filter((line) => period[line] === undefined);
+}
+function round(n, digits = 3) {
+    return Number(n.toFixed(digits));
+}
+function won(n) {
+    return `KRW ${(n / 1e9).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} bn`;
+}
+/** Arithmetic that has to hold in any correctly reported statement. */
+export function integrityChecks(s) {
+    const tolerance = s.unit * 2;
+    const { current: c, prior: p } = s;
+    const out = [];
+    const identity = (id, title, parts, description) => {
+        if (parts.left === undefined || parts.right.some((v) => v === undefined)) {
+            out.push(finding(id, 'integrity', title, 'unavailable', `Needs ${description}, and the source did not give every figure.`, s.evidence));
+            return;
+        }
+        const gap = parts.left - parts.right.reduce((sum, v) => sum + v, 0);
+        const ok = Math.abs(gap) <= tolerance;
+        out.push(finding(id, 'integrity', title, ok ? 'pass' : 'flag', ok ? `${description} holds within rounding.` : `${description} is off by ${won(gap)}.`, s.evidence, gap));
+    };
+    identity('integrity.balance', 'Assets equal liabilities plus equity', { left: c.totalAssets, right: [c.totalLiabilities, c.totalEquity] }, 'assets = liabilities + equity');
+    identity('integrity.balance-prior', 'Prior year balances too', { left: p.totalAssets, right: [p.totalLiabilities, p.totalEquity] }, 'prior-year assets = liabilities + equity');
+    // Most filers include held-for-sale items in current items and a few list them apart, so a split
+    // holds if it adds up either way.
+    const split = (total, current, nonCurrent, held) => {
+        if (total === undefined || current === undefined || nonCurrent === undefined || !held)
+            return 0;
+        return Math.abs(total - current - nonCurrent) > tolerance && Math.abs(total - current - nonCurrent - held) <= tolerance ? held : 0;
+    };
+    identity('integrity.assets-split', 'Current and non-current assets add up', { left: c.totalAssets, right: [c.currentAssets, c.nonCurrentAssets, split(c.totalAssets, c.currentAssets, c.nonCurrentAssets, c.assetsHeldForSale)] }, 'assets = current + non-current');
+    identity('integrity.liabilities-split', 'Current and non-current liabilities add up', { left: c.totalLiabilities, right: [c.currentLiabilities, c.nonCurrentLiabilities, split(c.totalLiabilities, c.currentLiabilities, c.nonCurrentLiabilities, c.liabilitiesHeldForSale)] }, 'liabilities = current + non-current');
+    if (c.costOfSales !== undefined) {
+        identity('integrity.gross-profit', 'Gross profit follows from revenue and cost of sales', { left: c.grossProfit, right: [c.revenue, c.costOfSales === undefined ? undefined : -c.costOfSales] }, 'gross profit = revenue - cost of sales');
+    }
+    if (c.cash !== undefined && p.cash !== undefined && c.cfo !== undefined && c.cfi !== undefined && c.cff !== undefined) {
+        const movement = c.cash - p.cash;
+        const flows = c.cfo + c.cfi + c.cff;
+        if (c.fxEffect !== undefined) {
+            const gap = movement - flows - c.fxEffect - (c.cashOther ?? 0);
+            const ok = Math.abs(gap) <= tolerance * 2;
+            out.push(finding('integrity.cash-roll', 'integrity', 'Cash flows explain the change in cash', ok ? 'pass' : 'flag', ok ? 'Opening cash plus the three cash flows, FX and any filed reclassification equals closing cash.' : `Cash does not roll forward, off by ${won(gap)}.`, s.evidence, gap));
+        }
+        else {
+            out.push(finding('integrity.cash-roll', 'integrity', 'Cash flows explain the change in cash', 'info', `The source gives no FX line. Cash moved ${won(movement)} against flows of ${won(flows)}, leaving ${won(movement - flows)} for FX and other items.`, s.evidence, movement - flows));
+        }
+    }
+    else {
+        out.push(finding('integrity.cash-roll', 'integrity', 'Cash flows explain the change in cash', 'unavailable', 'Needs cash in both years and all three cash flow totals.', s.evidence));
+    }
+    return out;
+}
+/** Beneish (1999), eight variables. TATA uses the cash flow form, (net income - CFO) / assets. */
+export function beneish(s) {
+    const { current: c, prior: p } = s;
+    const title = 'Beneish M-score';
+    const need = ['tradeReceivables', 'revenue', 'grossProfit', 'currentAssets', 'ppe', 'totalAssets', 'sga', 'totalLiabilities', 'netIncome', 'cfo'];
+    const gaps = [...new Set([...missing(c, need), ...missing(p, need)])];
+    if (gaps.length)
+        return finding('quality.beneish', 'earnings-quality', title, 'unavailable', `Missing ${gaps.join(', ')}. ${FINANCIAL_SECTOR_NOTE}`, s.evidence);
+    const dsri = (c.tradeReceivables / c.revenue) / (p.tradeReceivables / p.revenue);
+    const gmi = (p.grossProfit / p.revenue) / (c.grossProfit / c.revenue);
+    const quality = (x) => 1 - (x.currentAssets + x.ppe) / x.totalAssets;
+    const aqi = quality(c) / quality(p);
+    const sgi = c.revenue / p.revenue;
+    const hasDepreciation = c.depreciation !== undefined && p.depreciation !== undefined;
+    const rate = (x) => x.depreciation / (x.depreciation + x.ppe);
+    const depiRaw = hasDepreciation ? rate(p) / rate(c) : 1;
+    const useDepi = hasDepreciation && Number.isFinite(depiRaw);
+    const depi = useDepi ? depiRaw : 1;
+    const sgai = (c.sga / c.revenue) / (p.sga / p.revenue);
+    const lvgi = (c.totalLiabilities / c.totalAssets) / (p.totalLiabilities / p.totalAssets);
+    const tata = (c.netIncome - c.cfo) / c.totalAssets;
+    const m = -4.84 + 0.92 * dsri + 0.528 * gmi + 0.404 * aqi + 0.892 * sgi + 0.115 * depi - 0.172 * sgai + 4.679 * tata - 0.327 * lvgi;
+    if (![dsri, gmi, aqi, sgi, depi, sgai, lvgi, tata, m].every(Number.isFinite)) {
+        return finding('quality.beneish', 'earnings-quality', title, 'unavailable', 'One or more required denominators is zero, so the M-score ratios are undefined.', s.evidence);
+    }
+    const status = m > -1.78 ? 'flag' : m > -2.22 ? 'watch' : 'pass';
+    const parts = `DSRI ${round(dsri)}, GMI ${round(gmi)}, AQI ${round(aqi)}, SGI ${round(sgi)}, DEPI ${useDepi ? round(depi) : 'neutral (no depreciation figure)'}, SGAI ${round(sgai)}, TATA ${round(tata)}, LVGI ${round(lvgi)}`;
+    return finding('quality.beneish', 'earnings-quality', title, status, `M = ${round(m)}. Above -1.78 flags, -2.22 to -1.78 is a watch. ${parts}. Fast growth alone can raise this score, and it was calibrated on US firms.`, s.evidence, round(m));
+}
+/** Altman, Hartzell and Peck (1995) Z'' for non-manufacturing and emerging-market firms. */
+export function altman(s) {
+    const c = s.current;
+    const need = ['currentAssets', 'currentLiabilities', 'totalAssets', 'retainedEarnings', 'operatingIncome', 'totalEquity', 'totalLiabilities'];
+    const gaps = missing(c, need);
+    const title = "Altman Z'' distress score";
+    if (gaps.length)
+        return finding('quality.altman', 'earnings-quality', title, 'unavailable', `Missing ${gaps.join(', ')}. ${FINANCIAL_SECTOR_NOTE}`, s.evidence);
+    const ta = c.totalAssets;
+    const tl = c.totalLiabilities;
+    if (ta === 0 || tl === 0) {
+        return finding('quality.altman', 'earnings-quality', title, 'unavailable', 'Total assets or total liabilities is zero, so the Z\'\' ratios are undefined.', s.evidence);
+    }
+    const z = 6.56 * ((c.currentAssets - c.currentLiabilities) / ta) + 3.26 * (c.retainedEarnings / ta) + 6.72 * (c.operatingIncome / ta) + 1.05 * (c.totalEquity / tl);
+    if (!Number.isFinite(z)) {
+        return finding('quality.altman', 'earnings-quality', title, 'unavailable', 'One or more Z\'\' ratios are undefined.', s.evidence);
+    }
+    const status = z < 1.1 ? 'flag' : z < 2.6 ? 'watch' : 'pass';
+    const zone = z < 1.1 ? 'distress' : z < 2.6 ? 'grey' : 'safe';
+    return finding('quality.altman', 'earnings-quality', title, status, `Z'' = ${round(z, 2)}, ${zone} zone. Below 1.1 is distress, above 2.6 is safe.`, s.evidence, round(z, 2));
+}
+/** Piotroski (2000). Without share counts the equity-issuance test is dropped, not assumed passed. */
+export function piotroski(s) {
+    const { current: c, prior: p } = s;
+    const title = 'Piotroski F-score';
+    const need = ['netIncome', 'totalAssets', 'cfo', 'nonCurrentLiabilities', 'currentAssets', 'currentLiabilities', 'grossProfit', 'revenue'];
+    const gaps = [...new Set([...missing(c, need), ...missing(p, need).filter((l) => l !== 'cfo')])];
+    if (gaps.length)
+        return finding('quality.piotroski', 'earnings-quality', title, 'unavailable', `Missing ${gaps.join(', ')}. ${FINANCIAL_SECTOR_NOTE}`, s.evidence);
+    if (!c.totalAssets || !p.totalAssets || !c.currentLiabilities || !p.currentLiabilities || !c.revenue || !p.revenue) {
+        return finding('quality.piotroski', 'earnings-quality', title, 'unavailable', 'A required denominator (total assets, current liabilities, or revenue) is zero, so the F-score ratios are undefined.', s.evidence);
+    }
+    const tests = [
+        ['positive net income', c.netIncome > 0],
+        ['positive operating cash flow', c.cfo > 0],
+        ['return on assets improved', c.netIncome / c.totalAssets > p.netIncome / p.totalAssets],
+        ['cash flow exceeds net income', c.cfo > c.netIncome],
+        ['long-term leverage fell', c.nonCurrentLiabilities / c.totalAssets < p.nonCurrentLiabilities / p.totalAssets],
+        ['current ratio improved', c.currentAssets / c.currentLiabilities > p.currentAssets / p.currentLiabilities],
+        ['gross margin improved', c.grossProfit / c.revenue > p.grossProfit / p.revenue],
+        ['asset turnover improved', c.revenue / c.totalAssets > p.revenue / p.totalAssets],
+    ];
+    if (s.shares?.current !== undefined && s.shares.prior !== undefined)
+        tests.push(['no new shares issued', s.shares.current <= s.shares.prior]);
+    const score = tests.filter(([, ok]) => ok).length;
+    const ratio = score / tests.length;
+    const status = ratio <= 2 / 9 ? 'flag' : ratio <= 4 / 9 ? 'watch' : 'pass';
+    const failed = tests.filter(([, ok]) => !ok).map(([name]) => name);
+    return finding('quality.piotroski', 'earnings-quality', title, status, `${score} of ${tests.length} tests passed.${failed.length ? ` Failed: ${failed.join(', ')}.` : ''}`, s.evidence, `${score}/${tests.length}`);
+}
+export function earningsQuality(s) {
+    const { current: c, prior: p } = s;
+    const out = [beneish(s), altman(s), piotroski(s)];
+    const add = (id, title, status, detail, value) => {
+        out.push(finding(id, 'earnings-quality', title, status, detail, s.evidence, value));
+    };
+    if (c.netIncome !== undefined && c.cfo !== undefined && c.cfi !== undefined && c.totalAssets !== undefined && p.totalAssets !== undefined) {
+        const avgAssets = (c.totalAssets + p.totalAssets) / 2;
+        if (avgAssets > 0) {
+            const ratio = (c.netIncome - c.cfo - c.cfi) / avgAssets;
+            const size = Math.abs(ratio);
+            add('quality.accruals', 'Sloan accruals ratio', size > 0.25 ? 'flag' : size > 0.1 ? 'watch' : 'pass', `${(ratio * 100).toFixed(1)}% of average assets. Rule of thumb: within 10% is normal, beyond 25% needs explaining. Heavy investment pushes this up, so read it alongside capex.`, round(ratio));
+        }
+        else {
+            add('quality.accruals', 'Sloan accruals ratio', 'unavailable', 'Average total assets is zero or negative, so the accruals ratio is undefined.');
+        }
+    }
+    if (c.netIncome !== undefined && c.cfo !== undefined) {
+        if (c.netIncome > 0) {
+            const conversion = c.cfo / c.netIncome;
+            add('quality.cash-conversion', 'Profit turning into cash', c.cfo < 0 ? 'flag' : conversion < 0.5 ? 'watch' : 'pass', `Operating cash flow is ${conversion.toFixed(2)} times net income.`, round(conversion, 2));
+        }
+        else {
+            add('quality.cash-conversion', 'Profit turning into cash', c.cfo < 0 ? 'flag' : 'watch', c.cfo < 0 ? 'Both net income and operating cash flow are negative.' : 'Net loss, with positive operating cash flow.');
+        }
+    }
+    const growthGap = (id, title, line) => {
+        if (c[line] === undefined || p[line] === undefined || !p[line] || !p.revenue || c.revenue === undefined)
+            return;
+        const gap = c[line] / p[line] - c.revenue / p.revenue;
+        add(id, title, gap > 0.5 ? 'flag' : gap > 0.2 ? 'watch' : 'pass', `Grew ${(gap * 100).toFixed(1)} points faster than revenue.`, round(gap));
+    };
+    growthGap('quality.receivables', 'Receivables against revenue growth', 'tradeReceivables');
+    growthGap('quality.inventory', 'Inventory against revenue growth', 'inventories');
+    if (c.totalEquity !== undefined && c.totalLiabilities !== undefined) {
+        if (c.totalEquity <= 0)
+            add('solvency.equity', 'Liabilities against equity', 'flag', 'Equity is zero or negative.');
+        else {
+            const ratio = c.totalLiabilities / c.totalEquity;
+            add('solvency.equity', 'Liabilities against equity', ratio > 4 ? 'flag' : ratio > 2 ? 'watch' : 'pass', `Liabilities are ${(ratio * 100).toFixed(0)}% of equity. Normal levels differ a lot between sectors.`, round(ratio, 2));
+        }
+    }
+    if (c.currentAssets !== undefined && c.currentLiabilities !== undefined) {
+        if (c.currentLiabilities > 0) {
+            const ratio = c.currentAssets / c.currentLiabilities;
+            add('solvency.current', 'Current ratio', ratio < 1 ? 'watch' : 'pass', `Current assets are ${ratio.toFixed(2)} times current liabilities.`, round(ratio, 2));
+        }
+        else {
+            add('solvency.current', 'Current ratio', 'unavailable', 'Current liabilities is zero or negative, so the current ratio is undefined.');
+        }
+    }
+    if (c.intangibles !== undefined && c.totalEquity && c.totalEquity > 0) {
+        const ratio = c.intangibles / c.totalEquity;
+        add('solvency.intangibles', 'Intangibles against equity', ratio > 1 ? 'flag' : ratio > 0.5 ? 'watch' : 'pass', `Intangible assets are ${(ratio * 100).toFixed(1)}% of equity.`, round(ratio, 3));
+    }
+    if (c.ppe !== undefined && p.ppe !== undefined && c.capex !== undefined && c.depreciation !== undefined) {
+        if (c.ppe > 0) {
+            const gap = c.ppe - (p.ppe + c.capex - c.depreciation);
+            const share = gap / c.ppe;
+            add('quality.ppe-roll', 'Investment explains the change in PP&E', Math.abs(share) > 0.1 ? 'watch' : 'pass', `Opening PP&E plus capex minus depreciation misses closing PP&E by ${(share * 100).toFixed(1)}%. Acquisitions, FX and disposals can explain a gap.`, round(share));
+        }
+        else {
+            add('quality.ppe-roll', 'Investment explains the change in PP&E', 'unavailable', 'Closing PP&E is zero or negative, so the roll-forward gap share is undefined.');
+        }
+    }
+    return out;
+}

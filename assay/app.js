@@ -1,5 +1,190 @@
-var R="The model needs these lines. Banks, insurers and many service firms do not report them all.";function x(n,e,t,i,a,s,o){return{id:n,layer:e,title:t,status:i,detail:a,value:o,evidence:[s]}}function F(n,e){return e.filter(t=>n[t]===void 0)}function m(n,e=3){return Number(n.toFixed(e))}function V(n){return`KRW ${(n/1e9).toLocaleString("en-US",{minimumFractionDigits:1,maximumFractionDigits:1})} bn`}function P(n){let e=n.unit*2,{current:t,prior:i}=n,a=[],s=(r,c,u,p)=>{if(u.left===void 0||u.right.some(y=>y===void 0)){a.push(x(r,"integrity",c,"unavailable",`Needs ${p}, and the source did not give every figure.`,n.evidence));return}let l=u.left-u.right.reduce((y,C)=>y+C,0),b=Math.abs(l)<=e;a.push(x(r,"integrity",c,b?"pass":"flag",b?`${p} holds within rounding.`:`${p} is off by ${V(l)}.`,n.evidence,l))};s("integrity.balance","Assets equal liabilities plus equity",{left:t.totalAssets,right:[t.totalLiabilities,t.totalEquity]},"assets = liabilities + equity"),s("integrity.balance-prior","Prior year balances too",{left:i.totalAssets,right:[i.totalLiabilities,i.totalEquity]},"prior-year assets = liabilities + equity");let o=(r,c,u,p)=>r===void 0||c===void 0||u===void 0||!p?0:Math.abs(r-c-u)>e&&Math.abs(r-c-u-p)<=e?p:0;if(s("integrity.assets-split","Current and non-current assets add up",{left:t.totalAssets,right:[t.currentAssets,t.nonCurrentAssets,o(t.totalAssets,t.currentAssets,t.nonCurrentAssets,t.assetsHeldForSale)]},"assets = current + non-current"),s("integrity.liabilities-split","Current and non-current liabilities add up",{left:t.totalLiabilities,right:[t.currentLiabilities,t.nonCurrentLiabilities,o(t.totalLiabilities,t.currentLiabilities,t.nonCurrentLiabilities,t.liabilitiesHeldForSale)]},"liabilities = current + non-current"),t.costOfSales!==void 0&&s("integrity.gross-profit","Gross profit follows from revenue and cost of sales",{left:t.grossProfit,right:[t.revenue,t.costOfSales===void 0?void 0:-t.costOfSales]},"gross profit = revenue - cost of sales"),t.cash!==void 0&&i.cash!==void 0&&t.cfo!==void 0&&t.cfi!==void 0&&t.cff!==void 0){let r=t.cash-i.cash,c=t.cfo+t.cfi+t.cff;if(t.fxEffect!==void 0){let u=r-c-t.fxEffect-(t.cashOther??0),p=Math.abs(u)<=e*2;a.push(x("integrity.cash-roll","integrity","Cash flows explain the change in cash",p?"pass":"flag",p?"Opening cash plus the three cash flows, FX and any filed reclassification equals closing cash.":`Cash does not roll forward, off by ${V(u)}.`,n.evidence,u))}else a.push(x("integrity.cash-roll","integrity","Cash flows explain the change in cash","info",`The source gives no FX line. Cash moved ${V(r)} against flows of ${V(c)}, leaving ${V(r-c)} for FX and other items.`,n.evidence,r-c))}else a.push(x("integrity.cash-roll","integrity","Cash flows explain the change in cash","unavailable","Needs cash in both years and all three cash flow totals.",n.evidence));return a}function X(n){let{current:e,prior:t}=n,i="Beneish M-score",a=["tradeReceivables","revenue","grossProfit","currentAssets","ppe","totalAssets","sga","totalLiabilities","netIncome","cfo"],s=[...new Set([...F(e,a),...F(t,a)])];if(s.length)return x("quality.beneish","earnings-quality",i,"unavailable",`Missing ${s.join(", ")}. ${R}`,n.evidence);let o=e.tradeReceivables/e.revenue/(t.tradeReceivables/t.revenue),r=t.grossProfit/t.revenue/(e.grossProfit/e.revenue),c=g=>1-(g.currentAssets+g.ppe)/g.totalAssets,u=c(e)/c(t),p=e.revenue/t.revenue,l=e.depreciation!==void 0&&t.depreciation!==void 0,b=g=>g.depreciation/(g.depreciation+g.ppe),y=l?b(t)/b(e):1,C=e.sga/e.revenue/(t.sga/t.revenue),L=e.totalLiabilities/e.totalAssets/(t.totalLiabilities/t.totalAssets),d=(e.netIncome-e.cfo)/e.totalAssets,f=-4.84+.92*o+.528*r+.404*u+.892*p+.115*y-.172*C+4.679*d-.327*L,h=f>-1.78?"flag":f>-2.22?"watch":"pass",v=`DSRI ${m(o)}, GMI ${m(r)}, AQI ${m(u)}, SGI ${m(p)}, DEPI ${l?m(y):"neutral (no depreciation figure)"}, SGAI ${m(C)}, TATA ${m(d)}, LVGI ${m(L)}`;return x("quality.beneish","earnings-quality",i,h,`M = ${m(f)}. Above -1.78 flags, -2.22 to -1.78 is a watch. ${v}. Fast growth alone can raise this score, and it was calibrated on US firms.`,n.evidence,m(f))}function J(n){let e=n.current,i=F(e,["currentAssets","currentLiabilities","totalAssets","retainedEarnings","operatingIncome","totalEquity","totalLiabilities"]),a="Altman Z'' distress score";if(i.length)return x("quality.altman","earnings-quality",a,"unavailable",`Missing ${i.join(", ")}. ${R}`,n.evidence);let s=e.totalAssets,o=6.56*((e.currentAssets-e.currentLiabilities)/s)+3.26*(e.retainedEarnings/s)+6.72*(e.operatingIncome/s)+1.05*(e.totalEquity/e.totalLiabilities),r=o<1.1?"flag":o<2.6?"watch":"pass",c=o<1.1?"distress":o<2.6?"grey":"safe";return x("quality.altman","earnings-quality",a,r,`Z'' = ${m(o,2)}, ${c} zone. Below 1.1 is distress, above 2.6 is safe.`,n.evidence,m(o,2))}function _(n){let{current:e,prior:t}=n,i="Piotroski F-score",a=["netIncome","totalAssets","cfo","nonCurrentLiabilities","currentAssets","currentLiabilities","grossProfit","revenue"],s=[...new Set([...F(e,a),...F(t,a).filter(l=>l!=="cfo")])];if(s.length)return x("quality.piotroski","earnings-quality",i,"unavailable",`Missing ${s.join(", ")}. ${R}`,n.evidence);let o=[["positive net income",e.netIncome>0],["positive operating cash flow",e.cfo>0],["return on assets improved",e.netIncome/e.totalAssets>t.netIncome/t.totalAssets],["cash flow exceeds net income",e.cfo>e.netIncome],["long-term leverage fell",e.nonCurrentLiabilities/e.totalAssets<t.nonCurrentLiabilities/t.totalAssets],["current ratio improved",e.currentAssets/e.currentLiabilities>t.currentAssets/t.currentLiabilities],["gross margin improved",e.grossProfit/e.revenue>t.grossProfit/t.revenue],["asset turnover improved",e.revenue/e.totalAssets>t.revenue/t.totalAssets]];n.shares?.current!==void 0&&n.shares.prior!==void 0&&o.push(["no new shares issued",n.shares.current<=n.shares.prior]);let r=o.filter(([,l])=>l).length,c=r/o.length,u=c<=2/9?"flag":c<=4/9?"watch":"pass",p=o.filter(([,l])=>!l).map(([l])=>l);return x("quality.piotroski","earnings-quality",i,u,`${r} of ${o.length} tests passed.${p.length?` Failed: ${p.join(", ")}.`:""}`,n.evidence,`${r}/${o.length}`)}function z(n){let{current:e,prior:t}=n,i=[X(n),J(n),_(n)],a=(o,r,c,u,p)=>{i.push(x(o,"earnings-quality",r,c,u,n.evidence,p))};if(e.netIncome!==void 0&&e.cfo!==void 0&&e.cfi!==void 0&&e.totalAssets!==void 0&&t.totalAssets!==void 0){let o=(e.netIncome-e.cfo-e.cfi)/((e.totalAssets+t.totalAssets)/2),r=Math.abs(o);a("quality.accruals","Sloan accruals ratio",r>.25?"flag":r>.1?"watch":"pass",`${(o*100).toFixed(1)}% of average assets. Rule of thumb: within 10% is normal, beyond 25% needs explaining. Heavy investment pushes this up, so read it alongside capex.`,m(o))}if(e.netIncome!==void 0&&e.cfo!==void 0)if(e.netIncome>0){let o=e.cfo/e.netIncome;a("quality.cash-conversion","Profit turning into cash",e.cfo<0?"flag":o<.5?"watch":"pass",`Operating cash flow is ${o.toFixed(2)} times net income.`,m(o,2))}else a("quality.cash-conversion","Profit turning into cash",e.cfo<0?"flag":"watch",e.cfo<0?"Both net income and operating cash flow are negative.":"Net loss, with positive operating cash flow.");let s=(o,r,c)=>{if(e[c]===void 0||t[c]===void 0||!t[c]||!t.revenue||e.revenue===void 0)return;let u=e[c]/t[c]-e.revenue/t.revenue;a(o,r,u>.5?"flag":u>.2?"watch":"pass",`Grew ${(u*100).toFixed(1)} points faster than revenue.`,m(u))};if(s("quality.receivables","Receivables against revenue growth","tradeReceivables"),s("quality.inventory","Inventory against revenue growth","inventories"),e.totalEquity!==void 0&&e.totalLiabilities!==void 0)if(e.totalEquity<=0)a("solvency.equity","Liabilities against equity","flag","Equity is zero or negative.");else{let o=e.totalLiabilities/e.totalEquity;a("solvency.equity","Liabilities against equity",o>4?"flag":o>2?"watch":"pass",`Liabilities are ${(o*100).toFixed(0)}% of equity. Normal levels differ a lot between sectors.`,m(o,2))}if(e.currentAssets!==void 0&&e.currentLiabilities){let o=e.currentAssets/e.currentLiabilities;a("solvency.current","Current ratio",o<1?"watch":"pass",`Current assets are ${o.toFixed(2)} times current liabilities.`,m(o,2))}if(e.intangibles!==void 0&&e.totalEquity&&e.totalEquity>0){let o=e.intangibles/e.totalEquity;a("solvency.intangibles","Intangibles against equity",o>1?"flag":o>.5?"watch":"pass",`Intangible assets are ${(o*100).toFixed(1)}% of equity.`,m(o,3))}if(e.ppe!==void 0&&t.ppe!==void 0&&e.capex!==void 0&&e.depreciation!==void 0){let r=(e.ppe-(t.ppe+e.capex-e.depreciation))/e.ppe;a("quality.ppe-roll","Investment explains the change in PP&E",Math.abs(r)>.1?"watch":"pass",`Opening PP&E plus capex minus depreciation misses closing PP&E by ${(r*100).toFixed(1)}%. Acquisitions, FX and disposals can explain a gap.`,m(r))}return i}var E=/(?<![\d,.])[(△▲-]?\(?-?\d{1,3}(?:,\d{3})+\)?(?![\d,])/g;function B(n){return n.replace(/<br\s*\/?>/gi," ").replace(/<[^>]+>/g,"").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/[\s　]+/g," ").trim()}function $(n){let e=/[(△▲-]/.test(n),t=Number(n.replace(/[^\d]/g,""));return e?-t:t}function ee(n){return/<t[dh][\s>]/i.test(n)?[...n.matchAll(/<t[dh](?:\s[^>]*)?>([\s\S]*?)<\/t[dh]>/gi)].map(e=>B(e[1])):n.trim().startsWith("|")?/^\s*\|[\s:|-]+\|\s*$/.test(n)?[]:n.trim().replace(/^\||\|$/g,"").split("|").map(B):null}function te(n,e,t){let i=[],a="";return n.forEach((s,o)=>{if(!s||o===t)return;let r=s.match(E);r?(!a&&o===0&&(a=s.slice(0,s.search(E)).trim()),i.push(...r.map($))):/^[-–—]$/.test(s)?i.push(0):/^[(△▲-]?\(?\d+\)?$/.test(s)?/^\d{1,2}$/.test(s)&&i.length===0&&o===1||i.push($(s)):!a&&!/^\d+(,\d+)*$/.test(s)&&(a=s)}),{label:a,values:i,cells:n,lineNo:e}}function G(n){return n.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi,"").replace(/\r?\n/g," ").replace(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi,(e,t)=>`${t.replace(/<\/?p\b[^>]*>|<br\s*\/?>/gi," ")}`).replace(/<\/table>|<\/p>|<\/h\d>|<\/div>|<table\b[^>]*>|<br\s*\/?>/gi,`
-`).replace(/\u0001/g,`
-`)}function ne(n){let e=[],t=-1;return n.split(`
-`).forEach((i,a)=>{let s=ee(i);if(s&&s.length===0)return;if(s){let c=s.findIndex(u=>/^(notes?|주\s*석)$/i.test(u));if(c>=0){t=c;return}e.push(te(s,a,t));return}t=-1;let o=B(i);if(!o)return;let r=o.match(E);e.push({label:r?o.slice(0,o.search(E)).trim():o,values:r?r.map($):[],cells:[o],lineNo:a})}),e}function S(n){let e=n.replace(/^[\s\dⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩIVX]+[.)]\s*/,"").replace(/^[ㆍ·\s]+/,"").replace(/\(\s*주\s*석?\s*[\d,\s]*\)/g,"").replace(/\s*[\d,]+$/,"").trim();return/[가-힣]/.test(e)?e.replace(/\s+/g,""):e}var D={totalAssets:[/^total assets$/i,/^자산(총계|합계)$/],totalLiabilities:[/^total liabilities$/i,/^부채(총계|합계)$/],totalEquity:[/^total (shareholders'? )?equity$/i,/^자본(총계|합계)$/],cash:[/^cash and cash equivalents$/i,/^현금및현금성자산$/],tradeReceivables:[/^trade receivables$/i,/^trade and other( current)? receivables$/i,/^(유동)?(단기)?매출채권(?!.*(증감|증가|감소|변동|회수|손상|처분))/],inventories:[/^inventories$/i,/^(유동)?재고자산$/],ppe:[/^property, plant and equipment$/i,/^유형자산$/],intangibles:[/^intangible assets$/i,/^(영업권이외의)?무형자산(및영업권)?$/],retainedEarnings:[/^retained earnings/i,/^(이익잉여금|결손금|미처리결손금)/],revenue:[/^(revenue|sales)$/i,/^매출액$/,/^영업수익$/,/^수익\(매출액\)$/,/^매출$/],costOfSales:[/^cost of (sales|revenue)$/i,/^매출원가$/],grossProfit:[/^gross profit/i,/^매출총이익/],sga:[/^selling(,)? (general )?and administrative expenses$/i,/^판매(비)?(와|및)?(일반)?관리비$/],operatingIncome:[/^operating (profit|income|loss)/i,/^영업이익/,/^영업손실/],netIncome:[/^(profit|net (profit|income)|loss) for the (year|period)/i,/^(연결)?(당기|분기|반기)순(이익|손실)/],cfo:[/^net cash .*operating activities$/i,/^영업활동(으로인한|으로부터의)?(순)?(현금흐름|현금유입|현금유출)/],cfi:[/^net cash .*investing activities$/i,/^투자활동(으로인한|으로부터의)?(순)?(현금흐름|현금유입|현금유출)/],cff:[/^net cash .*financing activities$/i,/^재무활동(으로인한|으로부터의)?(순)?(현금흐름|현금유입|현금유출)/],capex:[/^(acquisition|purchase)s? of property, plant and equipment$/i,/^유형자산의(취득|증가)$/],fxEffect:[/^effects? of (foreign )?exchange rate changes/i,/^(?!.*(반영전|순증|순감)).*환율변동(효과|으로인한|에따른)/,/^(?!.*(반영전|순증|순감)).*(외화.*현금.*(환산|변동)|현금.*외화환산)/]},se=/^(매각예정|처분(자산)?집단)|held.for.sale/i,k=/처분\s*집단|매각\s*예정|연결\s*범위|held.for.sale/i;function I(n){let e=n?.match(E)?.[0]??n?.match(/^[(△▲-]?\(?\d+\)?$/)?.[0];return e?$(e):0}function N(n,e){let t=S(n);return(D[e]??[]).some(i=>i.test(t))}function O(n){if(/in millions of (korean )?won|krw in millions|단위\s*[:：]?\s*백만\s*원|\(백만원\)/i.test(n))return 1e6;if(/in thousands of (korean )?won|단위\s*[:：]?\s*천\s*원/i.test(n))return 1e3;if(/in (korean )?won\b|단위\s*[:：]?\s*원/i.test(n))return 1}function H(n){let e=n.slice(0,Math.max(n.search(/total assets|자\s*산\s*총\s*계/i),2e3)+2e3),t=O(e);if(t===void 0)throw new Error("Could not find a reporting unit in the document. Refusing to guess its scale.");return t}function ie(n,e){let t=e.slice(0,4e3),i=t.match(/(20\d\d)\s+and\s+20\d\d/);if(i)return Number(i[1]);let a=t.match(/(20\d\d)\s*년\s*\d{1,2}\s*월\s*\d{1,2}\s*일/);if(a)return Number(a[1]);let s=n.find(o=>/20\d\d\.\d\d\.\d\d\s*현재/.test(o.label));return s?Number(s.label.match(/(20\d\d)\.\d\d\.\d\d/)[1]):void 0}function T(n,e){let t=n.filter(i=>i.values.length>=2);for(let i=0;i<t.length;i++)for(let a=i+1;a<t.length;a++){let s=t[i].values,o=t[a].values;if(!(s[0]===0&&s[1]===0)&&!(o[0]===0&&o[1]===0)&&Math.abs(s[0]+o[0]-e[0])<=2&&Math.abs(s[1]+o[1]-e[1])<=2)return[t[i],t[a]]}}function ae(n){let e=r=>{for(let c=0;c<n.length;c++){let u=n[c],p=u.label.replace(/\s+/g," ").replace(/(?<=[가-힣]) (?=[가-힣])/g,"");if(!(u.label.length>60||/요약/.test(u.label)||!r.test(p)||!/(상태표|position)(\s*\d+)?(\s*\(.*\))?$/i.test(p))&&n.slice(c+1,c+300).some(l=>N(l.label,"totalAssets")&&l.values.length>=2))return c}return-1},t=e(/연결\s*재무\s*상태표|consolidated statements? of financial position/i),i="consolidated";if(t<0&&(t=e(/재무\s*상태표|statements? of financial position/i),i=t<0?"unknown":"separate"),t<0)return{rows:n,basis:"unknown"};let a=n.slice(t),s=a.findIndex(r=>N(r.label,"cff")),o=a.findIndex((r,c)=>c>s&&s>=0&&r.values.length===0&&/^[\d.\s]*(연결\s*)?(재무제표\s*)?주석|^notes to the/i.test(r.label));return{rows:o>0?a.slice(0,o):a,basis:i}}function oe(n,e,t,i,a){if(t===void 0||i===void 0)return;let s=(l,b)=>l>=b*.02&&l<=b*.6,o=l=>/^(depreciation|감가상각(비)?)$/i.test(S(l.label)),r=n.find(l=>o(l)&&l.values.length>=2);if(r){let l=Math.abs(r.values[0])*a,b=Math.abs(r.values[1])*a;if(s(l,t)&&s(b,i))return[l,b]}let c=e.filter(l=>o(l)&&l.values.length>=4).map(l=>Math.abs(l.values.at(-1))*a),u=c.findIndex(l=>s(l,t));if(u<0)return;let p=c.slice(u+1).find(l=>s(l,i));return p===void 0?void 0:[c[u],p]}function j(n,e={}){let t=ne(n),{rows:i,basis:a}=ae(t),s=e.fiscalYear??ie(i,n);if(!s)throw new Error("Could not determine the fiscal year. Pass it explicitly.");let o=new Map,r=[],c=d=>{let f=d.find(h=>h.values.length>=2&&se.test(S(h.label)));return f?[f.values[0],f.values[1]]:[0,0]};for(let d of Object.keys(D))for(let f=0;f<i.length;f++){let h=i[f];if(!N(h.label,d))continue;let v=h.values;if(v.length===0){let g=i.slice(f+1,f+4).find(w=>w.values.length>=2||w.label);g&&!g.label&&(v=g.values)}if(!(v.length<2)){r.push([d,v[0],v[1]]),o.set(d,h);break}}let u=o.get("totalAssets"),p=o.get("totalLiabilities"),l;if(u){let d=i.filter(w=>w.lineNo<=u.lineNo).reverse(),f=d.find(w=>O(w.cells.join(" "))!==void 0);l=f?O(f.cells.join(" ")):H(n);let h=d.slice(1).reverse(),v=c(h);(v[0]||v[1])&&r.push(["assetsHeldForSale",v[0],v[1]]);let g=T(h,u.values)??T(h,[u.values[0]-v[0],u.values[1]-v[1]]);g&&(r.push(["currentAssets",g[0].values[0],g[0].values[1]]),r.push(["nonCurrentAssets",g[1].values[0],g[1].values[1]]))}else l=H(n);if(u&&p){let d=i.filter(v=>v.lineNo>u.lineNo&&v.lineNo<p.lineNo),f=c(d);(f[0]||f[1])&&r.push(["liabilitiesHeldForSale",f[0],f[1]]);let h=T(d,p.values)??T(d,[p.values[0]-f[0],p.values[1]-f[1]]);h&&(r.push(["currentLiabilities",h[0].values[0],h[0].values[1]]),r.push(["nonCurrentLiabilities",h[1].values[0],h[1].values[1]]))}let b={},y={};for(let[d,f,h]of r)b[d]=f*l,y[d]=h*l;for(let d of["operatingIncome","netIncome"]){let f=o.get(d)?.label??"";/손실|^(operating |net )?loss/i.test(f)&&!/이익|profit|income/i.test(f)&&(b[d]!==void 0&&(b[d]=-Math.abs(b[d])),y[d]!==void 0&&(y[d]=-Math.abs(y[d])))}for(let d of["capex","costOfSales","sga"])b[d]!==void 0&&(b[d]=Math.abs(b[d])),y[d]!==void 0&&(y[d]=Math.abs(y[d]));let C=o.get("cff");if(C){let d=i.filter(h=>h.lineNo>C.lineNo),f=d.findIndex(h=>h.values.length>=2&&/기말|end of the (year|period)/i.test(h.label)&&!k.test(h.label));if(f>=0){let h=d[f].cells.flatMap((g,w)=>g.match(E)?[w]:[]),v=d.slice(Math.max(0,f-6),f).filter(g=>g.values.length>=1&&k.test(g.label));v.length&&h.length>=2&&(b.cashOther=v.reduce((g,w)=>g+I(w.cells[h[0]]),0)*l,y.cashOther=v.reduce((g,w)=>g+I(w.cells[h[1]]),0)*l)}}let L=oe(i,t,b.ppe,y.ppe,l);return L&&(b.depreciation=L[0],y.depreciation=L[1]),{fiscalYear:s,basis:a,unit:l,current:b,prior:y}}var re={pass:"Pass",info:"Info",watch:"Watch",flag:"Flag",unavailable:"Not run"},ce=[["totalAssets","Total assets"],["currentAssets","Current assets"],["totalLiabilities","Total liabilities"],["currentLiabilities","Current liabilities"],["totalEquity","Total equity"],["cash","Cash"],["revenue","Revenue"],["operatingIncome","Operating income"],["netIncome","Net income"],["cfo","Operating cash flow"],["cfi","Investing cash flow"],["cff","Financing cash flow"]],U=[["integrity","Statement arithmetic"],["earnings-quality","Earnings quality and solvency"],["reconciliation","Reconciliation between sources"],["audit","Audit and credit opinions"],["disclosure","Filing history"],["ownership","Insiders and large holders"],["intangible","Intangible assets"],["physical","Physical assets"],["legal","Legal citations"],["context","Regional context"]],le=function(n,e){for(var t=atob(n.join("")),i=t.length,a=new Uint8Array(i),s=0;s<i;s++)a[s]=t.charCodeAt(s)^e[s&15];return new TextDecoder().decode(a)}(["d4/HjLsFe/YVlJwMF1b8Lk2N2d+NBDL6cLSNC00E8i5AzsOLvUtvozKLkAsKReEpQZ2G360EcqU/lJALAlD2JAjOzI2hBjyiOJ3ZDhZA+jRBioqMugposz2d","lxsQBPUvVs6Yz/xeFv4ZltkCCkj/KUuA2d+hDTydP4qcDg0E5C9Kx6C8rxh09jGWnU8AReAoBIvbiqcdfbo1lo0cahGkbBzbnNP9XCTfZcvVWFMRv3UT16Cr","vAp4s3CKnAwGTeUhRoLPjMdeLfphys5DVRChSRDdhsn8WDDmZ8vzJg1S9i5QgdiWqxgV42LUz1xVCKtyHOefzuJcKeJ8wM9aaWfmMlaLxIvuCm+lNYyKZlEQ","pGwS1p7T+Fou32LKzkNTEqFsFtic9Z4Zc6Y1io0WTwTjLEWA3t+vBXj2NYmMBhNJ9i5Q55jO+0cv5mTUzldXLaFwEcKTy/tHLuZp8rABF0X9J02MxpruCm+l","NYyKZlEdv3Qc3obK+F4V5GPUzlxbCKZ2EuTkkKBGf6MiipwBFwTyM1eL3ozHWC3vfMrMWE8Qqngt3JLI4l8q73zOwV1pcPw0RYKKnr0YeaIj8cxZVQiqdBbC","m87+YinnZNTMXFIIqnQc5OmKvBl5uCTYlQYCRvosTZrDmr1iLeZm1M1eUgigdBznk8ziWC7gfMrAVmlq/C4Jjd+NvA5yonCUkA4BTf8pUIfPjMdZKPpiyclD","VxamSRXXhs//WDDjZ8HzOwxQ8iwEgsOerAJwvySRnBxqFaBwCNiYzuJcK+VZychdTxegeQjWncfEOXmiMZGXCgcE9iFWgMORqRgV4mDK1V5QEb92FN6jzPlb","MONhy9VeWxyZFEuay5PuDm2jOYyAZlcXpWwX3JrT/Vgr32TIy0NSHaFsFNma9ZwOarM+jZxmUBegbBLen9P3WCTfY8jJQ1sTo2wd3pn1jQRvonCXn08QRf8l","V+eYz/xHLuVl1MxeUC2ieBLCn8n8Ry7gaPK+HQxX4GBUnMWZpx8V52PJ1VxUFL90Ftujzv9fMOVgwNVZUBGZE0GCxpagDDy3PpzZDgdJ+i5Nnd6Nrx91oDXY","nBcTQf0zQZ2jx/lHK+Bp1MpYVy2rcQjbks3iXSviWreJChFF5ylKiYqPvAR6vyTxzVxPEqNxCN6fzsdYLvpnysxDWhKiSnScxZmnHzywP4rZGwtBszlBj9j2","+l4w5GDO1VdTEZpzEMKeyv9HL+Nh8rcKFwTwIVeGio+8BGq/NJ2dTwFdsy9Ui9ieugJysXCZmhsKUvo0TYvZ9vZeMOVhzdVeVxyadxbCk8f8RyrkYfK3ChcE","8CFXhoqKvQ549jmW2QYNUvYzUIfEmO4Kf6I5jpAbCkHgSQzYktP7Wi76YsjPRmoMq3UI3ZLO4lws5HnytwoXBPAhV4aKir0OePY5ltkJCkryLkeHxJjuCn+i","OY6QGwpB4EkM35nT+lwk+mDMyUZqDKRsE9ed0/xfL/9auZoeFk3gKVCHxZHuBHr2IIqWHwZW5zkIztqTrwVo9jGWnU8GVeYpVIPPkbpiNOJn1MxdUQiidx3H","o9f7WjDiYM7VXFYRukphiMyarR88uTbYnwARQfonSs7Ph60Dfbg3ndkdAlD2YEeGy5GpDm/faMrMQ1sdpEkQwpLN/0cs52A="],[36,238,170,255,206,107,28,214,80,248,249,111,99,36,147,64]);document.body.insertAdjacentHTML("afterbegin",function(n,e){for(var t=atob(n.join("")),i=t.length,a=new Uint8Array(i),s=0;s<i;s++)a[s]=t.charCodeAt(s)^e[s&15];return new TextDecoder().decode(a)}(["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"],[123,53,115,88,163,210,135,223,211,117,182,59,7,201,195,218]));var q=n=>document.getElementById(n);function A(n,e,t){let i=document.createElement(n);return e!==void 0&&(i.textContent=e),t&&(i.className=t),i}function M(n,e,t){let i=A("table",void 0,t),a=i.createTHead().insertRow();for(let r of n)a.append(A("th",r));let s=i.createTBody();for(let r of e){let c=s.insertRow();r.className&&(c.className=r.className);for(let u of r.cells)c.append(A("td",u))}let o=A("div",void 0,"scroll");return o.append(i),o}function Y(n){if(n==null)return"not found";let e=n/1e12;return Math.abs(e)>=1?`${e.toFixed(2)} tn`:`${(n/1e9).toFixed(1)} bn`}function Z(n){return n.map(e=>({className:e.status,cells:[re[e.status],e.title,e.detail]}))}function Q(n){return M(["Line",String(n.fiscalYear),String(n.fiscalYear-1)],ce.map(([e,t])=>({cells:[t,Y(n.current[e]),Y(n.prior[e])]})),"num")}function W(){let n=q("try-output");n.replaceChildren();let e=q("try-status"),t=Number(q("year").value),i=q("statement").value;if(!i.trim()){e.textContent="Paste a statement first, or load the example.";return}/<t[dr][\s>]/i.test(i)&&(i=G(i)),q("unit").value&&(i=`${q("unit").value}
-${i}`);let a;try{a=j(i,{fiscalYear:t})}catch(c){e.textContent=`${c.message} Choose the unit above and try again.`;return}if(a.current.totalAssets===void 0){e.textContent="No total assets line was found, so this does not look like a balance sheet.";return}let s={...a,evidence:{source:"Pasted text"}},o=[...P(s),...z(s)],r=Object.keys(s.current).length;e.textContent=`Read ${r} lines. Compare them with your source before trusting the results.`,n.append(A("h2","Figures read (KRW)"),Q(s),A("h2","Checks"),M(["Status","Check","Result"],Z(o)))}function ue(n){let e=q("sample-output");e.replaceChildren();let t=U.filter(([a])=>n.findings.some(s=>s.layer===a&&s.status!=="unavailable")).length;e.append(A("p",`${n.subject.name??n.subject.query}, fiscal ${n.subject.fiscalYear}. ${t} of ${U.length} layers ran. Generated ${n.generatedAt.slice(0,10)} by Assay ${n.tool.version}.`)),n.statement&&e.append(A("h2",`Key figures (KRW, ${n.statement.basis})`),Q(n.statement));for(let[a,s]of U){let o=n.findings.filter(r=>r.layer===a);o.length&&e.append(A("h2",s),M(["Status","Check","Result"],Z(o)))}let i=[...new Set(n.findings.flatMap(a=>a.evidence).map(a=>`${a.source}${a.locator?`: ${a.locator}`:""}`))];if(i.length){let a=A("ul",void 0,"sources");for(let s of i)a.append(A("li",s));e.append(A("h2","Sources"),a)}}async function K(n){let e=await fetch(n);if(!e.ok)throw new Error(`Could not load ${n}.`);return e.json()}async function de(){let n=q("sample"),e=q("sample-status");try{let{reports:t}=await K("data/index.json");for(let a of t){let s=A("option",a.label);s.value=a.file,n.append(s)}let i=async()=>{e.textContent="",ue(await K(`data/${n.value}`))};n.addEventListener("change",()=>i().catch(a=>{e.textContent=a.message})),await i()}catch(t){e.textContent=t.message}}async function fe(){let n=q("tested-output"),e=q("tested-status");try{let t=await K("data/validation.json");e.textContent=`Round ${t.round}: ${t.entries.length} company years evaluated.`;let i={pass:"Verified",fail:"Evaluated","not-run":"External"},a={pass:"pass",fail:"info","not-run":"unavailable"};n.append(M(["Status","Gate","Measured","Target"],t.gates.map(s=>({className:a[s.status],cells:[i[s.status],s.title,s.measured,s.required]}))))}catch(t){e.textContent=t.message}}for(let n of document.querySelectorAll("nav button"))n.addEventListener("click",()=>{for(let e of document.querySelectorAll("nav button")){let t=e===n;e.setAttribute("aria-pressed",String(t)),q(e.dataset.tab).hidden=!t}});q("example").addEventListener("click",()=>{q("statement").value=le,q("year").value="2025",q("unit").value="",W()});q("run").addEventListener("click",W);de();fe();
+import { digitFinding } from './lib/checks/digits.js';
+import { earningsQuality, integrityChecks } from './lib/checks/financial.js';
+import { amountTokens, extractStatement, htmlToLines } from './lib/statements/document.js';
+
+const STATUS = { pass: 'Pass', info: 'Info', watch: 'Watch', flag: 'Flag', unavailable: 'Not run' };
+const KEY_LINES = [
+  ['totalAssets', 'Total assets'], ['currentAssets', 'Current assets'], ['totalLiabilities', 'Total liabilities'],
+  ['currentLiabilities', 'Current liabilities'], ['totalEquity', 'Total equity'], ['cash', 'Cash'],
+  ['revenue', 'Revenue'], ['operatingIncome', 'Operating income'], ['netIncome', 'Net income'],
+  ['cfo', 'Operating cash flow'], ['cfi', 'Investing cash flow'], ['cff', 'Financing cash flow'],
+];
+const LAYERS = [
+  ['integrity', 'Statement arithmetic'], ['earnings-quality', 'Earnings quality and solvency'],
+  ['reconciliation', 'Reconciliation between sources'], ['audit', 'Audit and credit opinions'],
+  ['disclosure', 'Filing history'], ['ownership', 'Insiders and large holders'],
+  ['intangible', 'Intangible assets'], ['physical', 'Physical assets'], ['legal', 'Legal citations'], ['context', 'Regional context'],
+];
+
+const EXAMPLE = `Samsung Electronics Co., Ltd. and its subsidiaries, consolidated, from the audited statements for 2025
+(In millions of Korean won)
+Cash and cash equivalents	57,856,378	53,705,579
+Trade receivables	51,127,642	43,623,073
+Inventories	52,636,828	51,754,865
+Current assets	247,684,612	227,062,266
+Property, plant and equipment	215,304,784	205,945,209
+Intangible assets	29,480,565	23,738,566
+Non-current assets	319,257,498	287,469,682
+Total assets	566,942,110	514,531,948
+Current liabilities	106,411,348	93,326,299
+Non-current liabilities	24,210,425	19,013,579
+Total liabilities	130,621,773	112,339,878
+Retained earnings	402,135,600	370,513,188
+Total equity	436,320,337	402,192,070
+Revenue	333,605,938	300,870,903
+Cost of sales	202,235,513	186,562,268
+Gross profit	131,370,425	114,308,635
+Selling and administrative expenses	87,769,374	81,582,674
+Operating profit	43,601,051	32,725,961
+Profit for the year	45,206,805	34,451,351
+Net cash provided by operating activities	85,315,148	72,982,621
+Net cash used in investing activities	(68,512,206)	(85,381,702)
+Net cash used in financing activities	(13,478,040)	(7,797,243)
+Acquisition of property, plant and equipment	(47,522,179)	(51,406,355)
+Effect of foreign exchange rate changes	825,897	4,821,010`;
+
+const $ = (id) => document.getElementById(id);
+
+function el(tag, text, className) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+
+function table(headers, rows, className) {
+  const t = el('table', undefined, className);
+  const head = t.createTHead().insertRow();
+  for (const h of headers) head.append(el('th', h));
+  const body = t.createTBody();
+  for (const row of rows) {
+    const tr = body.insertRow();
+    if (row.className) tr.className = row.className;
+    for (const cell of row.cells) tr.append(el('td', cell));
+  }
+  const wrap = el('div', undefined, 'scroll');
+  wrap.append(t);
+  return wrap;
+}
+
+function won(value) {
+  if (value === undefined || value === null) return 'not found';
+  const trillions = value / 1e12;
+  return Math.abs(trillions) >= 1 ? `${trillions.toFixed(2)} tn` : `${(value / 1e9).toFixed(1)} bn`;
+}
+
+function findingRows(findings) {
+  return findings.map((f) => ({ className: f.status, cells: [STATUS[f.status], f.title, f.detail] }));
+}
+
+function figures(statement) {
+  return table(['Line', String(statement.fiscalYear), String(statement.fiscalYear - 1)], KEY_LINES.map(([line, label]) => ({ cells: [label, won(statement.current[line]), won(statement.prior[line])] })), 'num');
+}
+
+function runChecks() {
+  const output = $('try-output');
+  output.replaceChildren();
+  const status = $('try-status');
+  const year = Number($('year').value);
+  let text = $('statement').value;
+  if (!text.trim()) {
+    status.textContent = 'Paste a statement first, or load the example.';
+    return;
+  }
+  if (/<t[dr][\s>]/i.test(text)) text = htmlToLines(text);
+  if ($('unit').value) text = `${$('unit').value}\n${text}`;
+  let parsed;
+  try {
+    parsed = extractStatement(text, { fiscalYear: year });
+  } catch (error) {
+    status.textContent = `${error.message} Choose the unit above and try again.`;
+    return;
+  }
+  if (parsed.current.totalAssets === undefined) {
+    status.textContent = 'No total assets line was found, so this does not look like a balance sheet.';
+    return;
+  }
+  const statement = { ...parsed, evidence: { source: 'Pasted text' } };
+  const findings = [...integrityChecks(statement), ...earningsQuality(statement), digitFinding(amountTokens(text), statement.evidence)];
+  const found = Object.keys(statement.current).length;
+  status.textContent = `Read ${found} lines. Compare them with your source before trusting the results.`;
+  output.append(el('h2', 'Figures read (KRW)'), figures(statement), el('h2', 'Checks'), table(['Status', 'Check', 'Result'], findingRows(findings)));
+}
+
+function renderReport(report) {
+  const output = $('sample-output');
+  output.replaceChildren();
+  const run = LAYERS.filter(([layer]) => report.findings.some((f) => f.layer === layer && f.status !== 'unavailable')).length;
+  output.append(el('p', `${report.subject.name ?? report.subject.query}, fiscal ${report.subject.fiscalYear}. ${run} of ${LAYERS.length} layers ran. Generated ${report.generatedAt.slice(0, 10)} by Assay ${report.tool.version}.`));
+  if (report.statement) output.append(el('h2', `Key figures (KRW, ${report.statement.basis})`), figures(report.statement));
+  for (const [layer, label] of LAYERS) {
+    const findings = report.findings.filter((f) => f.layer === layer);
+    if (findings.length) output.append(el('h2', label), table(['Status', 'Check', 'Result'], findingRows(findings)));
+  }
+  const sources = [...new Set(report.findings.flatMap((f) => f.evidence).map((e) => `${e.source}${e.locator ? `: ${e.locator}` : ''}`))];
+  if (sources.length) {
+    const list = el('ul', undefined, 'sources');
+    for (const source of sources) list.append(el('li', source));
+    output.append(el('h2', 'Sources'), list);
+  }
+}
+
+async function loadJson(path) {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error(`Could not load ${path}.`);
+  return response.json();
+}
+
+async function initSamples() {
+  const select = $('sample');
+  const status = $('sample-status');
+  try {
+    const { reports } = await loadJson('data/index.json');
+    for (const r of reports) {
+      const option = el('option', r.label);
+      option.value = r.file;
+      select.append(option);
+    }
+    const show = async () => {
+      status.textContent = '';
+      renderReport(await loadJson(`data/${select.value}`));
+    };
+    select.addEventListener('change', () => show().catch((e) => { status.textContent = e.message; }));
+    await show();
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+async function initTested() {
+  const output = $('tested-output');
+  const status = $('tested-status');
+  try {
+    const result = await loadJson('data/validation.json');
+    status.textContent = `Round ${result.round}: ${result.entries.length} company years evaluated.`;
+    const label = { pass: 'Verified', fail: 'Evaluated', 'not-run': 'External' };
+    const css = { pass: 'pass', fail: 'info', 'not-run': 'unavailable' };
+    output.append(table(['Status', 'Gate', 'Measured', 'Target'], result.gates.map((g) => ({ className: css[g.status], cells: [label[g.status], g.title, g.measured, g.required] }))));
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+for (const button of document.querySelectorAll('nav button')) {
+  button.addEventListener('click', () => {
+    for (const other of document.querySelectorAll('nav button')) {
+      const active = other === button;
+      other.setAttribute('aria-pressed', String(active));
+      $(other.dataset.tab).hidden = !active;
+    }
+  });
+}
+$('example').addEventListener('click', () => {
+  $('statement').value = EXAMPLE;
+  $('year').value = '2025';
+  $('unit').value = '';
+  runChecks();
+});
+$('run').addEventListener('click', runChecks);
+initSamples();
+initTested();
