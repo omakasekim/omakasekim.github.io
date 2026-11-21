@@ -319,6 +319,8 @@ async function execute(question, c) {
     renderMd($('decisionBody'), r.final);
     const total = Math.round(r.used.in + r.used.out);
     const bits = [OUTCOME[r.mode] || r.mode, r.calls + ' calls', total.toLocaleString() + ' tokens'];
+    if (typeof r.agreement === 'number') bits.push('agreement ' + Math.round(r.agreement * 100) + '%');
+    if (r.condorcet_winner?.model) bits.push('pairwise winner: ' + r.condorcet_winner.model);
     if (r.independent_models < 2) bits.push('one model only, so this is not independent agreement');
     if (removedCount) bits.push(removedCount + ' sensitive item(s) removed before sending');
     $('decisionMeta').textContent = bits.join(' · ');
