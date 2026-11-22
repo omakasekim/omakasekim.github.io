@@ -3,9 +3,217 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 fill=%22%23111%22/%3E%3Crect x=%226%22 y=%222%22 width=%224%22 height=%224%22 fill=%22%237dd3fc%22/%3E%3Crect x=%2210%22 y=%226%22 width=%224%22 height=%224%22 fill=%22%237dd3fc%22/%3E%3Crect x=%222%22 y=%2210%22 width=%2212%22 height=%224%22 fill=%22%237dd3fc%22/%3E%3C/svg%3E">
 <title>Silica: Cellular Automata</title>
-<meta name="description" content="Conway's Game of Life and a falling sand world, running live in your browser. A port of the rules in Silica.">
-<style>body{background:#0e1116;color:#e6edf3;margin:0}</style>
+<meta name="description" content="Conway's Game of Life with custom B/S rules and RLE import/export, plus a falling sand world, running live in your browser. A port of the rules in Silica.">
+<style>
+:root {
+  --bg: #06080d;
+  --surface: #0e131d;
+  --border: #1a2332;
+  --text: #e2e8f0;
+  --muted: #8b99ac;
+  --primary: #38bdf8;
+  --error: #f87171;
+  --ok: #4ade80;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif;
+}
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 14px 48px;
+}
+h1 { margin: 0 0 4px; font-size: 28px; }
+p { color: var(--muted); margin: 6px 0 16px; }
+a { color: var(--primary); }
+.tabs, .tools, .life-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.life-controls {
+  display: none;
+  margin-bottom: 10px;
+}
+.life-controls.active { display: block; }
+.tools.hidden { display: none; }
+.row-label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 4px;
+}
+button {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 12px;
+  min-height: 36px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--primary); }
+button[aria-pressed="true"] {
+  background: #38bdf824;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+input[type="text"], textarea {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font: 14px/1.4 ui-monospace, Menlo, Consolas, monospace;
+  max-width: 100%;
+}
+input[type="text"] {
+  width: 150px;
+  min-height: 36px;
+}
+input[type="text"]:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 84px;
+  display: block;
+}
+.feedback {
+  font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace;
+  color: var(--muted);
+  min-height: 17px;
+  margin: 4px 0 8px;
+  word-break: break-word;
+}
+.feedback.error { color: var(--error); }
+.feedback.ok { color: var(--ok); }
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  image-rendering: pixelated;
+  touch-action: none;
+  cursor: crosshair;
+}
+#status {
+  font: 12px/1.5 ui-monospace, Menlo, Consolas, monospace;
+  color: var(--muted);
+  margin-top: 8px;
+  min-height: 18px;
+  word-break: break-word;
+}
+.rle-panel {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.rle-panel summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  user-select: none;
+}
+.rle-body {
+  margin-top: 10px;
+}
+.rle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.note { margin-top: 18px; }
+ul { color: var(--muted); padding-left: 20px; }
+@media (max-width: 600px) {
+  main { padding: 16px 10px 36px; }
+  h1 { font-size: 24px; }
+  button { padding: 7px 10px; font-size: 13px; }
+  input[type="text"], textarea { font-size: 16px; }
+  input[type="text"] { flex: 1 1 130px; width: auto; min-width: 0; }
+}
+</style>
 </head>
-<body><script type="module" src="./sim.js"></script></body>
+<body>
+<main id="world">
+  <h1>Silica</h1>
+  <p>Global behavior from purely local rules, running live in your browser. Draw on the canvas. This page is a JavaScript port of the rules in <a href="https://github.com/Aetherx86/Silica">Silica</a>, which is written in Kotlin.</p>
+
+  <div class="tabs" role="group" aria-label="Simulation">
+    <button type="button" id="mode-sand" aria-pressed="true">Falling sand</button>
+    <button type="button" id="mode-life" aria-pressed="false">Game of Life</button>
+    <button type="button" id="pause" aria-pressed="false">Pause</button>
+    <button type="button" id="step">Step</button>
+    <button type="button" id="clear">Clear</button>
+    <button type="button" id="scene">Reset scene</button>
+  </div>
+
+  <div class="tools" id="materials" role="group" aria-label="Material"></div>
+
+  <section class="life-controls" id="life-controls" aria-label="Game of Life controls">
+    <div class="life-row" role="group" aria-label="Rule">
+      <label class="row-label" for="rule-input">Rule</label>
+      <input type="text" id="rule-input" value="B3/S23" placeholder="B3/S23 or 23/3" autocomplete="off" spellcheck="false">
+      <button type="button" id="rule-apply">Apply</button>
+      <button type="button" class="rule-preset" data-rule="B3/S23" aria-pressed="true">Conway</button>
+      <button type="button" class="rule-preset" data-rule="B36/S23" aria-pressed="false">HighLife</button>
+      <button type="button" class="rule-preset" data-rule="B2/S" aria-pressed="false">Seeds</button>
+      <button type="button" class="rule-preset" data-rule="B3678/S34678" aria-pressed="false">Day &amp; Night</button>
+    </div>
+    <div id="rule-feedback" class="feedback" role="status" aria-live="polite"></div>
+
+    <div class="life-row" role="group" aria-label="Pattern presets">
+      <span class="row-label">Presets</span>
+      <button type="button" class="pattern-preset" data-pattern="GLIDER">Glider</button>
+      <button type="button" class="pattern-preset" data-pattern="GOSPER_GUN">Gosper glider gun</button>
+      <button type="button" class="pattern-preset" data-pattern="ACORN">Acorn</button>
+      <button type="button" class="pattern-preset" data-pattern="DIEHARD">Diehard</button>
+    </div>
+  </section>
+
+  <canvas id="view" width="240" height="150" aria-label="Simulation canvas"></canvas>
+  <div id="status"></div>
+
+  <details class="rle-panel life-controls" id="rle-panel">
+    <summary>RLE Import / Export</summary>
+    <div class="rle-body">
+      <textarea id="rle-text" rows="4" spellcheck="false" aria-label="RLE pattern text" placeholder="Paste RLE here, e.g. x = 3, y = 3, rule = B3/S23&#10;bo$2bo$3o!"></textarea>
+      <div class="rle-actions">
+        <button type="button" id="rle-import">Import RLE</button>
+        <button type="button" id="rle-export">Export &amp; Copy RLE</button>
+      </div>
+      <div id="rle-feedback" class="feedback" role="status" aria-live="polite"></div>
+    </div>
+  </details>
+
+  <p class="note">What makes it work:</p>
+  <ul>
+    <li><strong>Life</strong> updates every cell at once with any Life-like <code>B/S</code> (or legacy <code>S/B</code>) rule, reading one buffer and writing another before swapping.</li>
+    <li><strong>RLE</strong> imports and exports standard run-length encoded patterns with header rules, comments, 70-character line wrapping, and size limits matching Silica's Kotlin core.</li>
+    <li><strong>Sand</strong> moves matter in place, scanning from the bottom up with the direction alternating each frame. A clock bit in each cell stops a particle moving twice in one frame.</li>
+    <li><strong>Sleeping regions</strong>: a 16 by 16 chunk where nothing moved is skipped on the next frame, which the status line counts.</li>
+  </ul>
+</main>
+<script type="module" src="./sim.js"></script>
+</body>
 </html>

@@ -1,1 +1,1105 @@
-export const EMPTY=0,SAND=1,WATER=2,OIL=3,ACID=4,STONE=5,WOOD=6,FIRE=7,SMOKE=8,STEAM=9;const Y=[0,8,4,3,5,100,100,1,1,1],H=a=>a===2||a===3||a===4,G=a=>a===8||a===9,N=a=>a===5||a===6,J=a=>a===6||a===3,D=a=>a&15,K=a=>a>>4&1,T=a=>a>>5,v=(a,e,t)=>a|e<<4|t<<5;export class Life{constructor(e,t){this.width=e,this.height=t,this.current=new Uint8Array(e*t),this.next=new Uint8Array(e*t),this.generation=0}set(e,t,s=1){e>=0&&t>=0&&e<this.width&&t<this.height&&(this.current[t*this.width+e]=s)}get(e,t){return this.current[t*this.width+e]}population(){return this.current.reduce((e,t)=>e+t,0)}stamp(e,t,s){const n=t-(e[0].length>>1),i=s-(e.length>>1);e.forEach((r,d)=>[...r].forEach((c,o)=>this.set(n+o,i+d,c==="O"?1:0)))}step(){const{width:e,height:t,current:s,next:n}=this;for(let i=0;i<t;i++){const r=(i+t-1)%t*e,d=i*e,c=(i+1)%t*e;for(let o=0;o<e;o++){const l=(o+e-1)%e,I=(o+1)%e,O=s[r+l]+s[r+o]+s[r+I]+s[d+l]+s[d+I]+s[c+l]+s[c+o]+s[c+I];n[d+o]=O===3||O===2&&s[d+o]?1:0}}this.current=n,this.next=s,this.generation++}}export const GOSPER_GUN=["........................O...........","......................O.O...........","............OO......OO............OO","...........O...O....OO............OO","OO........O.....O...OO..............","OO........O...O.OO....O.O...........","..........O.....O.......O...........","...........O...O....................","............OO......................"];const b=16;export class SandWorld{constructor(e,t,s=625341585){this.width=e,this.height=t,this.cells=new Int32Array(e*t),this.frame=0,this.seed=s>>>0||1,this.columns=Math.ceil(e/b),this.rows=Math.ceil(t/b),this.awake=new Uint8Array(this.columns*this.rows).fill(1),this.nextAwake=new Uint8Array(this.columns*this.rows),this.chunksUpdated=0}random(e){let t=this.seed;return t^=t<<13,t^=t>>>17,t^=t<<5,this.seed=t>>>0,this.seed%e}inside(e,t){return e>=0&&t>=0&&e<this.width&&t<this.height}typeAt(e,t){return this.inside(e,t)?D(this.cells[t*this.width+e]):5}wake(e,t){const s=Math.floor(e/b),n=Math.floor(t/b);for(let i=Math.max(n-1,0);i<=Math.min(n+1,this.rows-1);i++)for(let r=Math.max(s-1,0);r<=Math.min(s+1,this.columns-1);r++)this.nextAwake[i*this.columns+r]=1,this.awake[i*this.columns+r]=1}lifetime(e){return e===7?30+this.random(32):G(e)?60+this.random(64):0}paint(e,t,s){this.inside(e,t)&&(this.cells[t*this.width+e]=v(s,this.frame&1,this.lifetime(s)),this.wake(e,t))}paintDuringFrame(e,t,s){this.cells[t*this.width+e]=v(s,this.frame+1&1,this.lifetime(s)),this.wake(e,t)}brush(e,t,s,n){for(let i=t-s;i<=t+s;i++)for(let r=e-s;r<=e+s;r++)(r-e)**2+(i-t)**2<=s*s&&(n===0||N(n)||this.random(3)===0)&&this.paint(r,i,n)}count(e){let t=0;for(const s of this.cells)D(s)===e&&t++;return t}canEnter(e,t,s){return t===0?!0:N(t)||t===7?!1:s==="down"?Y[e]>Y[t]:s==="up"?Y[e]<Y[t]:!1}swap(e,t,s,n,i){const r=t*this.width+e,d=n*this.width+s,c=this.cells[r],o=this.cells[d];this.cells[d]=v(D(c),i,T(c)),this.cells[r]=D(o)===0?0:v(D(o),i,T(o)),this.wake(e,t),this.wake(s,n)}tryMove(e,t,s,n,i,r,d){return!this.inside(s,n)||!this.canEnter(i,this.typeAt(s,n),r)?!1:(this.swap(e,t,s,n,d),!0)}updateFalling(e,t,s,n){if(this.tryMove(e,t,e,t+1,s,"down",n))return!0;const i=this.random(2)?1:-1;return!!(this.tryMove(e,t,e+i,t+1,s,"down",n)||this.tryMove(e,t,e-i,t+1,s,"down",n)||H(s)&&(this.typeAt(e+i,t)===0&&this.tryMove(e,t,e+i,t,s,"down",n)||this.typeAt(e-i,t)===0&&this.tryMove(e,t,e-i,t,s,"down",n)))}updateGas(e,t,s,n,i){if(i<=0){this.cells[t*this.width+e]=s===9&&this.random(3)===0?v(2,n,0):0,this.wake(e,t);return}this.cells[t*this.width+e]=v(s,n,i-1);const r=this.random(2)?1:-1;this.tryMove(e,t,e,t-1,s,"up",n)||this.tryMove(e,t,e+r,t-1,s,"up",n)||(this.typeAt(e+r,t)===0?this.swap(e,t,e+r,t,n):this.wake(e,t))}updateFire(e,t,s,n){let i=!1;for(const[r,d]of[[1,0],[-1,0],[0,1],[0,-1]]){const c=e+r,o=t+d,l=this.typeAt(c,o);if(this.inside(c,o)){if(J(l))i=!0,this.random(12)===0&&this.paintDuringFrame(c,o,7);else if(l===2){this.paintDuringFrame(c,o,9),this.cells[t*this.width+e]=0,this.wake(e,t);return}}}if(n<=0){this.cells[t*this.width+e]=0,this.wake(e,t),this.random(2)===0&&this.paintDuringFrame(e,t,8);return}this.cells[t*this.width+e]=v(7,s,n-1),this.wake(e,t),!i&&this.typeAt(e,t-1)===0&&this.random(3)===0&&this.swap(e,t,e,t-1,s)}updateAcid(e,t,s){for(const[n,i]of[[0,1],[1,0],[-1,0]]){const r=e+n,d=t+i,c=this.typeAt(r,d);if(this.inside(r,d)&&(c===6||c===1||c===5)&&this.random(c===5?40:8)===0){this.cells[d*this.width+r]=0,this.cells[t*this.width+e]=0,this.wake(e,t),this.wake(r,d);return}}this.updateFalling(e,t,4,s)}step(){const e=this.frame+1&1,t=this.frame%2===0;this.nextAwake.fill(0),this.chunksUpdated=0;const{width:s,height:n,columns:i,rows:r,awake:d,cells:c}=this;for(let o=r-1;o>=0;o--)for(let l=0;l<i;l++){const I=t?l:i-1-l;if(!d[o*i+I])continue;this.chunksUpdated++;const O=o*b,L=Math.min(O+b,n),C=I*b,P=Math.min(C+b,s);for(let u=L-1;u>=O;u--)for(let p=C;p<P;p++){const A=t?p:P-1-(p-C),g=c[u*s+A],w=D(g);w===0||N(w)||K(g)===e||(c[u*s+A]=v(w,e,T(g)),w===7?this.updateFire(A,u,e,T(g)):G(w)?this.updateGas(A,u,w,e,T(g)):w===4?this.updateAcid(A,u,e):this.updateFalling(A,u,w,e))}}this.awake.set(this.nextAwake),this.frame++}}if(typeof document<"u"&&!document.getElementById("world")){let A=function(){u=new SandWorld(n,i);for(let h=40;h<110;h++)u.paint(h,90,6);for(let h=140;h<210;h++)u.paint(h,110-(h-140>>2),5);u.brush(70,25,12,1),u.brush(175,25,14,2),u.brush(120,40,7,3),u.paint(75,89,7)},g=function(){p=new Life(n,i),p.stamp(GOSPER_GUN,40,30);const h=f=>Math.floor(Math.random()*f);for(let f=0;f<8;f++)p.stamp(["OOO","O..",".O."],120+h(100),60+h(70))},k=function(h){O=h,document.getElementById("mode-sand").setAttribute("aria-pressed",String(O==="sand")),document.getElementById("mode-life").setAttribute("aria-pressed",String(O==="life")),y.style.display=O==="sand"?"flex":"none"},z=function(h){const f=t.getBoundingClientRect(),m=Math.floor((h.clientX-f.left)/f.width*n),M=Math.floor((h.clientY-f.top)/f.height*i);if(O==="sand")u.brush(m,M,3,C);else for(let S=-1;S<=1;S++)for(let E=-1;E<=1;E++)Math.random()<.6&&p.set(m+E,M+S)},j=function(){if(L||(O==="sand"?u.step():p.step()),O==="sand"){const h=u.cells;for(let m=0;m<d.length;m++)d[m]=l[h[m]&15];const f=u.columns*u.rows;c.textContent=`frame ${u.frame}, chunks updated ${u.chunksUpdated} of ${f}`}else{const h=p.current;for(let f=0;f<d.length;f++)d[f]=h[f]?I:l[0];c.textContent=`generation ${p.generation}, population ${p.population()}`}s.putImageData(r,0,0),window.__silicaReady=!0,requestAnimationFrame(j)};const a=JSON.parse(function(h,f){for(var m=atob(h.join("")),M=m.length,S=new Uint8Array(M),E=0;E<M;E++)S[E]=m.charCodeAt(E)^f[E&15];return new TextDecoder().decode(S)}(["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"],[131,217,2,191,130,65,79,108,249,79,79,210,108,227,189,155])),e=document.createElement("style");e.textContent=a[0],document.head.appendChild(e),document.body.removeAttribute("style"),document.body.insertAdjacentHTML("afterbegin",a[1]);const t=document.getElementById("view"),s=t.getContext("2d"),{width:n,height:i}=t,r=s.createImageData(n,i),d=new Uint32Array(r.data.buffer),c=document.getElementById("status"),o=(h,f,m)=>255<<24|m<<16|f<<8|h,l=[];l[0]=o(6,8,13),l[1]=o(226,192,110),l[2]=o(56,130,246),l[3]=o(120,80,40),l[4]=o(120,230,70),l[5]=o(110,118,130),l[6]=o(130,84,50),l[7]=o(250,120,30),l[8]=o(70,72,80),l[9]=o(170,190,205);const I=o(56,189,248);let O="sand",L=!1,C=1,P=!1,u,p;const w=[["Sand",1],["Water",2],["Oil",3],["Acid",4],["Fire",7],["Wood",6],["Stone",5],["Steam",9],["Eraser",0]],y=document.getElementById("materials");for(const[h,f]of w){const m=document.createElement("button");m.textContent=h,m.setAttribute("aria-pressed",String(f===C)),m.addEventListener("click",()=>{C=f;for(const M of y.children)M.setAttribute("aria-pressed",String(M===m))}),y.append(m)}document.getElementById("mode-sand").addEventListener("click",()=>k("sand")),document.getElementById("mode-life").addEventListener("click",()=>k("life")),document.getElementById("pause").addEventListener("click",h=>{L=!L,h.target.setAttribute("aria-pressed",String(L)),h.target.textContent=L?"Resume":"Pause"}),document.getElementById("clear").addEventListener("click",()=>{O==="sand"?u=new SandWorld(n,i):p=new Life(n,i)}),document.getElementById("scene").addEventListener("click",()=>O==="sand"?A():g()),t.addEventListener("pointerdown",h=>{P=!0,t.setPointerCapture(h.pointerId),z(h)}),t.addEventListener("pointermove",h=>{P&&z(h)}),t.addEventListener("pointerup",()=>{P=!1}),t.addEventListener("pointercancel",()=>{P=!1}),A(),g(),k(location.hash==="#life"?"life":"sand"),j()}
+// Silica browser engine: Life-like cellular automata (B/S rules, RLE) and falling sand.
+// Source of truth for Rule, Rle, and Patterns: Silica core Life.kt.
+
+export const EMPTY = 0;
+export const SAND = 1;
+export const WATER = 2;
+export const OIL = 3;
+export const ACID = 4;
+export const STONE = 5;
+export const WOOD = 6;
+export const FIRE = 7;
+export const SMOKE = 8;
+export const STEAM = 9;
+
+const ALL_COUNTS = 0x1ff;
+const BS_REGEX = /^[Bb]([0-8]*)\/[Ss]([0-8]*)$/;
+const LEGACY_REGEX = /^([0-8]*)\/([0-8]*)$/;
+const DIM_REGEX = /^\+?\d+$/;
+
+function digitsMask(digits) {
+  let acc = 0;
+  for (let i = 0; i < digits.length; i++) {
+    acc |= 1 << (digits.charCodeAt(i) - 48);
+  }
+  return acc;
+}
+
+function formatDigits(mask) {
+  let out = "";
+  for (let i = 0; i <= 8; i++) {
+    if ((mask >>> i) & 1) out += String(i);
+  }
+  return out;
+}
+
+/**
+ * A life-like rule such as B3/S23.
+ * Bit n of birth/survive means a dead/live cell with n live neighbors (0..8) is born/survives.
+ */
+export class Rule {
+  constructor(birth, survive) {
+    if (
+      !Number.isInteger(birth) ||
+      !Number.isInteger(survive) ||
+      birth < 0 ||
+      birth > ALL_COUNTS ||
+      survive < 0 ||
+      survive > ALL_COUNTS
+    ) {
+      throw new Error("rule masks must only use bits 0 to 8");
+    }
+    this.birth = birth;
+    this.survive = survive;
+  }
+
+  get notation() {
+    return "B" + formatDigits(this.birth) + "/S" + formatDigits(this.survive);
+  }
+
+  born(neighbors) {
+    return ((this.birth >>> neighbors) & 1) !== 0;
+  }
+
+  survives(neighbors) {
+    return ((this.survive >>> neighbors) & 1) !== 0;
+  }
+
+  equals(other) {
+    return other instanceof Rule && this.birth === other.birth && this.survive === other.survive;
+  }
+
+  /**
+   * Parses B3/S23 notation in either case, or the older S/B form 23/3.
+   * Rejects neighbor counts above 8 or reversed S/B letters.
+   */
+  static parse(text) {
+    if (typeof text !== "string") {
+      throw new Error(`not a life-like rule: ${text}`);
+    }
+    const trimmed = text.trim();
+    const bs = BS_REGEX.exec(trimmed);
+    if (bs) {
+      return new Rule(digitsMask(bs[1]), digitsMask(bs[2]));
+    }
+    const legacy = LEGACY_REGEX.exec(trimmed);
+    if (legacy) {
+      return new Rule(digitsMask(legacy[2]), digitsMask(legacy[1]));
+    }
+    throw new Error(`not a life-like rule: ${text}`);
+  }
+}
+
+Rule.CONWAY = new Rule(1 << 3, (1 << 2) | (1 << 3));
+
+function parseDimension(value, key) {
+  if (!DIM_REGEX.test(value)) {
+    throw new Error(`RLE header ${key} must be a size from 0 to ${Rle.MAX_COORDINATE}: ${value}`);
+  }
+  const n = Number(value);
+  if (!Number.isSafeInteger(n) || n < 0 || n > Rle.MAX_COORDINATE) {
+    throw new Error(`RLE header ${key} must be a size from 0 to ${Rle.MAX_COORDINATE}: ${value}`);
+  }
+  return n;
+}
+
+function decodeRle(text, maxCells, interpretHeader) {
+  if (typeof text !== "string") {
+    throw new Error("RLE input must be a string");
+  }
+  if (!Number.isInteger(maxCells) || maxCells < 0) {
+    throw new Error("maxCells must not be negative");
+  }
+
+  let declaredWidth = null;
+  let declaredHeight = null;
+  let rule = null;
+  let name = null;
+  const comments = [];
+  const bodyParts = [];
+  let headerSeen = false;
+
+  const lines = text.split(/\r\n|\n|\r/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith("#")) {
+      const kind = line[1];
+      const rest = line.slice(2).trim();
+      if (kind === "N") {
+        name = rest;
+      } else if (kind === "C" || kind === "c") {
+        comments.push(rest);
+      }
+    } else if (line.startsWith("x")) {
+      if (headerSeen || !interpretHeader) continue;
+      headerSeen = true;
+      const fields = [];
+      for (const piece of line.split(",")) {
+        if (piece.includes("=") || fields.length === 0) {
+          fields.push(piece);
+        } else {
+          fields[fields.length - 1] += "," + piece;
+        }
+      }
+      for (const field of fields) {
+        const eq = field.indexOf("=");
+        if (eq === -1) {
+          throw new Error(`malformed RLE header field: ${field.trim()}`);
+        }
+        const key = field.slice(0, eq).trim();
+        const value = field.slice(eq + 1).trim();
+        if (key === "x") {
+          declaredWidth = parseDimension(value, "x");
+        } else if (key === "y") {
+          declaredHeight = parseDimension(value, "y");
+        } else if (key === "rule") {
+          const colon = value.indexOf(":");
+          const rulePart = colon === -1 ? value : value.slice(0, colon);
+          rule = Rule.parse(rulePart);
+        }
+      }
+    } else {
+      bodyParts.push(line);
+    }
+  }
+
+  const body = bodyParts.join("");
+  const cells = [];
+  let x = 0;
+  let y = 0;
+  let run = 0;
+  let maxX = -1;
+
+  for (let i = 0; i < body.length; i++) {
+    const c = body[i];
+    if (c >= "0" && c <= "9") {
+      run = run * 10 + (c.charCodeAt(0) - 48);
+      if (run > Rle.MAX_RUN_LENGTH) {
+        throw new Error("run length is too large");
+      }
+    } else if (c === "b" || c === ".") {
+      x += run > 1 ? run : 1;
+      if (x > Rle.MAX_COORDINATE) {
+        throw new Error(`pattern is wider than ${Rle.MAX_COORDINATE} cells`);
+      }
+      run = 0;
+    } else if (c === "o" || c === "A") {
+      const count = run > 1 ? run : 1;
+      if (x + count > Rle.MAX_COORDINATE) {
+        throw new Error(`pattern is wider than ${Rle.MAX_COORDINATE} cells`);
+      }
+      if (cells.length + count > maxCells) {
+        throw new Error(`pattern has more than ${maxCells} live cells`);
+      }
+      for (let k = 0; k < count; k++) {
+        cells.push([x++, y]);
+      }
+      if (x - 1 > maxX) maxX = x - 1;
+      run = 0;
+    } else if (c === "$") {
+      y += run > 1 ? run : 1;
+      if (y > Rle.MAX_COORDINATE) {
+        throw new Error(`pattern is taller than ${Rle.MAX_COORDINATE} cells`);
+      }
+      x = 0;
+      run = 0;
+    } else if (c === " " || c === "\t") {
+      // ignore whitespace between tokens
+    } else if (c === "!") {
+      break;
+    } else {
+      throw new Error(`unexpected RLE character '${c}'`);
+    }
+  }
+
+  const measuredHeight = cells.length === 0 ? 0 : cells[cells.length - 1][1] + 1;
+  return {
+    cells,
+    width: declaredWidth !== null ? declaredWidth : maxX + 1,
+    height: declaredHeight !== null ? declaredHeight : measuredHeight,
+    rule,
+    name,
+    comments,
+  };
+}
+
+/** Reads and writes standard RLE patterns with size limits matching Silica's Kotlin Rle. */
+export const Rle = {
+  MAX_COORDINATE: 1 << 30,
+  MAX_RUN_LENGTH: 1_000_000,
+  DEFAULT_MAX_CELLS: 10_000_000,
+  LINE_LENGTH: 70,
+
+  parse(text, maxCells = Rle.DEFAULT_MAX_CELLS) {
+    return decodeRle(text, maxCells, false).cells;
+  },
+
+  read(text, maxCells = Rle.DEFAULT_MAX_CELLS) {
+    return decodeRle(text, maxCells, true);
+  },
+
+  write(cells, rule = Rule.CONWAY, comments = []) {
+    const r = rule instanceof Rule ? rule : Rule.parse(rule);
+    let out = "";
+    for (const comment of comments) {
+      for (const line of String(comment).split(/\r\n|\n|\r/)) {
+        out += `#C ${line}\n`;
+      }
+    }
+    if (!cells || cells.length === 0) {
+      out += `x = 0, y = 0, rule = ${r.notation}\n!\n`;
+      return out;
+    }
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i < cells.length; i++) {
+      const x = cells[i][0];
+      const y = cells[i][1];
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+    }
+    if (maxX - minX > Rle.MAX_COORDINATE || maxY - minY > Rle.MAX_COORDINATE) {
+      throw new Error(`pattern is larger than ${Rle.MAX_COORDINATE} cells across`);
+    }
+
+    out += `x = ${maxX - minX + 1}, y = ${maxY - minY + 1}, rule = ${r.notation}\n`;
+
+    const normalized = new Array(cells.length);
+    for (let i = 0; i < cells.length; i++) {
+      normalized[i] = [cells[i][0] - minX, cells[i][1] - minY];
+    }
+    normalized.sort((a, b) => (a[1] !== b[1] ? a[1] - b[1] : a[0] - b[0]));
+
+    // Deduplicate sorted coordinates in place
+    const sorted = [];
+    for (let i = 0; i < normalized.length; i++) {
+      const p = normalized[i];
+      if (i === 0 || p[0] !== normalized[i - 1][0] || p[1] !== normalized[i - 1][1]) {
+        sorted.push(p);
+      }
+    }
+
+    let line = "";
+    const emit = (count, tag) => {
+      const token = count === 1 ? tag : `${count}${tag}`;
+      if (line.length + token.length > Rle.LINE_LENGTH) {
+        out += line + "\n";
+        line = "";
+      }
+      line += token;
+    };
+
+    let row = 0;
+    let column = 0;
+    let i = 0;
+    while (i < sorted.length) {
+      const x = sorted[i][0];
+      const y = sorted[i][1];
+      if (y > row) {
+        emit(y - row, "$");
+        row = y;
+        column = 0;
+      }
+      if (x > column) {
+        emit(x - column, "b");
+      }
+      let length = 1;
+      while (
+        i + length < sorted.length &&
+        sorted[i + length][1] === y &&
+        sorted[i + length][0] === x + length
+      ) {
+        length++;
+      }
+      emit(length, "o");
+      column = x + length;
+      i += length;
+    }
+    emit(1, "!");
+    out += line + "\n";
+    return out;
+  },
+};
+
+export const Patterns = {
+  GLIDER: "bob$2bo$3o!",
+  BLINKER: "3o!",
+  BLOCK: "2o$2o!",
+  R_PENTOMINO: "b2o$2o$bo!",
+  PULSAR:
+    "2b3o3b3o2$o4bobo4bo$o4bobo4bo$o4bobo4bo$2b3o3b3o2$2b3o3b3o$" +
+    "o4bobo4bo$o4bobo4bo$o4bobo4bo2$2b3o3b3o!",
+  ACORN: "bo$3bo$2o2b3o!",
+  DIEHARD: "6bo$2o$bo3b3o!",
+  GOSPER_GUN:
+    "24bo$22bobo$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o$" +
+    "2o8bo3bob2o4bobo$10bo5bo7bo$11bo3bo$12b2o!",
+};
+
+// Kept for backward compatibility with existing callers/tests.
+export const GOSPER_GUN = [
+  "........................O...........",
+  "......................O.O...........",
+  "............OO......OO............OO",
+  "...........O...O....OO............OO",
+  "OO........O.....O...OO..............",
+  "OO........O...O.OO....O.O...........",
+  "..........O.....O.......O...........",
+  "...........O...O....................",
+  "............OO......................",
+];
+
+export class Life {
+  constructor(width, height, rule = Rule.CONWAY) {
+    this.width = width;
+    this.height = height;
+    this.rule = rule instanceof Rule ? rule : Rule.parse(rule);
+    this.current = new Uint8Array(width * height);
+    this.next = new Uint8Array(width * height);
+    this.rowMin = new Int32Array(height).fill(width);
+    this.rowMax = new Int32Array(height).fill(-1);
+    this.nextRowMin = new Int32Array(height).fill(width);
+    this.nextRowMax = new Int32Array(height).fill(-1);
+    this.generation = 0;
+  }
+
+  setRule(rule) {
+    this.rule = rule instanceof Rule ? rule : Rule.parse(rule);
+  }
+
+  clear() {
+    this.current.fill(0);
+    this.next.fill(0);
+    this.rowMin.fill(this.width);
+    this.rowMax.fill(-1);
+    this.nextRowMin.fill(this.width);
+    this.nextRowMax.fill(-1);
+    this.generation = 0;
+  }
+
+  set(x, y, val = 1) {
+    if (x >= 0 && y >= 0 && x < this.width && y < this.height) {
+      const alive = val ? 1 : 0;
+      this.current[y * this.width + x] = alive;
+      if (alive) {
+        if (x < this.rowMin[y]) this.rowMin[y] = x;
+        if (x > this.rowMax[y]) this.rowMax[y] = x;
+      }
+    }
+  }
+
+  get(x, y) {
+    return this.current[y * this.width + x];
+  }
+
+  population() {
+    const cur = this.current;
+    let total = 0;
+    for (let i = 0; i < cur.length; i++) total += cur[i];
+    return total;
+  }
+
+  cells() {
+    const { width, height, current, rowMin, rowMax } = this;
+    const out = [];
+    for (let y = 0; y < height; y++) {
+      const lo = rowMin[y];
+      const hi = rowMax[y];
+      if (lo > hi) continue;
+      const base = y * width;
+      for (let x = lo; x <= hi; x++) {
+        if (current[base + x]) out.push([x, y]);
+      }
+    }
+    return out;
+  }
+
+  toRle(comments = []) {
+    return Rle.write(this.cells(), this.rule, comments);
+  }
+
+  stamp(lines, cx, cy) {
+    const ox = cx - (lines[0].length >> 1);
+    const oy = cy - (lines.length >> 1);
+    for (let dy = 0; dy < lines.length; dy++) {
+      const row = lines[dy];
+      for (let dx = 0; dx < row.length; dx++) {
+        this.set(ox + dx, oy + dy, row[dx] === "O" ? 1 : 0);
+      }
+    }
+  }
+
+  stampCells(cells, ox, oy) {
+    let clipped = 0;
+    for (let i = 0; i < cells.length; i++) {
+      const x = ox + cells[i][0];
+      const y = oy + cells[i][1];
+      if (x >= 0 && y >= 0 && x < this.width && y < this.height) {
+        this.set(x, y, 1);
+      } else {
+        clipped++;
+      }
+    }
+    return clipped;
+  }
+
+  loadRle(text, { center = true, applyRule = true, maxCells = Rle.DEFAULT_MAX_CELLS } = {}) {
+    const pattern = Rle.read(text, maxCells);
+    this.clear();
+    if (applyRule && pattern.rule) {
+      this.rule = pattern.rule;
+    }
+    let ox = 0;
+    let oy = 0;
+    if (center && pattern.cells.length > 0) {
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+      for (let i = 0; i < pattern.cells.length; i++) {
+        const cx = pattern.cells[i][0];
+        const cy = pattern.cells[i][1];
+        if (cx < minX) minX = cx;
+        if (cy < minY) minY = cy;
+        if (cx > maxX) maxX = cx;
+        if (cy > maxY) maxY = cy;
+      }
+      const pw = Math.max(pattern.width, maxX - minX + 1);
+      const ph = Math.max(pattern.height, maxY - minY + 1);
+      ox = Math.floor((this.width - pw) / 2) - minX;
+      oy = Math.floor((this.height - ph) / 2) - minY;
+    }
+    const clipped = this.stampCells(pattern.cells, ox, oy);
+    return { ...pattern, clipped };
+  }
+
+  step() {
+    const { width, height, current, next, rowMin, rowMax, nextRowMin, nextRowMax } = this;
+    const birth = this.rule.birth;
+    const survive = this.rule.survive;
+
+    // B0 rules birth cells in empty space, so every cell must be evaluated.
+    if ((birth & 1) !== 0) {
+      for (let y = 0; y < height; y++) {
+        const up = ((y + height - 1) % height) * width;
+        const mid = y * width;
+        const dn = ((y + 1) % height) * width;
+        let lo = width;
+        let hi = -1;
+        for (let x = 0; x < width; x++) {
+          const left = (x + width - 1) % width;
+          const right = (x + 1) % width;
+          const neighbors =
+            current[up + left] +
+            current[up + x] +
+            current[up + right] +
+            current[mid + left] +
+            current[mid + right] +
+            current[dn + left] +
+            current[dn + x] +
+            current[dn + right];
+          const mask = current[mid + x] ? survive : birth;
+          const alive = (mask >>> neighbors) & 1;
+          next[mid + x] = alive;
+          if (alive) {
+            if (x < lo) lo = x;
+            if (x > hi) hi = x;
+          }
+        }
+        nextRowMin[y] = lo;
+        nextRowMax[y] = hi;
+      }
+    } else {
+      // Active-span scan: skips empty rows and empty left/right margins while remaining exact on a torus.
+      for (let y = 0; y < height; y++) {
+        const yUp = y === 0 ? height - 1 : y - 1;
+        const yDn = y === height - 1 ? 0 : y + 1;
+        const mid = y * width;
+
+        // Clear stale cells in `next` from two generations ago on this row.
+        const prevLo = nextRowMin[y];
+        const prevHi = nextRowMax[y];
+        if (prevLo <= prevHi) {
+          next.fill(0, mid + prevLo, mid + prevHi + 1);
+        }
+
+        let spanLo = rowMin[y];
+        let spanHi = rowMax[y];
+        if (rowMin[yUp] < spanLo) spanLo = rowMin[yUp];
+        if (rowMax[yUp] > spanHi) spanHi = rowMax[yUp];
+        if (rowMin[yDn] < spanLo) spanLo = rowMin[yDn];
+        if (rowMax[yDn] > spanHi) spanHi = rowMax[yDn];
+
+        if (spanLo > spanHi) {
+          nextRowMin[y] = width;
+          nextRowMax[y] = -1;
+          continue;
+        }
+
+        const up = yUp * width;
+        const dn = yDn * width;
+        let lo = width;
+        let hi = -1;
+
+        if (spanLo === 0 || spanHi === width - 1) {
+          for (let x = 0; x < width; x++) {
+            const left = x === 0 ? width - 1 : x - 1;
+            const right = x === width - 1 ? 0 : x + 1;
+            const neighbors =
+              current[up + left] +
+              current[up + x] +
+              current[up + right] +
+              current[mid + left] +
+              current[mid + right] +
+              current[dn + left] +
+              current[dn + x] +
+              current[dn + right];
+            const mask = current[mid + x] ? survive : birth;
+            const alive = (mask >>> neighbors) & 1;
+            next[mid + x] = alive;
+            if (alive) {
+              if (x < lo) lo = x;
+              if (x > hi) hi = x;
+            }
+          }
+        } else {
+          const xStart = spanLo - 1;
+          const xEnd = spanHi + 1;
+          for (let x = xStart; x <= xEnd; x++) {
+            const left = x === 0 ? width - 1 : x - 1;
+            const right = x === width - 1 ? 0 : x + 1;
+            const neighbors =
+              current[up + left] +
+              current[up + x] +
+              current[up + right] +
+              current[mid + left] +
+              current[mid + right] +
+              current[dn + left] +
+              current[dn + x] +
+              current[dn + right];
+            const mask = current[mid + x] ? survive : birth;
+            const alive = (mask >>> neighbors) & 1;
+            if (alive) {
+              next[mid + x] = 1;
+              if (x < lo) lo = x;
+              if (x > hi) hi = x;
+            }
+          }
+        }
+        nextRowMin[y] = lo;
+        nextRowMax[y] = hi;
+      }
+    }
+
+    this.current = next;
+    this.next = current;
+    this.rowMin = nextRowMin;
+    this.rowMax = nextRowMax;
+    this.nextRowMin = rowMin;
+    this.nextRowMax = rowMax;
+    this.generation++;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Falling Sand World (unchanged semantics)
+// ---------------------------------------------------------------------------
+const DENSITY = [0, 8, 4, 3, 5, 100, 100, 1, 1, 1];
+const isLiquid = (a) => a === 2 || a === 3 || a === 4;
+const isGas = (a) => a === 8 || a === 9;
+const isSolid = (a) => a === 5 || a === 6;
+const isFlammable = (a) => a === 6 || a === 3;
+const cellType = (a) => a & 15;
+const cellClock = (a) => (a >> 4) & 1;
+const cellLife = (a) => a >> 5;
+const packCell = (type, clock, life) => type | (clock << 4) | (life << 5);
+const CHUNK = 16;
+
+export class SandWorld {
+  constructor(width, height, seed = 625341585) {
+    this.width = width;
+    this.height = height;
+    this.cells = new Int32Array(width * height);
+    this.frame = 0;
+    this.seed = seed >>> 0 || 1;
+    this.columns = Math.ceil(width / CHUNK);
+    this.rows = Math.ceil(height / CHUNK);
+    this.awake = new Uint8Array(this.columns * this.rows).fill(1);
+    this.nextAwake = new Uint8Array(this.columns * this.rows);
+    this.chunksUpdated = 0;
+  }
+
+  random(n) {
+    let t = this.seed;
+    t ^= t << 13;
+    t ^= t >>> 17;
+    t ^= t << 5;
+    this.seed = t >>> 0;
+    return this.seed % n;
+  }
+
+  inside(x, y) {
+    return x >= 0 && y >= 0 && x < this.width && y < this.height;
+  }
+
+  typeAt(x, y) {
+    return this.inside(x, y) ? cellType(this.cells[y * this.width + x]) : STONE;
+  }
+
+  wake(x, y) {
+    const cx = Math.floor(x / CHUNK);
+    const cy = Math.floor(y / CHUNK);
+    for (let r = Math.max(cy - 1, 0); r <= Math.min(cy + 1, this.rows - 1); r++) {
+      for (let c = Math.max(cx - 1, 0); c <= Math.min(cx + 1, this.columns - 1); c++) {
+        this.nextAwake[r * this.columns + c] = 1;
+        this.awake[r * this.columns + c] = 1;
+      }
+    }
+  }
+
+  lifetime(type) {
+    return type === FIRE ? 30 + this.random(32) : isGas(type) ? 60 + this.random(64) : 0;
+  }
+
+  paint(x, y, type) {
+    if (this.inside(x, y)) {
+      this.cells[y * this.width + x] = packCell(type, this.frame & 1, this.lifetime(type));
+      this.wake(x, y);
+    }
+  }
+
+  paintDuringFrame(x, y, type) {
+    this.cells[y * this.width + x] = packCell(type, (this.frame + 1) & 1, this.lifetime(type));
+    this.wake(x, y);
+  }
+
+  brush(cx, cy, radius, type) {
+    for (let y = cy - radius; y <= cy + radius; y++) {
+      for (let x = cx - radius; x <= cx + radius; x++) {
+        if ((x - cx) ** 2 + (y - cy) ** 2 <= radius * radius) {
+          if (type === EMPTY || isSolid(type) || this.random(3) === 0) {
+            this.paint(x, y, type);
+          }
+        }
+      }
+    }
+  }
+
+  count(type) {
+    let total = 0;
+    for (const c of this.cells) if (cellType(c) === type) total++;
+    return total;
+  }
+
+  canEnter(mover, target, dir) {
+    if (target === EMPTY) return true;
+    if (isSolid(target) || target === FIRE) return false;
+    if (dir === "down") return DENSITY[mover] > DENSITY[target];
+    if (dir === "up") return DENSITY[mover] < DENSITY[target];
+    return false;
+  }
+
+  swap(x1, y1, x2, y2, clock) {
+    const i1 = y1 * this.width + x1;
+    const i2 = y2 * this.width + x2;
+    const a = this.cells[i1];
+    const b = this.cells[i2];
+    this.cells[i2] = packCell(cellType(a), clock, cellLife(a));
+    this.cells[i1] = cellType(b) === EMPTY ? 0 : packCell(cellType(b), clock, cellLife(b));
+    this.wake(x1, y1);
+    this.wake(x2, y2);
+  }
+
+  tryMove(x, y, nx, ny, type, dir, clock) {
+    if (!this.inside(nx, ny) || !this.canEnter(type, this.typeAt(nx, ny), dir)) return false;
+    this.swap(x, y, nx, ny, clock);
+    return true;
+  }
+
+  updateFalling(x, y, type, clock) {
+    if (this.tryMove(x, y, x, y + 1, type, "down", clock)) return true;
+    const dir = this.random(2) ? 1 : -1;
+    return !!(
+      this.tryMove(x, y, x + dir, y + 1, type, "down", clock) ||
+      this.tryMove(x, y, x - dir, y + 1, type, "down", clock) ||
+      (isLiquid(type) &&
+        ((this.typeAt(x + dir, y) === EMPTY && this.tryMove(x, y, x + dir, y, type, "down", clock)) ||
+          (this.typeAt(x - dir, y) === EMPTY && this.tryMove(x, y, x - dir, y, type, "down", clock))))
+    );
+  }
+
+  updateGas(x, y, type, clock, life) {
+    if (life <= 0) {
+      this.cells[y * this.width + x] = type === STEAM && this.random(3) === 0 ? packCell(WATER, clock, 0) : 0;
+      this.wake(x, y);
+      return;
+    }
+    this.cells[y * this.width + x] = packCell(type, clock, life - 1);
+    const dir = this.random(2) ? 1 : -1;
+    if (
+      !this.tryMove(x, y, x, y - 1, type, "up", clock) &&
+      !this.tryMove(x, y, x + dir, y - 1, type, "up", clock)
+    ) {
+      if (this.typeAt(x + dir, y) === EMPTY) {
+        this.swap(x, y, x + dir, y, clock);
+      } else {
+        this.wake(x, y);
+      }
+    }
+  }
+
+  updateFire(x, y, clock, life) {
+    let hasFuel = false;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx;
+      const ny = y + dy;
+      const t = this.typeAt(nx, ny);
+      if (this.inside(nx, ny)) {
+        if (isFlammable(t)) {
+          hasFuel = true;
+          if (this.random(12) === 0) this.paintDuringFrame(nx, ny, FIRE);
+        } else if (t === WATER) {
+          this.paintDuringFrame(nx, ny, STEAM);
+          this.cells[y * this.width + x] = 0;
+          this.wake(x, y);
+          return;
+        }
+      }
+    }
+    if (life <= 0) {
+      this.cells[y * this.width + x] = 0;
+      this.wake(x, y);
+      if (this.random(2) === 0) this.paintDuringFrame(x, y, SMOKE);
+      return;
+    }
+    this.cells[y * this.width + x] = packCell(FIRE, clock, life - 1);
+    this.wake(x, y);
+    if (!hasFuel && this.typeAt(x, y - 1) === EMPTY && this.random(3) === 0) {
+      this.swap(x, y, x, y - 1, clock);
+    }
+  }
+
+  updateAcid(x, y, clock) {
+    for (const [dx, dy] of [[0, 1], [1, 0], [-1, 0]]) {
+      const nx = x + dx;
+      const ny = y + dy;
+      const t = this.typeAt(nx, ny);
+      if (this.inside(nx, ny) && (t === WOOD || t === SAND || t === STONE) && this.random(t === STONE ? 40 : 8) === 0) {
+        this.cells[ny * this.width + nx] = 0;
+        this.cells[y * this.width + x] = 0;
+        this.wake(x, y);
+        this.wake(nx, ny);
+        return;
+      }
+    }
+    this.updateFalling(x, y, ACID, clock);
+  }
+
+  step() {
+    const clock = (this.frame + 1) & 1;
+    const leftToRight = this.frame % 2 === 0;
+    this.nextAwake.fill(0);
+    this.chunksUpdated = 0;
+    const { width, height, columns, rows, awake, cells } = this;
+    for (let r = rows - 1; r >= 0; r--) {
+      for (let c = 0; c < columns; c++) {
+        const col = leftToRight ? c : columns - 1 - c;
+        if (!awake[r * columns + col]) continue;
+        this.chunksUpdated++;
+        const y0 = r * CHUNK;
+        const y1 = Math.min(y0 + CHUNK, height);
+        const x0 = col * CHUNK;
+        const x1 = Math.min(x0 + CHUNK, width);
+        for (let y = y1 - 1; y >= y0; y--) {
+          for (let x = x0; x < x1; x++) {
+            const px = leftToRight ? x : x1 - 1 - (x - x0);
+            const g = cells[y * width + px];
+            const type = cellType(g);
+            if (type === EMPTY || isSolid(type) || cellClock(g) === clock) continue;
+            cells[y * width + px] = packCell(type, clock, cellLife(g));
+            if (type === FIRE) this.updateFire(px, y, clock, cellLife(g));
+            else if (isGas(type)) this.updateGas(px, y, type, clock, cellLife(g));
+            else if (type === ACID) this.updateAcid(px, y, clock);
+            else this.updateFalling(px, y, type, clock);
+          }
+        }
+      }
+    }
+    this.awake.set(this.nextAwake);
+    this.frame++;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Browser UI bootstrap (strict CSP: all event handlers bound here)
+// ---------------------------------------------------------------------------
+if (typeof document !== "undefined" && document.getElementById("view")) {
+  const canvas = document.getElementById("view");
+  const ctx = canvas.getContext("2d");
+  const { width, height } = canvas;
+  const img = ctx.createImageData(width, height);
+  const pixels = new Uint32Array(img.data.buffer);
+  const statusEl = document.getElementById("status");
+  const materialsEl = document.getElementById("materials");
+  const lifeControlsEl = document.getElementById("life-controls");
+  const rlePanelEl = document.getElementById("rle-panel");
+  const ruleInputEl = document.getElementById("rule-input");
+  const ruleFeedbackEl = document.getElementById("rule-feedback");
+  const rleTextEl = document.getElementById("rle-text");
+  const rleFeedbackEl = document.getElementById("rle-feedback");
+  const rulePresetButtons = [...document.querySelectorAll(".rule-preset")];
+  const patternPresetButtons = [...document.querySelectorAll(".pattern-preset")];
+
+  const rgba = (r, g, b) => (255 << 24) | (b << 16) | (g << 8) | r;
+  const palette = [];
+  palette[EMPTY] = rgba(6, 8, 13);
+  palette[SAND] = rgba(226, 192, 110);
+  palette[WATER] = rgba(56, 130, 246);
+  palette[OIL] = rgba(120, 80, 40);
+  palette[ACID] = rgba(120, 230, 70);
+  palette[STONE] = rgba(110, 118, 130);
+  palette[WOOD] = rgba(130, 84, 50);
+  palette[FIRE] = rgba(250, 120, 30);
+  palette[SMOKE] = rgba(70, 72, 80);
+  palette[STEAM] = rgba(170, 190, 205);
+  const lifeColor = rgba(56, 189, 248);
+
+  let mode = "sand";
+  let paused = false;
+  let material = SAND;
+  let drawing = false;
+  let sandWorld;
+  let lifeWorld;
+
+  const setFeedback = (el, msg, kind = "") => {
+    el.textContent = msg;
+    el.className = kind ? `feedback ${kind}` : "feedback";
+  };
+
+  const syncRuleUI = () => {
+    const notation = lifeWorld.rule.notation;
+    ruleInputEl.value = notation;
+    for (const btn of rulePresetButtons) {
+      btn.setAttribute("aria-pressed", String(btn.dataset.rule === notation));
+    }
+  };
+
+  const resetSandScene = () => {
+    sandWorld = new SandWorld(width, height);
+    for (let x = 40; x < 110; x++) sandWorld.paint(x, 90, WOOD);
+    for (let x = 140; x < 210; x++) sandWorld.paint(x, 110 - ((x - 140) >> 2), STONE);
+    sandWorld.brush(70, 25, 12, SAND);
+    sandWorld.brush(175, 25, 14, WATER);
+    sandWorld.brush(120, 40, 7, OIL);
+    sandWorld.paint(75, 89, FIRE);
+  };
+
+  const resetLifeScene = () => {
+    const currentRule = lifeWorld ? lifeWorld.rule : Rule.CONWAY;
+    lifeWorld = new Life(width, height, currentRule);
+    lifeWorld.stamp(GOSPER_GUN, 40, 30);
+    const rand = (n) => Math.floor(Math.random() * n);
+    for (let k = 0; k < 8; k++) {
+      lifeWorld.stamp(["OOO", "O..", ".O."], 120 + rand(100), 60 + rand(70));
+    }
+    syncRuleUI();
+  };
+
+  const applyRuleText = (raw) => {
+    try {
+      const parsed = Rule.parse(raw);
+      lifeWorld.setRule(parsed);
+      syncRuleUI();
+      setFeedback(ruleFeedbackEl, `Active rule: ${parsed.notation}`, "ok");
+    } catch (err) {
+      setFeedback(ruleFeedbackEl, err.message, "error");
+    }
+  };
+
+  const loadPreset = (key) => {
+    const rle = Patterns[key];
+    if (!rle) return;
+    lifeWorld.loadRle(rle, { center: true, applyRule: false });
+    setFeedback(rleFeedbackEl, `Loaded preset ${key.toLowerCase().replace("_", " ")} (${lifeWorld.population()} cells).`, "ok");
+    renderFrame();
+  };
+
+  const setMode = (nextMode) => {
+    mode = nextMode;
+    document.getElementById("mode-sand").setAttribute("aria-pressed", String(mode === "sand"));
+    document.getElementById("mode-life").setAttribute("aria-pressed", String(mode === "life"));
+    materialsEl.classList.toggle("hidden", mode !== "sand");
+    lifeControlsEl.classList.toggle("active", mode === "life");
+    rlePanelEl.classList.toggle("active", mode === "life");
+    renderFrame();
+  };
+
+  const paintAtEvent = (ev) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor(((ev.clientX - rect.left) / rect.width) * width);
+    const y = Math.floor(((ev.clientY - rect.top) / rect.height) * height);
+    if (mode === "sand") {
+      sandWorld.brush(x, y, 3, material);
+    } else {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (Math.random() < 0.6) lifeWorld.set(x + dx, y + dy, 1);
+        }
+      }
+    }
+  };
+
+  const renderFrame = () => {
+    if (mode === "sand") {
+      const cells = sandWorld.cells;
+      for (let i = 0; i < pixels.length; i++) pixels[i] = palette[cells[i] & 15];
+      const totalChunks = sandWorld.columns * sandWorld.rows;
+      statusEl.textContent = `frame ${sandWorld.frame}, chunks updated ${sandWorld.chunksUpdated} of ${totalChunks}`;
+    } else {
+      const cur = lifeWorld.current;
+      for (let i = 0; i < pixels.length; i++) pixels[i] = cur[i] ? lifeColor : palette[EMPTY];
+      statusEl.textContent = `rule ${lifeWorld.rule.notation}, generation ${lifeWorld.generation}, population ${lifeWorld.population()}`;
+    }
+    ctx.putImageData(img, 0, 0);
+  };
+
+  const tick = () => {
+    if (!paused) {
+      if (mode === "sand") sandWorld.step();
+      else lifeWorld.step();
+    }
+    renderFrame();
+    window.__silicaReady = true;
+    requestAnimationFrame(tick);
+  };
+
+  // Build Sand material buttons
+  const materials = [
+    ["Sand", SAND],
+    ["Water", WATER],
+    ["Oil", OIL],
+    ["Acid", ACID],
+    ["Fire", FIRE],
+    ["Wood", WOOD],
+    ["Stone", STONE],
+    ["Steam", STEAM],
+    ["Eraser", EMPTY],
+  ];
+  for (const [label, id] of materials) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = label;
+    btn.setAttribute("aria-pressed", String(id === material));
+    btn.addEventListener("click", () => {
+      material = id;
+      for (const child of materialsEl.children) {
+        child.setAttribute("aria-pressed", String(child === btn));
+      }
+    });
+    materialsEl.append(btn);
+  }
+
+  document.getElementById("mode-sand").addEventListener("click", () => setMode("sand"));
+  document.getElementById("mode-life").addEventListener("click", () => setMode("life"));
+  document.getElementById("pause").addEventListener("click", (ev) => {
+    paused = !paused;
+    ev.currentTarget.setAttribute("aria-pressed", String(paused));
+    ev.currentTarget.textContent = paused ? "Resume" : "Pause";
+  });
+  document.getElementById("step").addEventListener("click", () => {
+    if (mode === "sand") sandWorld.step();
+    else lifeWorld.step();
+    renderFrame();
+  });
+  document.getElementById("clear").addEventListener("click", () => {
+    if (mode === "sand") sandWorld = new SandWorld(width, height);
+    else lifeWorld.clear();
+    renderFrame();
+  });
+  document.getElementById("scene").addEventListener("click", () => {
+    if (mode === "sand") resetSandScene();
+    else resetLifeScene();
+    renderFrame();
+  });
+
+  document.getElementById("rule-apply").addEventListener("click", () => applyRuleText(ruleInputEl.value));
+  ruleInputEl.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      applyRuleText(ruleInputEl.value);
+    }
+  });
+  for (const btn of rulePresetButtons) {
+    btn.addEventListener("click", () => applyRuleText(btn.dataset.rule));
+  }
+  for (const btn of patternPresetButtons) {
+    btn.addEventListener("click", () => loadPreset(btn.dataset.pattern));
+  }
+
+  document.getElementById("rle-import").addEventListener("click", () => {
+    const raw = rleTextEl.value;
+    if (!raw.trim()) {
+      setFeedback(rleFeedbackEl, "Paste an RLE pattern first.", "error");
+      return;
+    }
+    try {
+      const res = lifeWorld.loadRle(raw, { center: true, applyRule: true });
+      syncRuleUI();
+      setFeedback(ruleFeedbackEl, "");
+      const label = res.name ? `"${res.name}" ` : "";
+      const clipNote = res.clipped > 0 ? ` (${res.clipped} clipped outside ${width}x${height})` : "";
+      setFeedback(
+        rleFeedbackEl,
+        `Imported ${label}${res.width}x${res.height}, ${res.cells.length} cells, rule ${lifeWorld.rule.notation}${clipNote}.`,
+        "ok",
+      );
+      renderFrame();
+    } catch (err) {
+      setFeedback(rleFeedbackEl, err.message, "error");
+    }
+  });
+
+  document.getElementById("rle-export").addEventListener("click", async () => {
+    try {
+      const rle = lifeWorld.toRle();
+      rleTextEl.value = rle;
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+        try {
+          await navigator.clipboard.writeText(rle);
+          setFeedback(rleFeedbackEl, `Exported ${lifeWorld.population()} cells (${lifeWorld.rule.notation}) and copied to clipboard.`, "ok");
+          return;
+        } catch {
+          // Fall through to non-clipboard status when permission is denied.
+        }
+      }
+      setFeedback(rleFeedbackEl, `Exported ${lifeWorld.population()} cells (${lifeWorld.rule.notation}).`, "ok");
+    } catch (err) {
+      setFeedback(rleFeedbackEl, err.message, "error");
+    }
+  });
+
+  canvas.addEventListener("pointerdown", (ev) => {
+    drawing = true;
+    canvas.setPointerCapture(ev.pointerId);
+    paintAtEvent(ev);
+    renderFrame();
+  });
+  canvas.addEventListener("pointermove", (ev) => {
+    if (drawing) {
+      paintAtEvent(ev);
+      renderFrame();
+    }
+  });
+  canvas.addEventListener("pointerup", () => { drawing = false; });
+  canvas.addEventListener("pointercancel", () => { drawing = false; });
+
+  resetSandScene();
+  resetLifeScene();
+  setMode(location.hash === "#life" ? "life" : "sand");
+  tick();
+}
