@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%2306080d%22/%3E%3Cpath d=%22M4 8.5l2.5 2.5L12 5%22 stroke=%22%234ade80%22 stroke-width=%222%22 fill=%22none%22/%3E%3C/svg%3E">
+<title>Rigor: Lean 4 Proof Checker</title>
+<meta name="description" content="Rigor is an independent proof checker for Lean 4 written in safe Rust. It verifies Lean's own Init and Std libraries faster and in less memory than leanchecker. Try the real kernel in your browser.">
+<style>
+:root {
+  --bg: #06080d;
+  --surface: #0e131d;
+  --border: #1a2332;
+  --text: #e2e8f0;
+  --muted: #8b99ac;
+  --primary: #38bdf8;
+  --error: #f87171;
+  --ok: #4ade80;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+main { max-width: 920px; margin: 0 auto; padding: 24px 16px 56px; }
+h1 { margin: 0 0 4px; font-size: 30px; }
+h2 { margin: 36px 0 8px; font-size: 19px; }
+p, li { color: var(--muted); }
+p { margin: 6px 0 14px; }
+a { color: var(--primary); }
+strong { color: var(--text); }
+.lead { font-size: 16px; color: var(--text); }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 14px 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button, label.file {
+  background: #131a27; color: var(--text); border: 1px solid var(--border); border-radius: 6px;
+  padding: 8px 14px; font: inherit; font-size: 14px; cursor: pointer;
+}
+button.primary { background: #0c4a6e; border-color: #0369a1; }
+button:disabled { opacity: 0.5; cursor: default; }
+label.file input { display: none; }
+#out {
+  margin-top: 12px; padding: 12px; min-height: 64px; border-radius: 6px; background: #05070b; border: 1px solid var(--border);
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-word; color: var(--text);
+}
+#out.ok { border-color: #166534; }
+#out.bad { border-color: #7f1d1d; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14px; }
+th, td { text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 600; }
+td.win { color: var(--ok); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin: 14px 0; }
+.fact { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.fact b { display: block; font-size: 22px; color: var(--text); }
+.fact span { font-size: 13px; color: var(--muted); }
+.small { font-size: 13px; }
+</style>
+<script type="module" src="./app.js"></script>
+</head>
+<body>
+<main>
+  <p class="small"><a href="../">Aether</a> / Rigor</p>
+  <h1>Rigor</h1>
+  <p class="lead">An independent proof checker for Lean 4, written in safe Rust. It re-checks every definition and theorem that Lean exports, so a proof is trusted only if a second, small kernel agrees.</p>
+
+  <div class="facts">
+    <div class="fact"><b>3.8&times; faster</b><span>than leanchecker on Lean's Std library (11.9 s vs 44.2 s)</span></div>
+    <div class="fact"><b>25% less memory</b><span>on Std (696 MB vs 928 MB peak)</span></div>
+    <div class="fact"><b>~2,900 lines</b><span>of kernel, <code>forbid(unsafe_code)</code>, no dependencies</span></div>
+    <div class="fact"><b>0 of 1,482</b><span>meaning-changing mutants accepted in mutation testing</span></div>
+  </div>
+
+  <h2>Try the real kernel</h2>
+  <p>The same kernel and parser, compiled to WebAssembly, run below on Lean's <code>Init.Prelude</code> export (1,840 declarations; 570 KB download). Checking runs in a background worker on one thread. <strong>Tamper</strong> gives one theorem another theorem's proof; the kernel must refuse it.</p>
+  <div class="panel">
+    <div class="row">
+      <button id="run" class="primary" disabled>Check Init.Prelude</button>
+      <button id="tamper" disabled>Tamper, then check</button>
+      <label class="file">Check your own export&hellip;<input id="file" type="file" accept=".ndjson,.gz,application/json"></label>
+    </div>
+    <div id="out" role="status" aria-live="polite">Loading the kernel&hellip;</div>
+    <p class="small">Your own file: run <code>lake exe lean4export YourModule &gt; out.ndjson</code> (lean4export 3.x, NDJSON). It is read in this page only. Large libraries are faster with the native, multi-threaded build.</p>
+  </div>
+
+  <h2>Measured against leanchecker</h2>
+  <p>Lean v4.36.0-rc1 exports, Apple M4 MacBook Air, <code>leanchecker --fresh</code> against <code>rigor-bench --check</code>. Peak resident memory from <code>/usr/bin/time -l</code>. Rigor&rsquo;s times include parsing the text export (332 MB for Init, 532 MB for Std); leanchecker reads compiled <code>.olean</code> files.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Library</th><th>Declarations</th><th>leanchecker</th><th>Rigor, parallel</th><th>Rigor, one thread</th></tr></thead>
+    <tbody>
+      <tr><td>Init</td><td>58,546</td><td>28.7 s &middot; 547 MB</td><td class="win">7.8 s &middot; 478 MB</td><td class="win">25.1 s &middot; 404 MB</td></tr>
+      <tr><td>Std</td><td>96,626</td><td>44.2 s &middot; 928 MB</td><td class="win">11.9 s &middot; 696 MB</td><td>44.9 s &middot; 567 MB</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>How it stays trustworthy</h2>
+  <ul>
+    <li><strong>Small, auditable kernel.</strong> Type inference, definitional equality and the inductive-type checker fit in about 2,900 lines of Rust with <code>#![forbid(unsafe_code)]</code> and zero third-party crates. Recursors are regenerated and checked, never taken from the export.</li>
+    <li><strong>Lean's rules, not shortcuts.</strong> Large elimination, proof irrelevance, eta for functions and structures, unit-like types, <code>Nat</code> and string literals and <code>eagerReduce</code> follow Lean's own kernel.</li>
+    <li><strong>Mutation testing.</strong> Exports are corrupted on purpose (swapped proofs, changed universes, broken definitions, altered inductive types) and re-checked. Across four rounds and 1,482 mutants, every change that alters meaning was rejected; the few accepted ones were provably harmless (for example <code>outParam</code> vs <code>semiOutParam</code>, which are the same function).</li>
+    <li><strong>Fast without trusting more.</strong> Hash-consed expressions in 16-byte nodes, cached reduction and parallel checking of independent declarations; none of it adds rules to the kernel.</li>
+  </ul>
+
+  <p><a href="https://github.com/Aetherx86/Rigor">Source on GitHub</a> &middot; MIT license.</p>
+</main>
+</body>
+</html>
