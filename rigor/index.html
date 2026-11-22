@@ -66,8 +66,8 @@ td.win { color: var(--ok); }
   <div class="facts">
     <div class="fact"><b>3.8&times; faster</b><span>than leanchecker on Lean's Std library (11.9 s vs 44.2 s)</span></div>
     <div class="fact"><b>25% less memory</b><span>on Std (696 MB vs 928 MB peak)</span></div>
-    <div class="fact"><b>~2,900 lines</b><span>of kernel, <code>forbid(unsafe_code)</code>, no dependencies</span></div>
-    <div class="fact"><b>0 of 1,482</b><span>meaning-changing mutants accepted in mutation testing</span></div>
+    <div class="fact"><b>~2,600 lines</b><span>of kernel, <code>forbid(unsafe_code)</code>, no dependencies</span></div>
+    <div class="fact"><b>0 of 1,608</b><span>meaning-changing mutants accepted in mutation testing</span></div>
   </div>
 
   <h2>Try the real kernel</h2>
@@ -96,9 +96,9 @@ td.win { color: var(--ok); }
 
   <h2>How it stays trustworthy</h2>
   <ul>
-    <li><strong>Small, auditable kernel.</strong> Type inference, definitional equality and the inductive-type checker fit in about 2,900 lines of Rust with <code>#![forbid(unsafe_code)]</code> and zero third-party crates. Recursors are regenerated and checked, never taken from the export.</li>
+    <li><strong>Small, auditable kernel.</strong> Type inference, definitional equality and the inductive-type checker fit in about 2,600 lines of Rust with <code>#![forbid(unsafe_code)]</code> and zero third-party crates. Recursors are regenerated and checked, never taken from the export.</li>
     <li><strong>Lean's rules, not shortcuts.</strong> Large elimination, proof irrelevance, eta for functions and structures, unit-like types, <code>Nat</code> and string literals and <code>eagerReduce</code> follow Lean's own kernel.</li>
-    <li><strong>Mutation testing.</strong> Exports are corrupted on purpose (swapped proofs, changed universes, broken definitions, altered inductive types) and re-checked. Across four rounds and 1,482 mutants, every change that alters meaning was rejected; the few accepted ones were provably harmless (for example <code>outParam</code> vs <code>semiOutParam</code>, which are the same function).</li>
+    <li><strong>Mutation testing.</strong> Exports are corrupted on purpose (swapped proofs, changed universes, broken definitions, altered inductive types) and re-checked. Across eight rounds and 1,608 mutants, every change that alters meaning was rejected; the few accepted ones were provably harmless (for example <code>outParam</code> vs <code>semiOutParam</code>, which are the same function).</li>
     <li><strong>Fast without trusting more.</strong> Hash-consed expressions in 16-byte nodes, cached reduction and parallel checking of independent declarations; none of it adds rules to the kernel.</li>
   </ul>
 
