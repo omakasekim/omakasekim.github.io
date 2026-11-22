@@ -154,6 +154,7 @@
       padding: 2px 0;
     }
     .pills-scroll::-webkit-scrollbar { display: none; }
+    @media (max-width: 640px) { .spec-table { display: block; max-width: 100%; overflow-x: auto; } }
     .prod-pill {
       display: inline-flex;
       align-items: center;
@@ -444,6 +445,7 @@ header {
 }
 .brand-logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: #f8fafc; text-decoration: none; }
 .nav-links { display: flex; align-items: center; gap: 24px; }
+@media (max-width: 520px) { .header-inner { padding: 0 12px; } .nav-links { gap: 12px; } .btn-header-store { padding: 6px 10px; } }
 .nav-item {
   background: none; border: none; color: #94a3b8; font-family: inherit; font-size: 0.9rem;
   font-weight: 500; text-decoration: none; cursor: pointer; padding: 6px 0; display: inline-flex;
@@ -933,22 +935,24 @@ Skip 58% Runner Minutes               Zero-Downtime Safe Rewrites          > 95 
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Interactive Watered-Down Testbed: Migration Lock &amp; Flake Evaluator</span>
-            <span class="sandbox-badge">Client Kernel v0.4.1</span>
+            <span>⚡ Live Testbed: PostgreSQL Migration Lock Analyzer</span>
+            <span class="sandbox-badge">drift-sentinel 1.2.0</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Deterministic Local AST</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">The shipped drift-sentinel analyzer (fast mode), bundled for the browser. Your SQL stays in this page.</div>
         </div>
         <div class="sandbox-controls">
           <button class="btn-sample" onclick="loadSentinelTest('lock')">Hazard 1: AccessExclusive Column Add</button>
           <button class="btn-sample" onclick="loadSentinelTest('rewrite')">Hazard 2: Volatile Default Table Rewrite</button>
-          <button class="btn-sample" onclick="loadSentinelTest('prune')">Matrix 3: 48-Suite CI Monorepo Diff</button>
+          <button class="btn-sample" onclick="loadSentinelTest('index')">Hazard 3: Index Without CONCURRENTLY</button>
+          <button class="btn-sample" onclick="loadSentinelTest('safe')">Safe: Expand-and-Backfill Pattern</button>
+          <label class="btn-sample">PostgreSQL <select id="sentinel-pg" aria-label="PostgreSQL version"><option>11</option><option>12</option><option>13</option><option>14</option><option selected>15</option><option>16</option><option>17</option></select></label>
         </div>
-        <textarea id="sentinel-input" class="sandbox-editor" placeholder="Enter DDL query or CI diff manifest..."></textarea>
+        <textarea id="sentinel-input" class="sandbox-editor" placeholder="Paste a PostgreSQL migration (one or more statements)" spellcheck="false"></textarea>
         <button class="btn-run-sandbox" onclick="runSentinelSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Run Local Preflight Evaluation
         </button>
-        <div id="sentinel-output" class="sandbox-output">[SENTINEL-KERNEL] Ready for input. Choose a preset test vector above or paste a custom DDL migration.</div>
+        <div id="sentinel-output" class="sandbox-output">Pick a sample or paste a migration, then run. Lock modes, hazards and the safe rollout plan come from the drift-sentinel analyzer.</div>
       </div>
 
       <div class="cta-row">
@@ -1001,14 +1005,14 @@ Skip 58% Runner Minutes               Zero-Downtime Safe Rewrites          > 95 
         </table>
       </div>
 
-      <!-- INTERACTIVE WATERED-DOWN TESTBED -->
+      <!-- INTERACTIVE TESTBED -->
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Interactive Watered-Down Testbed: Carbon AST &amp; SemIR Interpreter</span>
-            <span class="sandbox-badge">Hexane Compiler v0.1.0</span>
+            <span>⚡ Interactive Testbed: Carbon Checker, SemIR, C99 Transpiler &amp; Interpreter</span>
+            <span class="sandbox-badge">Hexane 0.4.0 compiled to WebAssembly</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">1.4ms In-Memory Kernel</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Pure-Rust wasm32</div>
         </div>
         <div class="sandbox-controls">
           <button class="btn-sample" onclick="loadHexaneTest('sieve')">Sample: Sieve of Eratosthenes</button>
@@ -1018,9 +1022,9 @@ Skip 58% Runner Minutes               Zero-Downtime Safe Rewrites          > 95 
         <textarea id="hexane-input" class="sandbox-editor" placeholder="Enter Carbon source code..."></textarea>
         <button class="btn-run-sandbox" onclick="runHexaneSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Compile to SemIR &amp; Transpile C99
+          Check, Emit SemIR, Transpile C99 &amp; Run
         </button>
-        <div id="hexane-output" class="sandbox-output">[HEXANE] Compiler ready. Click a Carbon sample above and run the kernel.</div>
+        <div id="hexane-output" class="sandbox-output">[HEXANE] Ready. Click a Carbon sample above or type Carbon code, then run Hexane 0.4.0 (loads WebAssembly on first run).</div>
       </div>
 
       <div class="cta-row">
@@ -1073,22 +1077,24 @@ Layer 6-7: rea desktop (eframe / WGPU), rea-cli, rea-web (Client-side WebAssembl
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Interactive Watered-Down Testbed: Multi-Arch Disassembler &amp; Decompiler</span>
-            <span class="sandbox-badge" style="color: #c084fc; border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.1);">REA Core v7.0.3</span>
+            <span>⚡ Live Testbed: Multi-Arch Disassembler &amp; Pseudo-C Lifter</span>
+            <span class="sandbox-badge" style="color: #c084fc; border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.1);">REA 7.1.0 engine</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Pure-Rust Decoder</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">The real rea-disasm crate compiled to WebAssembly (1 MB, loaded on first run). Your bytes stay in this page.</div>
         </div>
         <div class="sandbox-controls">
-          <button class="btn-sample" onclick="loadReaTest('macho')">Binary 1: ARM64 Mach-O Function Header</button>
-          <button class="btn-sample" onclick="loadReaTest('x86')">Binary 2: x86_64 ELF Bitwise Encryption</button>
-          <button class="btn-sample" onclick="loadReaTest('evidence')">Ledger 3: Hash-Chained Evidence Ledger</button>
+          <button class="btn-sample" onclick="loadReaTest('x86')">x86_64: load, add, return</button>
+          <button class="btn-sample" onclick="loadReaTest('arm')">AArch64: add two arguments</button>
+          <button class="btn-sample" onclick="loadReaTest('riscv')">RISC-V 64: branch and add</button>
+          <select id="rea-arch" class="btn-sample" aria-label="Architecture"><option value="x86_64">x86_64</option><option value="x86">x86 (32-bit)</option><option value="aarch64">AArch64</option><option value="arm">ARM (32-bit)</option><option value="riscv64">RISC-V 64</option><option value="riscv32">RISC-V 32</option></select>
+          <input id="rea-base" class="btn-sample" aria-label="Load address (hex)" value="1000" size="10" spellcheck="false">
         </div>
-        <textarea id="rea-input" class="sandbox-editor" placeholder="Enter hex opcode bytes or binary structure..."></textarea>
+        <textarea id="rea-input" class="sandbox-editor" placeholder="Machine code as hex bytes, e.g. 55 48 89 e5 5d c3 (up to 64 KB)" spellcheck="false"></textarea>
         <button class="btn-run-sandbox" style="background: linear-gradient(180deg, #9333ea 0%, #7e22ce 100%);" onclick="runReaSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Disassemble &amp; Lift to Pseudo-C
         </button>
-        <div id="rea-output" class="sandbox-output">[REA-KERNEL] Ready. Select a sample above to test pure-Rust instruction disassembly and CFG lifting.</div>
+        <div id="rea-output" class="sandbox-output">Pick a sample or paste hex bytes, choose the architecture and load address, then run. Function discovery, disassembly and pseudo-C come from the REA 7.1.0 engine.</div>
       </div>
 
       <div class="cta-row">
@@ -1145,22 +1151,23 @@ Protected Binary (VMProtect 3.x / Themida)
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Interactive Watered-Down Testbed: SMT MBA Simplifier &amp; IR Lifter</span>
-            <span class="sandbox-badge">Z3 SMT Integration</span>
+            <span>⚡ Live Testbed: Linear MBA Simplifier</span>
+            <span class="sandbox-badge">In-browser method</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Symbolic Solver</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">The linear mixed Boolean-arithmetic method in JavaScript (truth table, Moebius transform mod 2^64, random 64-bit check). The full VMP_DEVIRT toolchain is C++/LLVM and does not run in a browser.</div>
         </div>
         <div class="sandbox-controls">
-          <button class="btn-sample" onclick="loadVmpTest('mba')">Vector 1: Mixed Boolean-Arithmetic (MBA)</button>
-          <button class="btn-sample" onclick="loadVmpTest('dispatch')">Vector 2: VMProtect 3.x Dispatch Loop</button>
-          <button class="btn-sample" onclick="loadVmpTest('opaque')">Vector 3: Opaque Conditional Branch</button>
+          <button class="btn-sample" onclick="loadVmpTest('mba')">MBA 1: obfuscated addition</button>
+          <button class="btn-sample" onclick="loadVmpTest('three')">MBA 2: three variables</button>
+          <button class="btn-sample" onclick="loadVmpTest('opaque')">MBA 3: opaque zero</button>
+          <button class="btn-sample" onclick="loadVmpTest('nonlinear')">Not linear: x*y</button>
         </div>
-        <textarea id="vmp-input" class="sandbox-editor" placeholder="Enter obfuscated bytecode or MBA expression..."></textarea>
+        <textarea id="vmp-input" class="sandbox-editor" placeholder="64-bit expression with + - * &amp; | ^ ~ and parentheses, e.g. (x ^ y) + 2*(x &amp; y)" spellcheck="false"></textarea>
         <button class="btn-run-sandbox" onclick="runVmpSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Execute SMT Simplification &amp; Lift to LLVM
+          Simplify &amp; Check
         </button>
-        <div id="vmp-output" class="sandbox-output">[VMP_DEVIRT] Ready. Select an obfuscation vector above to evaluate symbolic elimination.</div>
+        <div id="vmp-output" class="sandbox-output">Pick a sample or type an expression, then run. The result is checked on random 64-bit inputs before it is shown.</div>
       </div>
 
       <div class="cta-row">
@@ -1214,22 +1221,23 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Interactive Watered-Down Testbed: IVC Folding Step Simulator</span>
-            <span class="sandbox-badge">Nova CCS Accumulator</span>
+            <span>⚡ Live Testbed: Prove and Verify a Guest Program</span>
+            <span class="sandbox-badge">zk-hyperVM 0.4.0 engine</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">LogUp Lookup Engine</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">The real prover compiled to WebAssembly (1.2 MB, runs in a background worker). The guest runs under the hypervisor model, its trace is folded and the decider checks it.</div>
         </div>
         <div class="sandbox-controls">
-          <button class="btn-sample" onclick="loadZkTest('ept')">Step 1: EPT 4-Level Page Walk &amp; CR3 Reload</button>
-          <button class="btn-sample" onclick="loadZkTest('vmcs')">Step 2: VMCS Guest_RIP Transition Intercept</button>
-          <button class="btn-sample" onclick="loadZkTest('virtio')">Step 3: Paravirtualized VirtIO Packet Dispatch</button>
+          <button class="btn-sample" onclick="loadZkTest('memory')">Memory through EPT + exits</button>
+          <button class="btn-sample" onclick="loadZkTest('exits')">CPUID and hypercall exits</button>
+          <button class="btn-sample" onclick="loadZkTest('virtio')">MSR write + VirtIO kicks</button>
+          <label class="btn-sample">Iterations <input id="zk-iterations" type="number" min="1" max="16" value="4" style="width:3.5em"></label>
         </div>
-        <textarea id="zk-input" class="sandbox-editor" placeholder="Enter execution trace step parameters..."></textarea>
+        <textarea id="zk-input" class="sandbox-editor" placeholder="Guest program, one instruction per line: movimm, add, sub, load, store, cpuid, vmcall, hlt, movcr, rdmsr, wrmsr, kick. # starts a comment." spellcheck="false"></textarea>
         <button class="btn-run-sandbox" onclick="runZkSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Fold Step into IVC Accumulator
+          Run, Prove &amp; Verify
         </button>
-        <div id="zk-output" class="sandbox-output">[ZK-HYPERVM] Folding engine ready. Select a hypervisor state transition to compute cross-term folding.</div>
+        <div id="zk-output" class="sandbox-output">Pick a sample or write a guest program, then run. Every number below comes from the prover running on this device.</div>
       </div>
 
       <div class="cta-row">
@@ -1267,26 +1275,26 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
         Enables hospital consortia to compute clinical cohort queries (e.g. average diabetic HbA1c, survival rates) across multiple institutions without any hospital or third party ever seeing another institution's raw patient records. Integrates directly with HL7 FHIR, encrypts with RNS-CKKS and BFV, signs with post-quantum ML-DSA-65, and proves validity with zero-knowledge range proofs resting solely on SHA-256.
       </p>
 
-      <!-- INTERACTIVE WATERED-DOWN TESTBED -->
+      <!-- INTERACTIVE TESTBED -->
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Interactive Watered-Down Testbed: Homomorphic Ciphertext Aggregator</span>
-            <span class="sandbox-badge">RNS-CKKS Scheme</span>
+            <span>⚡ Interactive Testbed: RNS-CKKS Threshold Aggregator &amp; SHA-256 Range Proof</span>
+            <span class="sandbox-badge">medcrypto-fhe &amp; medcrypto-pq 0.5.0 compiled to WebAssembly</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Consortium Mode</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Pure-Rust wasm32</div>
         </div>
         <div class="sandbox-controls">
           <button class="btn-sample" onclick="loadMedTest('hba1c')">Cohort 1: 3-Hospital Diabetic HbA1c Aggregation</button>
           <button class="btn-sample" onclick="loadMedTest('oncology')">Cohort 2: Oncology Survival Rate Variance</button>
           <button class="btn-sample" onclick="loadMedTest('zkproof')">Proof 3: SHA-256 Lab Value Range Verification</button>
         </div>
-        <textarea id="med-input" class="sandbox-editor" placeholder="Enter FHIR patient cohort configuration..."></textarea>
+        <textarea id="med-input" class="sandbox-editor" placeholder="Enter JSON cohort values or range proof request..."></textarea>
         <button class="btn-run-sandbox" onclick="runMedSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Run Homomorphic Sum &amp; Threshold Decrypt
+          Run Encrypted Aggregation / Range Proof
         </button>
-        <div id="med-output" class="sandbox-output">[MEDCRYPTO] Node initialized. Choose a simulated multi-hospital cohort above.</div>
+        <div id="med-output" class="sandbox-output">[MEDCRYPTO] Ready. Select a cohort or range proof above (loads medcrypto-fhe + medcrypto-pq 0.5.0 WebAssembly on first run).</div>
       </div>
 
       <div class="cta-row">
@@ -1328,22 +1336,22 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Interactive Watered-Down Testbed: Stateful Invariant Fuzzer &amp; Trace</span>
-            <span class="sandbox-badge">EVM Symbolic SMT</span>
+            <span>⚡ Live Testbed: EVM Bytecode Inspector</span>
+            <span class="sandbox-badge">rusty-chain-kit 0.2.0</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Halmos + Foundry</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">rusty-chain-kit's bytecode module (evmole ABI recovery, proxy detection, CFG) compiled to WebAssembly. The fuzzer, RPC and forensics need a node and stay in the desktop kit.</div>
         </div>
         <div class="sandbox-controls">
-          <button class="btn-sample" onclick="loadChainTest('reentrancy')">Scenario 1: Cross-Function Reentrancy Drain</button>
-          <button class="btn-sample" onclick="loadChainTest('collision')">Scenario 2: EIP-1967 Proxy Slot Collision</button>
-          <button class="btn-sample" onclick="loadChainTest('flashloan')">Scenario 3: Multi-Hop Flash Loan Liquidity Squeeze</button>
+          <button class="btn-sample" onclick="loadChainTest('token')">Contract 1: ERC-20 style token</button>
+          <button class="btn-sample" onclick="loadChainTest('vault')">Contract 2: ETH vault</button>
+          <button class="btn-sample" onclick="loadChainTest('clone')">Contract 3: EIP-1167 minimal proxy</button>
         </div>
-        <textarea id="chain-input" class="sandbox-editor" placeholder="Enter Solidity contract or transaction trace..."></textarea>
+        <textarea id="chain-input" class="sandbox-editor" placeholder="Deployed runtime bytecode as hex (0x6080...), e.g. from eth_getCode or forge inspect &lt;Contract&gt; deployedBytecode" spellcheck="false"></textarea>
         <button class="btn-run-sandbox" onclick="runChainSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Run Stateful Invariant Fuzzing
+          Inspect Bytecode
         </button>
-        <div id="chain-output" class="sandbox-output">[RUSTY-CHAIN] Fuzzer initialized. Select an exploit test vector above.</div>
+        <div id="chain-output" class="sandbox-output">Pick a sample (compiled with solc 0.8.26) or paste runtime bytecode, then run.</div>
       </div>
 
       <div class="cta-row">
@@ -1376,262 +1384,280 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
     const sentinelPresets = {
       lock: "ALTER TABLE users ADD COLUMN phone_number VARCHAR(32) NOT NULL;",
       rewrite: "ALTER TABLE audit_records ADD COLUMN event_uuid UUID DEFAULT gen_random_uuid();",
-      prune: "CI_EVENT: pull_request\nBASE: main\nHEAD: feat/auth-tokens\nDIFF_FILES:\n  - services/auth/src/token.rs\n  - services/auth/Cargo.toml\nACTIVE_SUITES: 48 monorepo matrix runners"
+      index: "CREATE INDEX idx_orders_user ON orders (user_id);",
+      safe: "SET lock_timeout = '3s';\nALTER TABLE users ADD COLUMN phone_number VARCHAR(32);\nCREATE INDEX CONCURRENTLY idx_users_phone ON users (phone_number);"
     };
 
     function loadSentinelTest(k) {
       document.getElementById('sentinel-input').value = sentinelPresets[k];
     }
 
-    function runSentinelSandbox() {
-      const v = document.getElementById('sentinel-input').value.trim();
+    let sentinelEngine = null;
+    async function runSentinelSandbox() {
       const out = document.getElementById('sentinel-output');
-      if (!v) {
-        out.innerHTML = "[ERROR] Input empty. Please select a preset test above.";
-        return;
-      }
-      if (v.includes("phone_number") || v.includes("NOT NULL")) {
-        out.innerHTML = [
-          "[SENTINEL PREFLIGHT DETECTED LOCK HAZARD]",
-          "--------------------------------------------------------------------------------",
-          "Statement : " + v,
-          "Lock Level: ACCESS EXCLUSIVE (Blocks all reads, writes, and SELECT queries)",
-          "Severity  : CRITICAL HAZARD - Table rewrite triggered without default backfill",
-          "Impact    : Estimated table freeze: > 35,000ms under 2,000 QPS load",
-          "--------------------------------------------------------------------------------",
-          "RECOMMENDED ZERO-DOWNTIME REWRITE RECIPE:",
-          "  1. ALTER TABLE users ADD COLUMN phone_number VARCHAR(32);",
-          "  2. (Background worker batches backfill for existing rows in chunks of 5000)",
-          "  3. ALTER TABLE users ADD CONSTRAINT check_phone_not_null CHECK (phone_number IS NOT NULL) NOT VALID;",
-          "  4. ALTER TABLE users VALIDATE CONSTRAINT check_phone_not_null; [SAFE / NO DOWNTIME]"
-        ].join("\n");
-      } else if (v.includes("gen_random_uuid") || v.includes("DEFAULT")) {
-        out.innerHTML = [
-          "[SENTINEL PREFLIGHT DETECTED VOLATILE DEFAULT HAZARD]",
-          "--------------------------------------------------------------------------------",
-          "Statement : " + v,
-          "Lock Level: ACCESS EXCLUSIVE",
-          "Hazard    : Volatile expression gen_random_uuid() forces PostgreSQL to physically rewrite every existing tuple on disk.",
-          "Downtime  : 100% blocking outage on table audit_records for full rewrite duration.",
-          "Resolution: Pre-assign default via trigger or apply batch migration sequence."
-        ].join("\n");
-      } else {
-        out.innerHTML = [
-          "[SENTINEL MATRIX PRUNER EVALUATION]",
-          "--------------------------------------------------------------------------------",
-          "Monorepo Impact Graph: Only services/auth impacted across DAG dependencies.",
-          "Active Suites Pruned : 41 of 48 runners safely pruned (85.4% skipped).",
-          "Retained Suites      : auth-unit, auth-integration, e2e-smoke-critical.",
-          "Wilson Flake Filter  : Flaky test test_billing_webhook_race damped (0 false alarms).",
-          "Compute Reduction    : 148 runner minutes saved ($1.18 saved on this single PR)."
-        ].join("\n");
+      const sql = document.getElementById('sentinel-input').value;
+      if (!sql.trim()) { out.textContent = 'Paste a migration first.'; return; }
+      try {
+        if (!sentinelEngine) sentinelEngine = await import('./testbeds/sentinel/sentinel.mjs');
+        const { report, plan } = sentinelEngine.analyze(sql, Number(document.getElementById('sentinel-pg').value));
+        const lines = ['Severity ' + report.severity + ' (exit code ' + report.exitCode + ') · ' + report.statementCount + ' statement(s) · PostgreSQL ' + report.engineVersion, ''];
+        for (const st of report.statements) lines.push('  [' + st.lockMode + '] ' + (st.statement.sql || '').replace(/\s+/g, ' ').slice(0, 110));
+        lines.push('');
+        if (!report.hazards.length) lines.push('No lock hazards found.');
+        for (const h of report.hazards) {
+          lines.push(h.severity + '  ' + h.code + '  line ' + h.line + (h.tableName ? '  table ' + h.tableName : ''));
+          lines.push('  ' + h.message);
+          lines.push('  Fix: ' + h.remediation, '');
+        }
+        if (plan && plan.hasHazards && plan.renderedSql) lines.push('Safe rollout plan:', plan.renderedSql);
+        out.textContent = lines.join('\n');
+      } catch (e) {
+        out.textContent = 'The analyzer could not run: ' + (e && e.message ? e.message : e);
       }
     }
 
     // 2. Hexane
     const hexanePresets = {
-      sieve: 'package Math library "v0.1.0";\n\nfn Sieve(limit: i32) -> i32 {\n  var count: i32 = 0;\n  var i: i32 = 2;\n  while (i < limit) {\n    count = count + 1;\n    i = i + 1;\n  }\n  return count;\n}',
-      fib: 'package Algorithms library "v0.1.0";\n\nfn Fibonacci(n: i32) -> i32 {\n  if (n <= 1) { return n; }\n  return Fibonacci(n - 1) + Fibonacci(n - 2);\n}',
-      class: 'package Data library "v0.1.0";\n\nclass Vector3 {\n  var x: f32;\n  var y: f32;\n  var z: f32;\n  fn Magnitude() -> f32 { return 1.0; }\n}'
+      sieve: 'package Math api;\n\nfn CountPrimes(limit: i32) -> i32 {\n  var is_prime: array(bool, 100);\n  var i: i32 = 0;\n  while (i < limit) {\n    is_prime[i] = true;\n    i = i + 1;\n  }\n  var count: i32 = 0;\n  var p: i32 = 2;\n  while (p < limit) {\n    if (is_prime[p]) {\n      count = count + 1;\n      var m: i32 = p * 2;\n      while (m < limit) {\n        is_prime[m] = false;\n        m = m + p;\n      }\n    }\n    p = p + 1;\n  }\n  return count;\n}\n\nfn Run() -> i32 {\n  return CountPrimes(50);\n}',
+      fib: 'package Algorithms api;\n\nfn Fibonacci(n: i32) -> i32 {\n  if (n <= 1) {\n    return n;\n  }\n  return Fibonacci(n - 1) + Fibonacci(n - 2);\n}\n\nfn Run() -> i32 {\n  return Fibonacci(12);\n}',
+      class: 'package Geometry api;\n\nclass Vec3 {\n  var x: i32;\n  var y: i32;\n  var z: i32;\n\n  fn Make(x: i32, y: i32, z: i32) -> Vec3 {\n    returned var v: Vec3;\n    v.x = x;\n    v.y = y;\n    v.z = z;\n    return var;\n  }\n\n  fn NormSq(self) -> i32 {\n    return self.x * self.x + self.y * self.y + self.z * self.z;\n  }\n}\n\nfn Run() -> i32 {\n  var v: Vec3 = Vec3.Make(3, 4, 12);\n  return v.NormSq();\n}'
     };
+
+    let hexaneWasmPromise = null;
+    async function loadHexaneWasm() {
+      if (!hexaneWasmPromise) {
+        hexaneWasmPromise = (async () => {
+          const mod = await import('./testbeds/hexane/hexane_wasm.js');
+          await mod.default();
+          return mod;
+        })();
+      }
+      return hexaneWasmPromise;
+    }
 
     function loadHexaneTest(k) {
       document.getElementById('hexane-input').value = hexanePresets[k];
     }
 
-    function runHexaneSandbox() {
+    async function runHexaneSandbox() {
       const v = document.getElementById('hexane-input').value.trim();
       const out = document.getElementById('hexane-output');
       if (!v) {
-        out.innerHTML = "[ERROR] Input empty. Please select a preset Carbon code sample above.";
+        out.textContent = "[ERROR] Input empty. Please select a preset Carbon code sample above.";
         return;
       }
-      out.innerHTML = [
-        "[HEXANE COMPILER ENGINE v0.1.0 - TARGET: NATIVE LLVM / C99]",
-        "Parsing AST ................. [OK] (0.28 ms)",
-        "Typechecking SemIR .......... [OK] (0.42 ms, 0 type errors)",
-        "Memory Invariants Verified .. [OK] (100% Safe Rust, 0 UB, 0 Leaks)",
-        "--------------------------------------------------------------------------------",
-        "GENERATED C99 EQUIVALENT (Clean Transpilation):",
-        "  #include <stdint.h>",
-        "  #include <stdbool.h>",
-        "  int32_t hexane_generated_exec(void) {",
-        "    int32_t res = 42;",
-        "    return res;",
-        "  }",
-        "--------------------------------------------------------------------------------",
-        "EMITTED SemIR SSA BYTECODE:",
-        "  %0 = block_entry",
-        "  %1 = var i32",
-        "  %2 = call @Core.IO.Print(%1)",
-        "  return %1",
-        "--------------------------------------------------------------------------------",
-        "Execution benchmark: 1.4 ms elapsed &bull; Peak RSS: 0.8 MB &bull; Return code: 0"
-      ].join("\n");
+      out.textContent = "[HEXANE] Loading Hexane 0.4.0 WebAssembly module...";
+      try {
+        const mod = await loadHexaneWasm();
+        out.textContent = mod.compile_carbon(v);
+      } catch (err) {
+        hexaneWasmPromise = null;
+        out.textContent = "[HEXANE ERROR] " + (err && err.message ? err.message : String(err));
+      }
     }
 
     // 3. REA
     const reaPresets = {
-      macho: "55 48 89 E5 48 83 EC 20 48 89 7D E8 48 8B 45 E8 8B 00 83 C0 01 48 83 C4 20 5D C3",
-      x86: "48 31 C0 48 89 C7 48 F7 D7 48 89 F8 48 83 C0 2A C3",
-      evidence: "REA_EVIDENCE_QUERY: target=/Applications/MockApp.app\nLEDGER_INDEX: 0x000F4240\nCRITICALITY: OBSERVED_STATIC"
+      x86: { arch: 'x86_64', base: '1000', hex: '55 48 89 E5 48 83 EC 20 48 89 7D E8 48 8B 45 E8 8B 00 83 C0 01 48 83 C4 20 5D C3' },
+      arm: { arch: 'aarch64', base: '100000', hex: '00 00 01 0B C0 03 5F D6' },
+      riscv: { arch: 'riscv64', base: '10000', hex: '63 84 05 00 33 05 B5 00 67 80 00 00' }
     };
 
     function loadReaTest(k) {
-      document.getElementById('rea-input').value = reaPresets[k];
+      const p = reaPresets[k];
+      document.getElementById('rea-input').value = p.hex;
+      document.getElementById('rea-arch').value = p.arch;
+      document.getElementById('rea-base').value = p.base;
     }
 
-    function runReaSandbox() {
-      const v = document.getElementById('rea-input').value.trim();
+    let reaEngine = null;
+    async function runReaSandbox() {
       const out = document.getElementById('rea-output');
-      out.innerHTML = [
-        "[REA 7.0 - PURE RUST REVERSE-ENGINEERING ENGINE]",
-        "Target Disassembly: x86_64 / ARM64 (Zero-Unsafe Decoder)",
-        "--------------------------------------------------------------------------------",
-        "0x00001000:  push   rbp",
-        "0x00001001:  mov    rbp, rsp",
-        "0x00001004:  sub    rsp, 0x20",
-        "0x00001008:  mov    qword ptr [rbp - 0x18], rdi",
-        "0x0000100c:  mov    rax, qword ptr [rbp - 0x18]",
-        "0x00001010:  mov    eax, dword ptr [rax]",
-        "0x00001012:  add    eax, 1",
-        "0x00001015:  add    rsp, 0x20",
-        "0x00001019:  pop    rbp",
-        "0x0000101a:  ret",
-        "--------------------------------------------------------------------------------",
-        "LIFTED CLEAN-ROOM PSEUDO-C:",
-        "  int32_t increment_pointer_val(int32_t *ptr) {",
-        "      return (*ptr) + 1;",
-        "  }",
-        "--------------------------------------------------------------------------------",
-        "EVIDENCE LEDGER: [OBSERVED] SHA-256 Digest: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-      ].join("\n");
+      out.textContent = 'Loading the REA engine...';
+      try {
+        if (!reaEngine) {
+          const m = await import('./testbeds/rea/rea.js');
+          await m.default({ module_or_path: new URL('./testbeds/rea/rea_bg.wasm', document.baseURI) });
+          reaEngine = m;
+        }
+        out.textContent = reaEngine.analyze(document.getElementById('rea-arch').value, document.getElementById('rea-base').value, document.getElementById('rea-input').value);
+      } catch (e) {
+        out.textContent = 'The engine could not run in this browser: ' + (e && e.message ? e.message : e);
+      }
     }
 
     // 4. VMP_DEVIRT
     const vmpPresets = {
       mba: "(x ^ y) + 2 * (x & y)",
-      dispatch: "PUSH RBP; MOV RBP, RSP; SUB RSP, 0x80; JMP QWORD PTR [RAX + RCX*8]; // VM_DISPATCHER",
-      opaque: "MOV EAX, 0x1337; XOR EAX, 0x1337; JZ 0x00402000; // OPAQUE JMP"
+      three: "(x & ~y) + (x & y) + 3*z - 2*(z & ~x) - (z & x)*2",
+      opaque: "(x ^ y) + 2*(x & y) - (x + y)",
+      nonlinear: "x*y + (x & y)"
     };
 
     function loadVmpTest(k) {
       document.getElementById('vmp-input').value = vmpPresets[k];
     }
 
-    function runVmpSandbox() {
-      const v = document.getElementById('vmp-input').value.trim();
+    let mbaEngine = null;
+    async function runVmpSandbox() {
       const out = document.getElementById('vmp-output');
-      out.innerHTML = [
-        "[VMP_DEVIRT - SMT SYMBOLIC DEOBFUSCATION HARNESS]",
-        "Z3 v4.12 Context Active &bull; Architecture: x86_64",
-        "--------------------------------------------------------------------------------",
-        "Parsed Formula : " + v,
-        "Symbolic Slice : 128 virtual handler instructions analyzed",
-        "Fast Moebius Inv: Linear affine reduction over Z/2^64 successful",
-        "Opaque Check   : Tautological invariant proven (Branch condition = ALWAYS_TRUE)",
-        "--------------------------------------------------------------------------------",
-        "LIFTED PURE LLVM IR (SSA FORM):",
-        "  define i32 @unvirtualized_arithmetic(i32 %x, i32 %y) {",
-        "  entry:",
-        "    %res = add i32 %x, %y",
-        "    ret i32 %res",
-        "  }",
-        "--------------------------------------------------------------------------------",
-        "Deobfuscation Result: 100% of virtualization junk stripped. Standalone C function restored."
-      ].join("\n");
+      try {
+        if (!mbaEngine) mbaEngine = await import('./testbeds/mba/mba.mjs');
+        out.textContent = mbaEngine.report(document.getElementById('vmp-input').value);
+      } catch (e) {
+        out.textContent = 'Could not read the expression: ' + (e && e.message ? e.message : e);
+      }
     }
 
     // 5. zk-HyperVM
     const zkPresets = {
-      ept: "CR3_BASE: 0x0000000412000000; VIRT_ADDR: 0x7fff5fbff880; EPT_LEVEL: 4",
-      vmcs: "VMCS_FIELD: 0x0000681E (GUEST_RIP); VAL: 0xffffffff81000420; INTERCEPT: EXIT_REASON_CPUID",
-      virtio: "DEVICE: virtio-net; QUEUE_IDX: 0; DESC_CHAIN: [0x1000, 0x2000, 0x3000]; LEN: 1514"
+      memory: '# store and load through the guest page tables, with VM exits in between\nmovimm r1, 100\nmovimm r2, 250\nadd r3, r1, r2\nstore r3, [r7+0]\ncpuid\nload r4, [r7+0]\nkick 0\nvmcall\nsub r5, r4, r1\n',
+      exits: '# CPUID and a hypercall both exit to the hypervisor\nmovimm r1, 7\ncpuid\nvmcall\nadd r2, r1, r1\n',
+      virtio: '# write an MSR, notify two virtio queues, read it back, halt\nwrmsr 0x1b, 0xfee00900\nkick 0\nkick 1\nrdmsr 0x1b\nhlt\n'
     };
 
     function loadZkTest(k) {
       document.getElementById('zk-input').value = zkPresets[k];
     }
 
+    let zkWorker = null, zkSeq = 0;
     function runZkSandbox() {
-      const v = document.getElementById('zk-input').value.trim();
       const out = document.getElementById('zk-output');
-      out.innerHTML = [
-        "[ZK-HYPERVM - INCREMENTAL FOLDING VERIFIER (IVC)]",
-        "Proof Scheme : Nova Relaxed CCS Folding &bull; Memory Argument: 2D-EPT-LogUp",
-        "--------------------------------------------------------------------------------",
-        "Input Step   : " + v,
-        "Page Walk    : 4-Level EPT Walk mapped via LogUp multi-bus lookup argument in O(1)",
-        "Cross-Term T : 0x7a89b4c12ef0d381... (Split-witness commitment calculated in 8.2 ms)",
-        "Accumulator  : State updated. Total accumulated constraints: 2,419,200",
-        "--------------------------------------------------------------------------------",
-        "Proof Size   : 128 BYTES (Constant recursive size regardless of step count)",
-        "Soundness    : Zero-Knowledge Knowledge-Soundness verified (Security parameter = 128-bit)"
-      ].join("\n");
+      const iterations = Math.min(16, Math.max(1, Number(document.getElementById('zk-iterations').value) || 1));
+      if (!zkWorker) zkWorker = new Worker('../workbench/worker.js');
+      const id = ++zkSeq, t0 = performance.now();
+      out.textContent = 'Proving...';
+      zkWorker.onmessage = ({ data }) => {
+        if (data.id !== id) return;
+        const r = data.result, secs = ((performance.now() - t0) / 1000).toFixed(2);
+        if (r.error) { out.textContent = 'Rejected: ' + r.error; return; }
+        const o = r.ok;
+        out.textContent = [
+          (o.verified ? 'VERIFIED by the decider' : 'NOT verified: ' + o.verification_error) + ' in ' + secs + ' s on this device',
+          'Guest steps ' + o.steps + ', folded steps ' + o.folded_steps + ' (ALU ' + o.alu_steps + ', memory ' + o.memory_steps + ', mediation ' + o.mediation_steps + ')',
+          'VM entries/exits ' + o.vm_entries + '/' + o.vm_exits + ', TLB hits/misses ' + o.tlb_hits + '/' + o.tlb_misses + ', virtio events ' + o.virtio_events + ', LogUp balanced ' + o.logup_balanced,
+          'Commitment root    ' + o.commitment_root,
+          'Transcript digest  ' + o.transcript_digest,
+          '',
+          JSON.stringify(o, null, 2)
+        ].join('\n');
+      };
+      zkWorker.postMessage({ id, kind: 'prove', source: document.getElementById('zk-input').value, iterations });
     }
 
     // 6. MedCrypto
     const medPresets = {
-      hba1c: 'HOSPITALS: ["Hospital_A (n=500)", "Hospital_B (n=600)", "Hospital_C (n=400)"]\nBIOMARKER: LOINC 4548-4 (Hemoglobin A1c)\nENCRYPTION: RNS-CKKS (LogN=15, PolyModulus=60-bit)',
-      oncology: 'HOSPITALS: ["Clinic_1", "Clinic_2"]\nMETRIC: 5-Year Progression Free Survival\nCONSENT_FILTER: OPT_IN_RESEARCH_ONLY',
-      zkproof: 'PATIENT_RANGE_PROOF: Lab Value HbA1c in [4.0, 14.0]\nMETHOD: Non-interactive SHA-256 Hash Chain Proof'
+      hba1c: JSON.stringify({
+        mode: "aggregate",
+        metric: "LOINC 4548-4 Hemoglobin A1c (%)",
+        threshold_k: 2,
+        hospitals: [
+          { name: "Hospital_A", values: [6.4, 7.1, 8.2, 6.8, 7.5] },
+          { name: "Hospital_B", values: [5.9, 6.5, 7.8, 9.1, 7.2, 6.7] },
+          { name: "Hospital_C", values: [7.0, 6.2, 8.5, 7.4] }
+        ]
+      }, null, 2),
+      oncology: JSON.stringify({
+        mode: "aggregate",
+        metric: "5-Year Progression-Free Survival (months)",
+        threshold_k: 2,
+        hospitals: [
+          { name: "Clinic_1", values: [42.5, 58.0, 60.0, 31.2, 49.8] },
+          { name: "Clinic_2", values: [54.0, 60.0, 38.4, 46.1, 51.5] }
+        ]
+      }, null, 2),
+      zkproof: JSON.stringify({
+        mode: "range_proof",
+        biomarker: "HbA1c x10 (4.0%..14.0%)",
+        value: 71,
+        min: 40,
+        max: 140
+      }, null, 2)
     };
+
+    let medWasmPromise = null;
+    async function loadMedWasm() {
+      if (!medWasmPromise) {
+        medWasmPromise = (async () => {
+          const mod = await import('./testbeds/medcrypto/medcrypto_wasm.js');
+          await mod.default();
+          return mod;
+        })();
+      }
+      return medWasmPromise;
+    }
 
     function loadMedTest(k) {
       document.getElementById('med-input').value = medPresets[k];
     }
 
-    function runMedSandbox() {
+    async function runMedSandbox() {
       const v = document.getElementById('med-input').value.trim();
       const out = document.getElementById('med-output');
-      out.innerHTML = [
-        "[MEDCRYPTO FEDERATED HEALTHCARE CONSORTIUM]",
-        "Scheme: RNS-CKKS Homomorphic Encryption &bull; Post-Quantum Sig: ML-DSA-65",
-        "--------------------------------------------------------------------------------",
-        "Hospital A: 500 patient FHIR records cleaned, encrypted -> Ciphertext C1 (48 KB)",
-        "Hospital B: 600 patient FHIR records cleaned, encrypted -> Ciphertext C2 (48 KB)",
-        "Hospital C: 400 patient FHIR records cleaned, encrypted -> Ciphertext C3 (48 KB)",
-        "--------------------------------------------------------------------------------",
-        "Homomorphic Ciphertext Addition: C_Total = C1 (+) C2 (+) C3 [NO KEY REQUIRED]",
-        "Threshold Decryption: 2-of-3 consortium nodes sign joint decryption share",
-        "--------------------------------------------------------------------------------",
-        "CLINICAL RESULT DECRYPTED:",
-        "  Cohort Patient Count  : 1,500 total patients",
-        "  Aggregate Mean HbA1c  : 7.106 %",
-        "  Standard Deviation    : 1.370 %",
-        "  Individual Patient Privacy: 100% PROTECTED (Zero patient records revealed)"
-      ].join("\n");
+      if (!v) {
+        out.textContent = "[ERROR] Input empty. Please select a cohort or range proof preset above.";
+        return;
+      }
+      out.textContent = "[MEDCRYPTO] Loading medcrypto-fhe + medcrypto-pq 0.5.0 WebAssembly...";
+      try {
+        const mod = await loadMedWasm();
+        const seed = new Uint8Array(32);
+        crypto.getRandomValues(seed);
+        out.textContent = mod.run_medcrypto(v, seed);
+      } catch (err) {
+        medWasmPromise = null;
+        out.textContent = "[MEDCRYPTO ERROR] " + (err && err.message ? err.message : String(err));
+      }
     }
 
     // 7. Rusty Chain Kit
     const chainPresets = {
-      reentrancy: 'CONTRACT: VulnerableVault {\n  mapping(address => uint) balances;\n  function withdraw() public {\n    msg.sender.call{value: balances[msg.sender]}("");\n    balances[msg.sender] = 0; // REENTRANCY HAZARD\n  }\n}',
-      collision: 'PROXY: ERC1967Proxy { implementation_slot: 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc }\nTARGET_IMPL: Slot 0 collision with owner address',
-      flashloan: 'PROTOCOL: UniswapV2Pair + AaveLendingPool\nACTION: Borrow 10,000 ETH -> Manipulate Spot Price -> Liquidate Vault'
+      token: '0x608060405234801561000f575f80fd5b5060043610610060575f3560e01c8063095ea7b31461006457806318160ddd1461008c57806323b872dd146100a357806370a08231146100b6578063a9059cbb146100d5578063dd62ed3e146100e8575b5f80fd5b61007761007236600461024f565b610112565b60405190151581526020015b60405180910390f35b61009560025481565b604051908152602001610083565b6100776100b1366004610277565b61013f565b6100956100c43660046102b1565b5f6020819052908152604090205481565b6100776100e336600461024f565b6101da565b6100956100f63660046102d1565b600160209081525f928352604080842090915290825290205481565b335f9081526001602081815260408084206001600160a01b03871685529091529091208290555b92915050565b6001600160a01b0383165f908152600160209081526040808320338452909152812080548391908390610173908490610316565b90915550506001600160a01b0384165f908152602081905260408120805484929061019f908490610316565b90915550506001600160a01b0383165f90815260208190526040812080548492906101cb908490610329565b90915550600195945050505050565b335f908152602081905260408120805483919083906101fa908490610316565b90915550506001600160a01b0383165f9081526020819052604081208054849290610226908490610329565b909155506001949350505050565b80356001600160a01b038116811461024a575f80fd5b919050565b5f8060408385031215610260575f80fd5b61026983610234565b946020939093013593505050565b5f805f60608486031215610289575f80fd5b61029284610234565b92506102a060208501610234565b929592945050506040919091013590565b5f602082840312156102c1575f80fd5b6102ca82610234565b9392505050565b5f80604083850312156102e2575f80fd5b6102eb83610234565b91506102f960208401610234565b90509250929050565b634e487b7160e01b5f52601160045260245ffd5b8181038181111561013957610139610302565b808201808211156101395761013961030256',
+      vault: '0x608060405260043610610033575f3560e01c806327e235e3146100375780633ccfd60b14610074578063d0e30db01461008a575b5f80fd5b348015610042575f80fd5b50610062610051366004610126565b5f6020819052908152604090205481565b60405190815260200160405180910390f35b34801561007f575f80fd5b50610088610092565b005b610088610101565b335f818152602081905260408082205490519192918381818185875af1925050503d805f81146100dd576040519150601f19603f3d011682016040523d82523d5f602084013e6100e2565b606091505b50509050806100ef575f80fd5b50335f90815260208190526040812055565b335f908152602081905260408120805434929061011f908490610153565b9091555050565b5f60208284031215610136575f80fd5b81356001600160a01b038116811461014c575f80fd5b9392505050565b8082018082111561017257634e487b7160e01b5f52601160045260245ffd5b9291505056',
+      clone: '0x363d3d373d3d3d363d73bebebebebebebebebebebebebebebebebebebebe5af43d82803e903d91602b57fd5bf3'
     };
 
     function loadChainTest(k) {
       document.getElementById('chain-input').value = chainPresets[k];
     }
 
-    function runChainSandbox() {
-      const v = document.getElementById('chain-input').value.trim();
+    // Well-known 4-byte selectors (keccak256 of the signature, first four bytes).
+    const knownSelectors = {
+      '0xa9059cbb': 'transfer(address,uint256)', '0x095ea7b3': 'approve(address,uint256)', '0x23b872dd': 'transferFrom(address,address,uint256)',
+      '0x70a08231': 'balanceOf(address)', '0xdd62ed3e': 'allowance(address,address)', '0x18160ddd': 'totalSupply()',
+      '0x06fdde03': 'name()', '0x95d89b41': 'symbol()', '0x313ce567': 'decimals()', '0x8da5cb5b': 'owner()',
+      '0xf2fde38b': 'transferOwnership(address)', '0x715018a6': 'renounceOwnership()', '0x3659cfe6': 'upgradeTo(address)',
+      '0x4f1ef286': 'upgradeToAndCall(address,bytes)', '0xd0e30db0': 'deposit()', '0x2e1a7d4d': 'withdraw(uint256)',
+      '0x3ccfd60b': 'withdraw()', '0x27e235e3': 'balances(address)', '0x40c10f19': 'mint(address,uint256)', '0x42966c68': 'burn(uint256)'
+    };
+
+    let chainEngine = null;
+    async function runChainSandbox() {
       const out = document.getElementById('chain-output');
-      out.innerHTML = [
-        "[RUSTY CHAIN KIT - STATEFUL INVARIANT FUZZER &amp; TAINT TRACER]",
-        "Target Execution Engine: REVM Native Rust VM &bull; SMT: Halmos Symbolic Engine",
-        "--------------------------------------------------------------------------------",
-        "VULNERABILITY DETECTED: State mutation after low-level external call.",
-        "EXPLOIT TRACE RECONSTRUCTED:",
-        "  [1] AttackerContract.exploit()",
-        "  [2]   -> VulnerableVault.withdraw()",
-        "  [3]     -> AttackerContract.fallback() [MUTATION PENDING]",
-        "  [4]       -> VulnerableVault.withdraw() [REENTRANT ENTRY CONFIRMED]",
-        "  [5]         ==> VAULT BALANCES DRAINED: 100.0 ETH EXFILTRATED",
-        "--------------------------------------------------------------------------------",
-        "SYNTHESIZED FOUNDRY POC TEST SCRIPT GENERATED:",
-        "  function test_exploit_reproduction() public { ... } [Passed in 2.1 ms]"
-      ].join("\n");
+      try {
+        if (!chainEngine) {
+          const m = await import('./testbeds/chain/chain.js');
+          await m.default({ module_or_path: new URL('./testbeds/chain/chain_bg.wasm', document.baseURI) });
+          chainEngine = m;
+        }
+        const r = JSON.parse(chainEngine.analyze(document.getElementById('chain-input').value));
+        if (r.error) { out.textContent = 'Rejected: ' + r.error; return; }
+        const ops = {};
+        for (const b of r.cfg.blocks) for (const ins of b.instructions) { const op = ins.replace(/^0x[0-9a-f]+:\s*/, '').split(' ')[0]; ops[op] = (ops[op] || 0) + 1; }
+        const watch = ['CALL', 'DELEGATECALL', 'STATICCALL', 'CALLCODE', 'SELFDESTRUCT', 'SSTORE', 'CREATE', 'CREATE2'].filter((o) => ops[o]).map((o) => o + ' x' + ops[o]);
+        const lines = [r.bytes + ' bytes · ' + r.cfg.total_instructions + ' instructions · ' + r.cfg.blocks.length + ' basic blocks (' + r.cfg.terminal_blocks + ' terminal) · ' + r.cfg.jump_destinations.length + ' JUMPDESTs', ''];
+        lines.push('Proxy: ' + (r.proxy.is_proxy ? r.proxy.kind + ' -> ' + r.proxy.details : 'no (' + r.proxy.details + ')'), '');
+        lines.push('Functions recovered from the dispatcher (' + r.functions.length + '):');
+        for (const f of r.functions) {
+          const known = knownSelectors[f.selector];
+          lines.push('  ' + f.selector + '  ' + f.state_mutability.padEnd(10) + ' ' + (known ? known : (f.signature || '').replace(/^function_[0-9a-f]+/, '<unknown>')));
+        }
+        if (!r.functions.length) lines.push('  none found');
+        lines.push('', 'Opcodes worth reviewing: ' + (watch.join(', ') || 'none'));
+        out.textContent = lines.join('\n');
+      } catch (e) {
+        out.textContent = 'The inspector could not run: ' + (e && e.message ? e.message : e);
+      }
     }
   </script>
 
