@@ -50,14 +50,14 @@ td.win { color: var(--ok); }
   <p class="lead">A context-mixing compressor for text, written in Rust and measured on the Hutter Prize data: the first gigabyte of English Wikipedia. One small program compresses and decompresses, and every number on this page is a verified round trip.</p>
 
   <div class="facts">
-    <div class="fact"><b>168.15 MB</b><span>enwik9 (1 GB) compressed, 1.345 bits per byte</span></div>
-    <div class="fact"><b>20.31 MB</b><span>enwik8 (100 MB) compressed, 1.625 bits per byte</span></div>
+    <div class="fact"><b>168.15 MB</b><span>enwik9 (1 GB) compressed by 0.1.0, 1.345 bits per byte</span></div>
+    <div class="fact"><b>18.49 MB</b><span>enwik8 (100 MB) compressed by 0.2.0, 1.479 bits per byte</span></div>
     <div class="fact"><b>20.6%</b><span>smaller than xz -9e on enwik9</span></div>
-    <div class="fact"><b>~670 lines</b><span>of Rust, integer arithmetic only, no dependencies</span></div>
+    <div class="fact"><b>~900 lines</b><span>of Rust, integer arithmetic only, no dependencies</span></div>
   </div>
 
   <h2>Try it</h2>
-  <p>The same code, compiled to WebAssembly, runs below in a background worker. Each compression is decompressed again and compared before the file is offered. <code>.osm</code> files made here open with the command-line tool and the other way round. It needs about 200 MB of memory, so a desktop browser works best.</p>
+  <p>The same code, compiled to WebAssembly, runs below in a background worker. Each compression is decompressed again and compared before the file is offered. <code>.osm</code> files made here open with the command-line tool and the other way round. It needs about 300 MB of memory, so a desktop browser works best.</p>
   <div class="panel">
     <textarea id="text" spellcheck="false" placeholder="Paste text here, or load the sample (200 KB of enwik9)."></textarea>
     <div class="row">
@@ -71,25 +71,25 @@ td.win { color: var(--ok); }
   </div>
 
   <h2>Results</h2>
-  <p>Apple M4 MacBook Air, one core; peak memory from <code>/usr/bin/time -l</code>. Decompressed output compared byte for byte with the original.</p>
+  <p>Apple M4 MacBook Air, one core; peak memory from <code>/usr/bin/time -l</code>. Decompressed output compared byte for byte with the original. Version 0.2.0 has not been run on enwik9 yet; that row is 0.1.0.</p>
   <div class="table-wrap">
   <table>
     <thead><tr><th>File</th><th>gzip -9</th><th>bzip2 -9</th><th>xz -9e</th><th>Osmium</th><th>Time (c / d)</th><th>Memory</th></tr></thead>
     <tbody>
-      <tr><td>enwik8, 100 MB</td><td>36,475,811</td><td>29,008,758</td><td>24,831,648</td><td class="win">20,312,078</td><td>95 s / 118 s</td><td>1.2 GB</td></tr>
-      <tr><td>enwik9, 1 GB</td><td>322,789,249</td><td>253,977,891</td><td>211,776,220</td><td class="win">168,149,041</td><td>1,347 s / 1,001 s</td><td>3.5 GB</td></tr>
+      <tr><td>enwik8, 100 MB</td><td>36,475,811</td><td>29,008,758</td><td>24,831,648</td><td class="win">18,485,784 (0.2.0)</td><td>267 s / 269 s</td><td>2.1 GB</td></tr>
+      <tr><td>enwik9, 1 GB</td><td>322,789,249</td><td>253,977,891</td><td>211,776,220</td><td class="win">168,149,041 (0.1.0)</td><td>1,347 s / 1,001 s</td><td>3.5 GB</td></tr>
     </tbody>
   </table>
   </div>
 
   <h2>Against the Hutter Prize</h2>
-  <p>The prize scores the compressed <code>enwik9</code> plus the decompressor. The record listed on July 24, 2026 is <strong>100,424,672 bytes</strong> (Vladimir Ivanov, fx2-cmix-T). Osmium's total is <strong>168,311,575 bytes</strong> (archive plus the zipped decompressor), so it is not a contender: record entries run thousands of models, LSTM mixers and large preprocessing dictionaries over days of CPU time. Osmium is a compact, readable member of the same family that beats the general-purpose tools by a wide margin, and a base to build on.</p>
+  <p>The prize scores the compressed <code>enwik9</code> plus the decompressor. The record listed on July 24, 2026 is <strong>100,424,672 bytes</strong> (Vladimir Ivanov, fx2-cmix-T). Osmium 0.1.0's total is <strong>168,311,575 bytes</strong> (archive plus the zipped decompressor), so it is not a contender: record entries run thousands of models, LSTM mixers and large preprocessing dictionaries over days of CPU time. Osmium is a compact, readable member of the same family that beats the general-purpose tools by a wide margin, and a base to build on.</p>
 
   <h2>How it works</h2>
   <ul>
-    <li><strong>Predict every bit.</strong> Twelve context models (byte orders 0&ndash;6 and 8, the current word, the last two and three words, word plus previous byte, and a wiki-markup context) each give a probability from hashed, cache-line-sized slots with a slow and a fast counter.</li>
-    <li><strong>Long matches.</strong> A match model finds the last occurrence of the previous seven bytes and predicts that the text continues the same way, with confidence learned per match length.</li>
-    <li><strong>Mix and refine.</strong> Three gated logistic mixers and a final mixer combine the predictions; three SSE stages correct the result in context.</li>
+    <li><strong>Predict every bit.</strong> Nineteen context models (byte orders 0&ndash;6 and 8, several word and word-pair contexts, wiki markup, line column and two indirect contexts) keep a one-byte bit history per context, four contexts per cache line, turned into probabilities by adaptive state maps. A run model remembers which byte last followed each context.</li>
+    <li><strong>Long matches.</strong> Two match models (7-byte and 24-byte) find the last occurrence of the recent text and predict that it continues the same way, with confidence learned per match length.</li>
+    <li><strong>Mix and refine.</strong> Four gated logistic mixers and a final mixer combine 62 inputs; four SSE stages correct the result in context, and a small mixer learns how to weigh them.</li>
     <li><strong>Code.</strong> A binary arithmetic coder turns the probabilities into bits. Everything is integer arithmetic, so archives are identical on every machine and in the browser.</li>
   </ul>
 
