@@ -51,6 +51,7 @@
   let starPoints = [];
   let active = false;
   let animationFrame = 0;
+  let flightStartedAt = 0;
   let modelStarted = false;
 
   function drawStars() {
@@ -75,10 +76,11 @@
 
   function fly() {
     if (!active) return;
+    const elapsed = (performance.now() - flightStartedAt) / 1000;
     const time = performance.now() / 1000;
-    flyer.style.left = `${((time * 42) % (innerWidth + 230)) - 180}px`;
-    flyer.style.top = `${innerHeight * 0.18 + Math.sin(time * 0.72) * innerHeight * 0.16}px`;
-    flyer.style.transform = `rotate(${Math.sin(time * 0.72) * 6}deg)`;
+    flyer.style.left = `${((elapsed * 78) % (innerWidth + 260)) - 220}px`;
+    flyer.style.top = `${innerHeight * 0.24 + Math.sin(time * 0.9) * innerHeight * 0.22}px`;
+    flyer.style.transform = `rotate(${Math.sin(time * 0.9) * 9}deg)`;
     animationFrame = requestAnimationFrame(fly);
   }
 
@@ -86,7 +88,10 @@
     active = enabled;
     document.body.classList.toggle('aether-space', enabled);
     if (enabled) {
-      if (!animationFrame) fly();
+      if (!animationFrame) {
+        flightStartedAt = performance.now();
+        fly();
+      }
       loadModel();
     } else {
       cancelAnimationFrame(animationFrame);
@@ -129,7 +134,6 @@
         const size = bounds.getSize(new THREE.Vector3());
         sushi.position.sub(bounds.getCenter(new THREE.Vector3()));
         sushi.scale.setScalar(1.62 / Math.max(size.x, size.y, size.z));
-        document.getElementById('aether-sushi-fallback').style.display = 'none';
 
         const mixer = gltf.animations.length ? new THREE.AnimationMixer(sushi) : null;
         if (mixer) gltf.animations.forEach(clip => mixer.clipAction(clip).play());
