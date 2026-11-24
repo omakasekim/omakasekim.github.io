@@ -226,6 +226,92 @@ th {
     font-weight: bold;
 }
 
+.form-heading,
+.result-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.hint,
+.page-footer {
+    color: var(--dim);
+    font-size: 13px;
+}
+
+.statement-row {
+    margin-top: 8px;
+}
+
+.statement-row input {
+    width: 100%;
+}
+
+.col {
+    flex: 1;
+    min-width: 160px;
+}
+
+.col label {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.col select {
+    width: 100%;
+}
+
+.action-col {
+    align-self: flex-end;
+}
+
+.action-col button {
+    width: 100%;
+}
+
+.result-heading {
+    margin-bottom: 10px;
+}
+
+.result-heading h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.status {
+    min-height: 1.5em;
+    text-align: right;
+}
+
+.status p {
+    margin: 0;
+}
+
+.ok {
+    color: var(--good);
+    font-weight: 600;
+}
+
+.bad {
+    color: var(--bad);
+    font-weight: 600;
+}
+
+.page-footer {
+    padding: 0 32px 28px;
+    text-align: center;
+}
+
+.page-footer a {
+    color: var(--dim);
+    text-decoration: none;
+}
+
+.page-footer a:hover {
+    color: var(--text);
+}
+
 /* Mobile Optimizations */
 @media (max-width: 640px) {
     header {
@@ -275,6 +361,20 @@ th {
 
     .metric-card .value {
         font-size: 15px;
+    }
+
+    .form-heading,
+    .result-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .status {
+        text-align: left;
+    }
+
+    .page-footer {
+        padding: 0 16px 24px;
     }
 
     table {

@@ -9,54 +9,68 @@
 </head>
 
 <body>
-  <h1>Pondr</h1>
-  <p class="sub">Local-first hybrid <strong>Lean 4 + <a href="/rigor/">Rigor</a> + Rust</strong> formal epistemology
-    &amp; countermodel workbench. Test philosophical claims live in your browser.</p>
-
-  <div class="card">
-    <label for="stmt">Philosophical Statement (Controlled English or Formula)</label>
-    <input id="stmt" type="text" value="If alice is certain that p, then she knows that she knows p.">
-
-    <div class="row">
-      <button class="preset" onclick="setPreset('If alice knows it is raining, then it is raining.', 'K')">Veridicality
-        (K)</button>
-      <button class="preset" onclick="setPreset('K_alice p -> K_alice K_alice p', 'T')">Positive Introspection
-        (T)</button>
-      <button class="preset"
-        onclick="setPreset('If alice is certain that p, then she knows that she knows p.', 'S4')">Positive Introspection
-        (S4)</button>
-      <button class="preset" onclick="setPreset('~K_a p -> K_a ~K_a p', 'S4')">Negative Introspection (S4)</button>
+  <header>
+    <div>
+      <span class="header-badge">LIVE FORMAL EPISTEMOLOGY WORKBENCH</span>
+      <h1>Pondr</h1>
+      <p>Explore epistemic and doxastic principles with bounded countermodel search. Try controlled English or modal syntax; everything runs locally in your browser.</p>
     </div>
+  </header>
 
-    <div class="row">
-      <div class="col">
-        <label for="frame">Frame Class</label>
-        <select id="frame">
-          <option value="K">K (General)</option>
-          <option value="T">T (Reflexive)</option>
-          <option value="S4" selected>S4 (Reflexive + Transitive)</option>
-          <option value="S5">S5 (Equivalence)</option>
-          <option value="KD45">KD45 (Doxastic)</option>
-        </select>
+  <main>
+    <section class="card" aria-labelledby="claim-label">
+      <div class="form-heading">
+        <label id="claim-label" for="stmt">Philosophical statement</label>
+        <span class="hint">Controlled English or formula</span>
       </div>
-      <div class="col">
-        <label for="worlds">Worlds (1–3)</label>
-        <select id="worlds">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3" selected>3</option>
-        </select>
+      <div class="row statement-row">
+        <input id="stmt" type="text" aria-labelledby="claim-label" value="If alice is certain that p, then she knows that she knows p.">
       </div>
-      <div class="col" style="display:flex;align-items:flex-end;">
-        <button onclick="runCheck()" style="width:100%;">Run Countermodel Search</button>
-      </div>
-    </div>
-  </div>
 
-  <div class="card">
-    <div id="status"></div>
-    <pre id="output">Click "Run Countermodel Search" to test a philosophical claim.</pre>
-  </div>
+      <div class="presets" aria-label="Example claims">
+        <button class="preset-chip" type="button" onclick="setPreset('If alice knows it is raining, then it is raining.', 'K')">Veridicality · K</button>
+        <button class="preset-chip" type="button" onclick="setPreset('K_alice p -> K_alice K_alice p', 'T')">Positive introspection · T</button>
+        <button class="preset-chip" type="button" onclick="setPreset('If alice is certain that p, then she knows that she knows p.', 'S4')">Positive introspection · S4</button>
+        <button class="preset-chip" type="button" onclick="setPreset('~K_a p -> K_a ~K_a p', 'S4')">Negative introspection · S4</button>
+      </div>
+
+      <div class="row control-row">
+        <div class="col">
+          <label for="frame">Frame class</label>
+          <select id="frame">
+            <option value="K">K (General)</option>
+            <option value="T">T (Reflexive)</option>
+            <option value="S4" selected>S4 (Reflexive + Transitive)</option>
+            <option value="S5">S5 (Equivalence)</option>
+            <option value="KD45">KD45 (Doxastic)</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="worlds">Worlds</label>
+          <select id="worlds">
+            <option value="1">1 world</option>
+            <option value="2">2 worlds</option>
+            <option value="3" selected>3 worlds</option>
+          </select>
+        </div>
+        <div class="col action-col">
+          <button type="button" onclick="runCheck()">Run countermodel search</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card result-card" aria-labelledby="result-heading">
+      <div class="result-heading">
+        <h2 id="result-heading">Search result</h2>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </div>
+      <pre id="output" aria-live="polite">Choose a claim above or enter one, then run the countermodel search.</pre>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <a href="../">&larr; Back to Aether Systems &amp; Research Lab</a>
+  </footer>
 
   <script>
     function setPreset(text, frame) {
