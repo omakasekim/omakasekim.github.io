@@ -78,7 +78,7 @@
     if (!active) return;
     const elapsed = (performance.now() - flightStartedAt) / 1000;
     const time = performance.now() / 1000;
-    flyer.style.left = `${((elapsed * 78) % (innerWidth + 260)) - 220}px`;
+    flyer.style.left = `${((elapsed * 78 + 240) % (innerWidth + 410)) - 220}px`;
     flyer.style.top = `${innerHeight * 0.24 + Math.sin(time * 0.9) * innerHeight * 0.22}px`;
     flyer.style.transform = `rotate(${Math.sin(time * 0.9) * 9}deg)`;
     animationFrame = requestAnimationFrame(fly);
