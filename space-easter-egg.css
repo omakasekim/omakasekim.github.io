@@ -1,0 +1,103 @@
+/* Quiet copyright-triggered space easter egg. */
+#aether-space-stars {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+body.aether-space {
+  background: radial-gradient(ellipse at 50% 0%, #14213a 0%, #080d18 52%, #06080d 100%);
+  transition: background 800ms ease;
+}
+
+body.aether-space .bg-grid { opacity: 0.48; }
+body.aether-space header {
+  background: rgba(7, 12, 23, 0.9);
+  border-color: rgba(156, 184, 229, 0.15);
+}
+
+#aether-space-exit {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 1500;
+  border: 1px solid rgba(190, 210, 245, 0.23);
+  border-radius: 22px;
+  padding: 8px 13px;
+  background: rgba(17, 29, 49, 0.86);
+  color: #dce8fb;
+  font: 500 12px var(--sans);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 250ms, visibility 250ms, background 200ms;
+}
+
+#aether-space-exit:hover { background: #1b2c48; }
+body.aether-space #aether-space-exit { opacity: 1; visibility: visible; }
+
+#aether-sushi-flight {
+  position: fixed;
+  left: -190px;
+  top: 20vh;
+  width: 150px;
+  height: 150px;
+  z-index: 1400;
+  pointer-events: none;
+  opacity: 0;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
+  will-change: left, top, transform;
+  transition: opacity 650ms ease;
+}
+
+body.aether-space #aether-space-stars { opacity: 0.68; }
+body.aether-space #aether-sushi-flight { opacity: 1; }
+#aether-sushi-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+#aether-sushi-fallback {
+  position: absolute;
+  inset: 20px;
+  width: 110px;
+  height: 110px;
+  animation: aether-sushi-bob 3s ease-in-out infinite;
+}
+
+@keyframes aether-sushi-bob {
+  50% { transform: translateY(-7px) rotate(-3deg); }
+}
+
+#aether-copyright-trigger {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.78;
+  transition: opacity 200ms, color 200ms;
+}
+
+#aether-copyright-trigger:hover,
+#aether-copyright-trigger:focus-visible {
+  opacity: 1;
+  color: var(--primary);
+  outline: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  #aether-space-exit { top: 10px; right: 10px; }
+  #aether-sushi-flight { width: 118px; height: 118px; }
+  #aether-sushi-fallback { inset: 16px; width: 86px; height: 86px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #aether-space-stars, #aether-space-exit, #aether-sushi-flight { transition: none; }
+  #aether-sushi-fallback { animation: none; }
+}
