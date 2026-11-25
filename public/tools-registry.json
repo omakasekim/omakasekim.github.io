@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-25",
+  "description": "Single source of truth for Aetherx86 interactive developer workbenches. Append a new object to tools[] to automatically register it in the header Tools/Labs dropdown and page grid.",
+  "tools": [
+    {
+      "id": "diffcanvas",
+      "name": "diffcanvas",
+      "tagline": "Visual git diff PR storyboarder merged with OpenAPI, JSON Schema & TypeScript contract drift studio.",
+      "category": "Code & Schemas",
+      "stack": ["React", "TypeScript", "Git AST", "OpenAPI"],
+      "repoUrl": "https://github.com/Aetherx86/diffcanvas",
+      "demoUrl": "https://aetherx86.github.io/diffcanvas/",
+      "modes": ["Git & Code Flow", "Schema Drift Studio"],
+      "featured": true,
+      "addedAt": "2026-11-25"
+    },
+    {
+      "id": "agent-replay",
+      "name": "agent-replay",
+      "tagline": "AI coding agent time-travel debugger with cumulative token burn curves, context-window trimmer, and MCP tool radar.",
+      "category": "AI & Agents",
+      "stack": ["React", "TypeScript", "JSONL", "MCP"],
+      "repoUrl": "https://github.com/Aetherx86/agent-replay",
+      "demoUrl": "https://aetherx86.github.io/agent-replay/",
+      "modes": ["Session Time-Travel", "Context Budget X-Ray", "MCP Tool Radar"],
+      "featured": true,
+      "addedAt": "2026-11-25"
+    },
+    {
+      "id": "wiretrace",
+      "name": "wiretrace",
+      "tagline": "Interactive protocol lab for SSE token stream frame debugging, webhook payload replay, and JWT/Cookie security X-Ray.",
+      "category": "Protocols & Auth",
+      "stack": ["React", "TypeScript", "SSE", "JWT"],
+      "repoUrl": "https://github.com/Aetherx86/wiretrace",
+      "demoUrl": "https://aetherx86.github.io/wiretrace/",
+      "modes": ["SSE Stream Lab", "Webhook Replay", "Auth & JWT X-Ray"],
+      "featured": true,
+      "addedAt": "2026-11-25"
+    },
+    {
+      "id": "portmap",
+      "name": "portmap",
+      "tagline": "Live localhost port/.env topology map merged with Git worktree mission control and cache/container layer bloat radar.",
+      "category": "Local Infra & Git",
+      "stack": ["Node.js", "React", "SSE", "Docker"],
+      "repoUrl": "https://github.com/Aetherx86/portmap",
+      "demoUrl": "https://aetherx86.github.io/portmap/",
+      "modes": ["Ports & .env Map", "Git Worktree Deck", "Cache & Layer Bloat"],
+      "featured": true,
+      "addedAt": "2026-11-25"
+    },
+    {
+      "id": "perf-xray",
+      "name": "perf-xray",
+      "tagline": "CI critical-path bottleneck flamegraph, PostgreSQL EXPLAIN query plan flow analyzer, and p50/p95/p99 benchmark comparator.",
+      "category": "Performance & SQL",
+      "stack": ["React", "TypeScript", "Flamegraph", "SQL EXPLAIN"],
+      "repoUrl": "https://github.com/Aetherx86/perf-xray",
+      "demoUrl": "https://aetherx86.github.io/perf-xray/",
+      "modes": ["CI Flamegraph", "SQL EXPLAIN Flow", "Benchmark Arena"],
+      "featured": true,
+      "addedAt": "2026-11-25"
+    },
+    {
+      "id": "css-xray",
+      "name": "css-xray",
+      "tagline": "Exploded 3D isometric DOM workbench with computed box-model diagrams, stacking-context trees, and 1-click Tailwind cleanup.",
+      "category": "UI & Styling",
+      "stack": ["React", "TypeScript", "3D CSS", "Tailwind"],
+      "repoUrl": "https://github.com/Aetherx86/css-xray",
+      "demoUrl": "https://aetherx86.github.io/css-xray/",
+      "modes": ["3D Isometric DOM", "Box-Model & Stacking", "Tailwind Audit"],
+      "featured": false,
+      "addedAt": "2026-11-25"
+    },
+    {
+      "id": "dep-radar",
+      "name": "dep-radar",
+      "tagline": "Gravity-well lockfile blast-radius explorer with supply-chain telemetry charts, what-if pruning, and SBOM export.",
+      "category": "Supply Chain",
+      "stack": ["React", "TypeScript", "Canvas", "CLI"],
+      "repoUrl": "https://github.com/Aetherx86/dep-radar",
+      "demoUrl": "https://aetherx86.github.io/dep-radar/",
+      "modes": ["Gravity Force Graph", "Supply-Chain Telemetry", "What-If Pruning"],
+      "featured": false,
+      "addedAt": "2026-11-25"
+    }
+  ]
+}
