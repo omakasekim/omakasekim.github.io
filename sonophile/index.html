@@ -5,43 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
     <title>Sonophile — Spatial Audio &amp; Room Acoustics Studio</title>
-    <script type="module" crossorigin src="./assets/index-Ba5p0TWa.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DDwEDEOq.css">
+    <script type="module" crossorigin src="./assets/index-D4me4maY.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BU8pci2P.css">
   </head>
   <body>
     <div id="app">
       <header id="toolbar">
         <h1>Sonophile</h1>
         <div class="toolbar-group">
-          <button id="btn-run" title="Recompute acoustics">▶ Compute RIR</button>
-          <button id="btn-play" title="Play test signal through the room">Play Stem</button>
+          <button id="btn-run" class="primary" title="Recompute acoustics">▶ Compute RIR</button>
+          <select id="stem-kind" title="Select test audio stem">
+            <option value="drum">Drum Hit</option>
+            <option value="chord">Warm Chord</option>
+            <option value="voice">Vocal Formant</option>
+            <option value="sweep">Log Sweep</option>
+            <option value="noise">Pink Noise</option>
+            <option value="impulse">Dirac Impulse</option>
+          </select>
+          <button id="btn-play" title="Play stem through room & FX">Play</button>
+          <button id="btn-loop" title="Loop stem continuously">Loop</button>
+          <button id="btn-stop" title="Stop audio playback">Stop</button>
           <button id="btn-mic" title="Toggle live microphone">Mic</button>
           <button id="btn-export" title="Export RIR as WAV">Export WAV</button>
-          <button id="btn-snapshot-a">Snapshot A</button>
-          <button id="btn-snapshot-b">Snapshot B</button>
+          <button id="btn-snapshot-a">Snap A</button>
+          <button id="btn-snapshot-b">Snap B</button>
           <button id="btn-compare">A/B</button>
           <button id="btn-undo">Undo</button>
           <button id="btn-redo">Redo</button>
         </div>
-        <div class="toolbar-group" id="isolation-badge">isolation: …</div>
+        <div class="toolbar-group" id="isolation-badge">initializing…</div>
       </header>
 
       <main>
         <section id="viewport-panel">
           <div class="panel-head">
-            <span>Viewport</span>
-            <select id="view-mode">
-              <option value="floorplan">2D Floorplan</option>
-              <option value="3d">3D Extruded</option>
-            </select>
-            <select id="overlay">
-              <option value="none">No overlay</option>
-              <option value="fdtd">FDTD wave field</option>
-              <option value="rays">Ray / early reflections</option>
-              <option value="decay">Energy decay heatmap</option>
-            </select>
+            <span>Acoustic Field Viewport <small>(drag S or L)</small></span>
+            <div class="controls-inline">
+              <select id="view-mode">
+                <option value="floorplan">2D Floorplan</option>
+                <option value="3d">3D Extruded</option>
+              </select>
+              <select id="overlay">
+                <option value="fdtd" selected>FDTD wave field</option>
+                <option value="rays">Ray / early reflections</option>
+                <option value="decay">Energy decay heatmap</option>
+                <option value="none">No overlay</option>
+              </select>
+              <select id="fdtd-mode" title="Wave excitation mode">
+                <option value="sine" selected>Wave: Sine</option>
+                <option value="impulse">Wave: Impulse</option>
+                <option value="sweep">Wave: Sweep</option>
+              </select>
+              <label class="inline-range" title="FDTD wave frequency (Hz)">
+                <span id="fdtd-freq-val">260 Hz</span>
+                <input id="fdtd-freq" type="range" min="80" max="600" step="10" value="260" />
+              </label>
+              <button id="btn-pulse" title="Trigger acoustic wave pulse">Pulse</button>
+            </div>
           </div>
           <canvas id="viewport" width="900" height="520"></canvas>
+          <div id="visualizer-bar">
+            <div class="viz-head">
+              <span>Live Audio Spectrum &amp; Oscilloscope</span>
+              <span id="audio-level">idle</span>
+            </div>
+            <canvas id="audio-viz" width="900" height="92"></canvas>
+          </div>
         </section>
 
         <aside id="side-panel">
@@ -66,23 +95,29 @@
             <label>Width (m) <input id="room-w" type="range" min="3" max="12" step="0.1" value="5" /></label>
             <label>Depth (m) <input id="room-d" type="range" min="3" max="10" step="0.1" value="4" /></label>
             <label>Height (m) <input id="room-h" type="range" min="2.2" max="6" step="0.1" value="2.7" /></label>
-            <label>Wall material
-              <select id="mat-wall"></select>
-            </label>
-            <label>Floor material
-              <select id="mat-floor"></select>
-            </label>
-            <label>Ceiling material
-              <select id="mat-ceiling"></select>
-            </label>
+            <label>Wall material <select id="mat-wall"></select></label>
+            <label>Floor material <select id="mat-floor"></select></label>
+            <label>Ceiling material <select id="mat-ceiling"></select></label>
           </section>
 
           <section class="card">
-            <h2>Convolution</h2>
-            <label>Dry/Wet <input id="drywet" type="range" min="0" max="1" step="0.01" value="0.5" /></label>
+            <h2>Convolution Reverb</h2>
+            <label>Dry/Wet <input id="drywet" type="range" min="0" max="1" step="0.01" value="0.55" /></label>
             <label>Pre-delay (ms) <input id="predelay" type="range" min="0" max="200" step="1" value="0" /></label>
             <label>Damping trim <input id="damping" type="range" min="0" max="1" step="0.01" value="0.5" /></label>
-            <label>Stereo width <input id="width" type="range" min="0" max="2" step="0.01" value="1" /></label>
+            <label>Stereo width <input id="width" type="range" min="0" max="2" step="0.01" value="1.15" /></label>
+          </section>
+
+          <section class="card">
+            <h2>Audio FX Rack</h2>
+            <label>Low EQ (120Hz) <input id="fx-eq-low" type="range" min="-12" max="12" step="0.5" value="0" /></label>
+            <label>Mid EQ (1kHz) <input id="fx-eq-mid" type="range" min="-12" max="12" step="0.5" value="0" /></label>
+            <label>High EQ (6kHz) <input id="fx-eq-high" type="range" min="-12" max="12" step="0.5" value="0" /></label>
+            <label>Echo Mix <input id="fx-delay-mix" type="range" min="0" max="0.8" step="0.02" value="0.15" /></label>
+            <label>Echo Time (ms) <input id="fx-delay-time" type="range" min="40" max="600" step="10" value="240" /></label>
+            <label>Echo Feedback <input id="fx-delay-fb" type="range" min="0" max="0.72" step="0.02" value="0.32" /></label>
+            <label>Stereo Chorus <input id="fx-chorus" type="range" min="0" max="1" step="0.02" value="0.2" /></label>
+            <label>Analog Warmth <input id="fx-warmth" type="range" min="0" max="1" step="0.02" value="0.15" /></label>
           </section>
 
           <section class="card">

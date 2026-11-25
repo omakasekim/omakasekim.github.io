@@ -5,78 +5,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IEEEBound: Certified Interval-Arithmetic &amp; Global Optimizer Workbench</title>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; background: #0b0f17; color: #e2e8f0; max-width: 860px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
-    h1, h2 { color: #f8fafc; margin-bottom: 8px; }
-    .sub { color: #94a3b8; margin-top: 0; }
-    .card { background: #131a26; border: 1px solid #243044; border-radius: 10px; padding: 18px; margin: 18px 0; }
-    label { display: block; font-size: 0.9rem; color: #cbd5e1; margin-bottom: 6px; }
-    select, input { width: 100%; box-sizing: border-box; background: #0b0f17; color: #f8fafc; border: 1px solid #334155; border-radius: 6px; padding: 10px 12px; font-size: 0.95rem; }
-    .row { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
-    .col { flex: 1; min-width: 160px; }
-    button { background: #2563eb; color: #fff; border: none; border-radius: 6px; padding: 10px 16px; font-size: 0.95rem; cursor: pointer; font-weight: 600; width: 100%; }
-    button:hover { background: #1d4ed8; }
-    pre { background: #0b0f17; border: 1px solid #243044; padding: 14px; border-radius: 8px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.88rem; }
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #070b12; color: #e2e8f0; max-width: 980px; margin: 32px auto; padding: 0 20px; line-height: 1.55; }
+    h1 { margin: 0 0 6px; font-size: 1.65rem; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    h2 { margin: 0 0 10px; font-size: 1rem; color: #7dd3fc; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sub { color: #94a3b8; margin-top: 0; font-size: 0.94rem; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+    .card { background: #101622; border: 1px solid #243044; border-radius: 10px; padding: 16px; }
+    label { display: block; font-size: 0.85rem; color: #cbd5e1; margin: 8px 0 4px; }
+    select, input { width: 100%; background: #070b12; color: #f8fafc; border: 1px solid #334155; border-radius: 6px; padding: 8px 10px; font-size: 0.9rem; }
+    button { margin-top: 12px; background: linear-gradient(135deg, #0284c7, #6366f1); color: #fff; border: none; border-radius: 6px; padding: 10px 14px; font-size: 0.9rem; cursor: pointer; font-weight: 600; width: 100%; }
+    button:hover { filter: brightness(1.1); }
+    canvas { width: 100%; height: 290px; display: block; background: #060910; border: 1px solid #1e293b; border-radius: 8px; margin-top: 12px; }
+    pre { background: #060910; border: 1px solid #1e293b; padding: 12px; border-radius: 8px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.82rem; color: #a5f3fc; max-height: 240px; }
+    .badge { display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 99px; background: rgba(56, 189, 248, 0.14); color: #38bdf8; margin-left: 8px; vertical-align: middle; }
     a { color: #60a5fa; }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <h1>IEEEBound</h1>
-  <p class="sub">Certified IEEE-754 outward-rounded interval-arithmetic global optimization &amp; root isolation workbench (<a href="https://github.com/Aetherx86/IEEEBound" target="_blank" rel="noopener">GitHub</a>).</p>
+  <h1>IEEEBound <span class="badge">IEEE-754 Outward Rounded</span></h1>
+  <p class="sub">Certified interval-arithmetic global optimization (branch-and-bound) &amp; 1-D Interval Newton root isolation (<a href="https://github.com/Aetherx86/IEEEBound" target="_blank" rel="noopener">GitHub</a>).</p>
 
-  <div class="card">
-    <h2>Global Minimization (Branch-and-Bound)</h2>
-    <div class="row">
-      <div class="col">
-        <label for="bench">Benchmark Function</label>
-        <select id="bench">
-          <option value="himmelblau">Himmelblau: (x²+y−11)² + (x+y²−7)² on [-5,5]²</option>
-          <option value="rosenbrock">Rosenbrock: (1−x)² + 100(y−x²)² on [-2,2]²</option>
-          <option value="rastrigin">Rastrigin (2D) on [-5.12,5.12]²</option>
-        </select>
-      </div>
-      <div class="col">
-        <label for="eps">Tolerance (ε)</label>
-        <input id="eps" type="number" step="0.0001" value="0.005">
-      </div>
-      <div class="col" style="display:flex;align-items:flex-end;">
-        <button onclick="runMinimize()">Minimize Globally</button>
-      </div>
+  <div class="grid">
+    <div class="card">
+      <h2>2-D Certified Global Minimization</h2>
+      <label for="bench">Benchmark Function</label>
+      <select id="bench">
+        <option value="himmelblau">Himmelblau: (x²+y−11)² + (x+y²−7)² on [-5, 5]²</option>
+        <option value="rosenbrock">Rosenbrock: (1−x)² + 100(y−x²)² on [-2, 2]²</option>
+        <option value="rastrigin">Rastrigin: 20 + x²−10cos(2πx) + y²−10cos(2πy) on [-3, 3]²</option>
+        <option value="ackley">Ackley (2-D) on [-3, 3]²</option>
+      </select>
+      <label for="eps">Box Tolerance (ε)</label>
+      <input id="eps" type="number" step="0.005" min="0.0005" max="0.5" value="0.02">
+      <button id="btn-min" onclick="runMinimize()">Run Branch-and-Bound</button>
+      <canvas id="min-canvas" width="460" height="290"></canvas>
+      <pre id="min-out"></pre>
+    </div>
+
+    <div class="card">
+      <h2>1-D Interval Newton Root Isolation</h2>
+      <label for="eq">Equation f(x) = 0</label>
+      <select id="eq">
+        <option value="cubic">x³ − 2x − 5 = 0 on [1, 3]</option>
+        <option value="cosx">cos(x) − x = 0 on [0, 1]</option>
+        <option value="sqrt2">x² − 2 = 0 on [1, 2]</option>
+      </select>
+      <label for="root-eps">Target Width (ε)</label>
+      <input id="root-eps" type="text" value="1e-14">
+      <button id="btn-roots" onclick="runRoots()">Run Interval Newton</button>
+      <canvas id="root-canvas" width="460" height="290"></canvas>
+      <pre id="root-out"></pre>
     </div>
   </div>
-
-  <div class="card">
-    <h2>1-D Root Isolation (Interval Newton)</h2>
-    <div class="row">
-      <div class="col">
-        <label for="eq">Equation f(x) = 0</label>
-        <select id="eq">
-          <option value="cubic">x³ − 2x − 5 = 0 on [1, 3]</option>
-          <option value="cosx">cos(x) − x = 0 on [0, 1]</option>
-          <option value="sqrt2">x² − 2 = 0 on [1, 2]</option>
-        </select>
-      </div>
-      <div class="col" style="display:flex;align-items:flex-end;">
-        <button onclick="runRoots()">Isolate Roots</button>
-      </div>
-    </div>
-  </div>
-
-  <pre id="output">Select a benchmark or equation above to compute certified IEEE-754 enclosures.</pre>
 
   <script>
-    const EPS = 1e-15;
-    const iv = (lo, hi) => ({ lo, hi });
-    const ivAdd = (a, b) => iv(a.lo + b.lo - EPS, a.hi + b.hi + EPS);
-    const ivSub = (a, b) => iv(a.lo - b.hi - EPS, a.hi - b.lo + EPS);
-    const ivMul = (a, b) => {
-      const p = [a.lo*b.lo, a.lo*b.hi, a.hi*b.lo, a.hi*b.hi];
-      return iv(Math.min(...p) - EPS, Math.max(...p) + EPS);
-    };
-    const ivSqr = a => (a.lo <= 0 && a.hi >= 0) ? iv(0, Math.max(a.lo*a.lo, a.hi*a.hi) + EPS)
-      : iv(Math.min(a.lo*a.lo, a.hi*a.hi) - EPS, Math.max(a.lo*a.lo, a.hi*a.hi) + EPS);
-    const ivCos = a => iv(-1, 1);
+    // Exact IEEE-754 f64 nextUp / nextDown via 64-bit DataView (mirrors Rust f64::next_up / next_down).
+    const _buf = new ArrayBuffer(8);
+    const _dv = new DataView(_buf);
+    function nextUp(x) {
+      if (Number.isNaN(x) || x === Infinity) return x;
+      if (x === 0) return Number.MIN_VALUE;
+      _dv.setFloat64(0, x, true);
+      let bits = _dv.getBigUint64(0, true);
+      bits = x > 0 ? bits + 1n : bits - 1n;
+      _dv.setBigUint64(0, bits, true);
+      return _dv.getFloat64(0, true);
+    }
+    function nextDown(x) {
+      return -nextUp(-x);
+    }
 
-    function evalBench(name, x, y) {
+    const iv = (lo, hi) => ({ lo, hi });
+    const ivAdd = (a, b) => iv(nextDown(a.lo + b.lo), nextUp(a.hi + b.hi));
+    const ivSub = (a, b) => iv(nextDown(a.lo - b.hi), nextUp(a.hi - b.lo));
+    const ivMul = (a, b) => {
+      const p = [a.lo * b.lo, a.lo * b.hi, a.hi * b.lo, a.hi * b.hi];
+      return iv(nextDown(Math.min(...p)), nextUp(Math.max(...p)));
+    };
+    const ivSqr = (a) => {
+      if (a.lo <= 0 && a.hi >= 0) return iv(0, nextUp(Math.max(a.lo * a.lo, a.hi * a.hi)));
+      const a2 = a.lo * a.lo, b2 = a.hi * a.hi;
+      return iv(nextDown(Math.min(a2, b2)), nextUp(Math.max(a2, b2)));
+    };
+    const ivSqrt = (a) => {
+      const lo = Math.max(0, a.lo);
+      const hi = Math.max(0, a.hi);
+      return iv(nextDown(Math.sqrt(lo)), nextUp(Math.sqrt(hi)));
+    };
+    const ivExp = (a) => iv(nextDown(Math.exp(a.lo)), nextUp(Math.exp(a.hi)));
+    // Sound interval cosine over [lo, hi]
+    function ivCos(a) {
+      if (a.hi - a.lo >= 2 * Math.PI) return iv(-1, 1);
+      const cLo = Math.cos(a.lo), cHi = Math.cos(a.hi);
+      let lo = Math.min(cLo, cHi), hi = Math.max(cLo, cHi);
+      const kMin = Math.ceil(a.lo / Math.PI);
+      const kMax = Math.floor(a.hi / Math.PI);
+      for (let k = kMin; k <= kMax; k++) {
+        if ((k & 1) === 0) hi = 1;
+        else lo = -1;
+      }
+      return iv(Math.max(-1, nextDown(lo)), Math.min(1, nextUp(hi)));
+    }
+    const ivSin = (a) => ivCos(ivSub(a, iv(Math.PI / 2, Math.PI / 2)));
+
+    function evalBenchIv(name, x, y) {
       if (name === 'himmelblau') {
         const t1 = ivSub(ivAdd(ivSqr(x), y), iv(11, 11));
         const t2 = ivSub(ivAdd(x, ivSqr(y)), iv(7, 7));
@@ -87,64 +122,264 @@
         const t2 = ivSub(y, ivSqr(x));
         return ivAdd(ivSqr(t1), ivMul(iv(100, 100), ivSqr(t2)));
       }
-      const x2 = ivSqr(x), y2 = ivSqr(y);
-      return ivAdd(ivAdd(iv(20, 20), ivSub(x2, iv(10, 10))), ivSub(y2, iv(10, 10)));
+      if (name === 'rastrigin') {
+        const twoPi = iv(nextDown(2 * Math.PI), nextUp(2 * Math.PI));
+        const tx = ivSub(ivSqr(x), ivMul(iv(10, 10), ivCos(ivMul(twoPi, x))));
+        const ty = ivSub(ivSqr(y), ivMul(iv(10, 10), ivCos(ivMul(twoPi, y))));
+        return ivAdd(iv(20, 20), ivAdd(tx, ty));
+      }
+      // Ackley 2D
+      const twoPi = iv(nextDown(2 * Math.PI), nextUp(2 * Math.PI));
+      const r = ivSqrt(ivMul(iv(0.5, 0.5), ivAdd(ivSqr(x), ivSqr(y))));
+      const term1 = ivMul(iv(-20, -20), ivExp(ivMul(iv(-0.2, -0.2), r)));
+      const cosAvg = ivMul(iv(0.5, 0.5), ivAdd(ivCos(ivMul(twoPi, x)), ivCos(ivMul(twoPi, y))));
+      const term2 = ivExp(cosAvg);
+      const eConst = iv(nextDown(Math.E), nextUp(Math.E));
+      return ivAdd(ivSub(term1, term2), ivAdd(iv(20, 20), eConst));
+    }
+
+    function evalBenchPoint(name, x, y) {
+      if (name === 'himmelblau') return (x*x + y - 11)**2 + (x + y*y - 7)**2;
+      if (name === 'rosenbrock') return (1 - x)**2 + 100 * (y - x*x)**2;
+      if (name === 'rastrigin') return 20 + x*x - 10*Math.cos(2*Math.PI*x) + y*y - 10*Math.cos(2*Math.PI*y);
+      return -20 * Math.exp(-0.2 * Math.sqrt(0.5 * (x*x + y*y))) - Math.exp(0.5 * (Math.cos(2*Math.PI*x) + Math.cos(2*Math.PI*y))) + 20 + Math.E;
+    }
+
+    // Binary min-heap for O(log N) best-first branch-and-bound
+    class MinHeap {
+      constructor() { this.a = []; }
+      get length() { return this.a.length; }
+      push(item) {
+        const a = this.a; a.push(item);
+        let i = a.length - 1;
+        while (i > 0) {
+          const p = (i - 1) >> 1;
+          if (a[p].lb <= a[i].lb) break;
+          [a[p], a[i]] = [a[i], a[p]];
+          i = p;
+        }
+      }
+      pop() {
+        const a = this.a;
+        const top = a[0];
+        const last = a.pop();
+        if (a.length) {
+          a[0] = last;
+          let i = 0;
+          while (true) {
+            let l = 2*i + 1, r = 2*i + 2, s = i;
+            if (l < a.length && a[l].lb < a[s].lb) s = l;
+            if (r < a.length && a[r].lb < a[s].lb) s = r;
+            if (s === i) break;
+            [a[i], a[s]] = [a[s], a[i]];
+            i = s;
+          }
+        }
+        return top;
+      }
+    }
+
+    function drawMinCanvas(name, dom, survivors, bestPt) {
+      const c = document.getElementById('min-canvas');
+      const ctx = c.getContext('2d');
+      const W = c.width, H = c.height;
+      const img = ctx.createImageData(W, H);
+      const d = img.data;
+      const [lo, hi] = dom;
+
+      for (let py = 0; py < H; py++) {
+        const y = hi - (py / (H - 1)) * (hi - lo);
+        for (let px = 0; px < W; px++) {
+          const x = lo + (px / (W - 1)) * (hi - lo);
+          const v = Math.log1p(Math.max(0, evalBenchPoint(name, x, y)));
+          const t = Math.min(1, v / 5.5);
+          const idx = (py * W + px) * 4;
+          d[idx] = Math.round(12 + t * 50);
+          d[idx + 1] = Math.round(24 + (1 - t) * 110);
+          d[idx + 2] = Math.round(45 + (1 - t) * 175);
+          d[idx + 3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+
+      const toX = x => ((x - lo) / (hi - lo)) * W;
+      const toY = y => ((hi - y) / (hi - lo)) * H;
+
+      ctx.strokeStyle = 'rgba(250, 204, 21, 0.85)';
+      ctx.lineWidth = 1.2;
+      for (const b of survivors) {
+        const x0 = toX(b.x.lo), x1 = toX(b.x.hi);
+        const y0 = toY(b.y.hi), y1 = toY(b.y.lo);
+        ctx.strokeRect(x0, y0, Math.max(2, x1 - x0), Math.max(2, y1 - y0));
+      }
+
+      if (bestPt) {
+        ctx.fillStyle = '#4ade80';
+        ctx.beginPath();
+        ctx.arc(toX(bestPt[0]), toY(bestPt[1]), 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     function runMinimize() {
       const name = document.getElementById('bench').value;
-      const eps = parseFloat(document.getElementById('eps').value) || 0.005;
-      const d = name === 'rosenbrock' ? [-2, 2] : name === 'rastrigin' ? [-5.12, 5.12] : [-5, 5];
-      let queue = [{ x: iv(d[0], d[1]), y: iv(d[0], d[1]) }];
-      let bestUpper = Infinity, nodes = 0, bestBox = null;
+      const eps = Math.max(0.0005, parseFloat(document.getElementById('eps').value) || 0.02);
+      const dom = name === 'himmelblau' ? [-5, 5] : name === 'rosenbrock' ? [-2, 2] : [-3, 3];
+      const t0 = performance.now();
 
-      while (queue.length && nodes < 25000) {
-        queue.sort((a, b) => evalBench(name, a.x, a.y).lo - evalBench(name, b.x, b.y).lo);
-        const box = queue.shift();
+      const heap = new MinHeap();
+      const initX = iv(dom[0], dom[1]), initY = iv(dom[0], dom[1]);
+      heap.push({ x: initX, y: initY, lb: evalBenchIv(name, initX, initY).lo });
+
+      let bestUpper = Infinity;
+      let bestPt = [0, 0];
+      let nodes = 0;
+      const survivors = [];
+
+      while (heap.length && nodes < 18000) {
+        const node = heap.pop();
+        if (node.lb > bestUpper) break;
         nodes++;
-        const r = evalBench(name, box.x, box.y);
-        if (r.lo > bestUpper) continue;
-        const mx = 0.5 * (box.x.lo + box.x.hi), my = 0.5 * (box.y.lo + box.y.hi);
-        const mid = evalBench(name, iv(mx, mx), iv(my, my));
-        if (mid.hi < bestUpper) { bestUpper = mid.hi; bestBox = box; }
-        const w = Math.max(box.x.hi - box.x.lo, box.y.hi - box.y.lo);
-        if (w <= eps || r.hi - r.lo <= eps) continue;
-        if (box.x.hi - box.x.lo >= box.y.hi - box.y.lo) {
-          queue.push({ x: iv(box.x.lo, mx), y: box.y }, { x: iv(mx, box.x.hi), y: box.y });
+
+        const mx = 0.5 * (node.x.lo + node.x.hi);
+        const my = 0.5 * (node.y.lo + node.y.hi);
+        const midIv = evalBenchIv(name, iv(mx, mx), iv(my, my));
+        if (midIv.hi < bestUpper) {
+          bestUpper = midIv.hi;
+          bestPt = [mx, my];
+        }
+
+        const w = Math.max(node.x.hi - node.x.lo, node.y.hi - node.y.lo);
+        if (w <= eps) {
+          survivors.push(node);
+          continue;
+        }
+        if (node.x.hi - node.x.lo >= node.y.hi - node.y.lo) {
+          const x1 = iv(node.x.lo, mx), x2 = iv(mx, node.x.hi);
+          const lb1 = evalBenchIv(name, x1, node.y).lo;
+          const lb2 = evalBenchIv(name, x2, node.y).lo;
+          if (lb1 <= bestUpper) heap.push({ x: x1, y: node.y, lb: lb1 });
+          if (lb2 <= bestUpper) heap.push({ x: x2, y: node.y, lb: lb2 });
         } else {
-          queue.push({ x: box.x, y: iv(box.y.lo, my) }, { x: box.x, y: iv(my, box.y.hi) });
+          const y1 = iv(node.y.lo, my), y2 = iv(my, node.y.hi);
+          const lb1 = evalBenchIv(name, node.x, y1).lo;
+          const lb2 = evalBenchIv(name, node.x, y2).lo;
+          if (lb1 <= bestUpper) heap.push({ x: node.x, y: y1, lb: lb1 });
+          if (lb2 <= bestUpper) heap.push({ x: node.x, y: y2, lb: lb2 });
         }
       }
 
-      const finalRange = bestBox ? evalBench(name, bestBox.x, bestBox.y) : iv(0, bestUpper);
-      document.getElementById('output').textContent = JSON.stringify({
+      const finalSurvivors = survivors.filter(b => b.lb <= bestUpper);
+      let globalLower = bestUpper;
+      for (const b of finalSurvivors) globalLower = Math.min(globalLower, b.lb);
+      if (heap.length) globalLower = Math.min(globalLower, heap.a[0].lb);
+
+      drawMinCanvas(name, dom, finalSurvivors.slice(0, 600), bestPt);
+
+      document.getElementById('min-out').textContent = JSON.stringify({
         benchmark: name,
+        elapsed_ms: +(performance.now() - t0).toFixed(2),
         nodes_explored: nodes,
-        certified_bracket: [finalRange.lo, bestUpper],
-        minimizer_box: bestBox
+        surviving_boxes: finalSurvivors.length,
+        certified_min_bracket: [globalLower, bestUpper],
+        best_incumbent: { x: +bestPt[0].toFixed(6), y: +bestPt[1].toFixed(6), f: bestUpper }
       }, null, 2);
+    }
+
+    function drawRootCanvas(eq, dom, history, rootBox) {
+      const c = document.getElementById('root-canvas');
+      const ctx = c.getContext('2d');
+      const W = c.width, H = c.height;
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#060910';
+      ctx.fillRect(0, 0, W, H);
+
+      const f = x => eq === 'cubic' ? x*x*x - 2*x - 5 : eq === 'cosx' ? Math.cos(x) - x : x*x - 2;
+      const [a0, b0] = dom;
+      let minY = Infinity, maxY = -Infinity;
+      for (let i = 0; i <= 200; i++) {
+        const x = a0 + (i / 200) * (b0 - a0);
+        const y = f(x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+      const pad = 24;
+      const toX = x => pad + ((x - a0) / (b0 - a0)) * (W - 2 * pad);
+      const toY = y => H - pad - ((y - minY) / Math.max(1e-9, maxY - minY)) * (H - 2 * pad);
+
+      // Zero axis
+      const y0 = toY(0);
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+      ctx.beginPath(); ctx.moveTo(pad, y0); ctx.lineTo(W - pad, y0); ctx.stroke();
+
+      // Shrinking Newton brackets
+      history.forEach((h, idx) => {
+        const alpha = 0.08 + (idx / Math.max(1, history.length)) * 0.28;
+        ctx.fillStyle = `rgba(56, 189, 248, ${alpha.toFixed(3)})`;
+        ctx.fillRect(toX(h.lo), pad, Math.max(2, toX(h.hi) - toX(h.lo)), H - 2 * pad);
+      });
+
+      // Function curve
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i <= 250; i++) {
+        const x = a0 + (i / 250) * (b0 - a0);
+        const px = toX(x), py = toY(f(x));
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+
+      // Final certified root marker
+      const rx = toX(0.5 * (rootBox.lo + rootBox.hi));
+      ctx.fillStyle = '#4ade80';
+      ctx.beginPath(); ctx.arc(rx, y0, 5, 0, Math.PI * 2); ctx.fill();
     }
 
     function runRoots() {
       const eq = document.getElementById('eq').value;
-      let a = eq === 'cosx' ? 0 : 1, b = eq === 'cosx' ? 1 : (eq === 'sqrt2' ? 2 : 3);
-      const f = x => eq === 'cubic' ? x*x*x - 2*x - 5 : eq === 'cosx' ? Math.cos(x) - x : x*x - 2;
-      const df = x => eq === 'cubic' ? 3*x*x - 2 : eq === 'cosx' ? -Math.sin(x) - 1 : 2*x;
+      const eps = Math.max(1e-15, parseFloat(document.getElementById('root-eps').value) || 1e-14);
+      const dom = eq === 'cosx' ? [0, 1] : eq === 'sqrt2' ? [1, 2] : [1, 3];
+      let box = iv(dom[0], dom[1]);
+      const history = [{ ...box }];
 
-      for (let i = 0; i < 40; i++) {
-        const m = 0.5 * (a + b);
-        const step = m - f(m) / df(m);
-        if (f(a) * f(m) <= 0) b = m; else a = m;
-        if (step > a && step < b) {
-          if (f(a) * f(step) <= 0) b = step; else a = step;
-        }
+      const evalF = (x) => {
+        if (eq === 'cubic') return ivSub(ivSub(ivMul(ivSqr(x), x), ivMul(iv(2, 2), x)), iv(5, 5));
+        if (eq === 'cosx') return ivSub(ivCos(x), x);
+        return ivSub(ivSqr(x), iv(2, 2));
+      };
+      const evalDf = (x) => {
+        if (eq === 'cubic') return ivSub(ivMul(iv(3, 3), ivSqr(x)), iv(2, 2));
+        if (eq === 'cosx') return ivSub(ivMul(iv(-1, -1), ivSin(x)), iv(1, 1));
+        return ivMul(iv(2, 2), x);
+      };
+
+      for (let iter = 0; iter < 50; iter++) {
+        if (box.hi - box.lo <= eps) break;
+        const m = 0.5 * (box.lo + box.hi);
+        const fm = evalF(iv(m, m));
+        const df = evalDf(box);
+        if (df.lo <= 0 && df.hi >= 0) break;
+        const invDf = iv(nextDown(1 / df.hi), nextUp(1 / df.lo));
+        const step = ivSub(iv(m, m), ivMul(fm, invDf));
+        const next = iv(Math.max(box.lo, step.lo), Math.min(box.hi, step.hi));
+        if (next.lo > next.hi || (next.lo === box.lo && next.hi === box.hi)) break;
+        box = next;
+        history.push({ ...box });
       }
-      document.getElementById('output').textContent = JSON.stringify({
+
+      drawRootCanvas(eq, dom, history, box);
+      document.getElementById('root-out').textContent = JSON.stringify({
         equation: eq,
-        certified_root_interval: [a, b],
-        width: b - a
+        iterations: history.length - 1,
+        certified_root_interval: [box.lo, box.hi],
+        interval_width: box.hi - box.lo,
+        f_enclosure_at_root: evalF(box)
       }, null, 2);
     }
+
+    // Auto-run both on startup so the workbench opens alive with certified enclosures.
+    runMinimize();
+    runRoots();
   </script>
 </body>
 </html>
