@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Sonophile — Spatial Audio &amp; Room Acoustics Studio</title>
+    <script type="module" crossorigin src="./assets/index-Bdfxt-WF.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DDwEDEOq.css">
+  </head>
+  <body>
+    <div id="app">
+      <header id="toolbar">
+        <h1>Sonophile</h1>
+        <div class="toolbar-group">
+          <button id="btn-run" title="Recompute acoustics">▶ Compute RIR</button>
+          <button id="btn-play" title="Play test signal through the room">Play Stem</button>
+          <button id="btn-mic" title="Toggle live microphone">Mic</button>
+          <button id="btn-export" title="Export RIR as WAV">Export WAV</button>
+          <button id="btn-snapshot-a">Snapshot A</button>
+          <button id="btn-snapshot-b">Snapshot B</button>
+          <button id="btn-compare">A/B</button>
+          <button id="btn-undo">Undo</button>
+          <button id="btn-redo">Redo</button>
+        </div>
+        <div class="toolbar-group" id="isolation-badge">isolation: …</div>
+      </header>
+
+      <main>
+        <section id="viewport-panel">
+          <div class="panel-head">
+            <span>Viewport</span>
+            <select id="view-mode">
+              <option value="floorplan">2D Floorplan</option>
+              <option value="3d">3D Extruded</option>
+            </select>
+            <select id="overlay">
+              <option value="none">No overlay</option>
+              <option value="fdtd">FDTD wave field</option>
+              <option value="rays">Ray / early reflections</option>
+              <option value="decay">Energy decay heatmap</option>
+            </select>
+          </div>
+          <canvas id="viewport" width="900" height="520"></canvas>
+        </section>
+
+        <aside id="side-panel">
+          <section class="card">
+            <h2>Source &amp; Listener</h2>
+            <label>Source X <input id="src-x" type="range" min="-3" max="3" step="0.05" value="0" /></label>
+            <label>Source Y <input id="src-y" type="range" min="-2.5" max="2.5" step="0.05" value="0" /></label>
+            <label>Listener X <input id="lst-x" type="range" min="-3" max="3" step="0.05" value="2" /></label>
+            <label>Listener Y <input id="lst-y" type="range" min="-2.5" max="2.5" step="0.05" value="1" /></label>
+            <label>Directivity
+              <select id="directivity">
+                <option>omnidirectional</option>
+                <option>cardioid</option>
+                <option>supercardioid</option>
+                <option>cone</option>
+              </select>
+            </label>
+          </section>
+
+          <section class="card">
+            <h2>Room</h2>
+            <label>Width (m) <input id="room-w" type="range" min="3" max="12" step="0.1" value="5" /></label>
+            <label>Depth (m) <input id="room-d" type="range" min="3" max="10" step="0.1" value="4" /></label>
+            <label>Height (m) <input id="room-h" type="range" min="2.2" max="6" step="0.1" value="2.7" /></label>
+            <label>Wall material
+              <select id="mat-wall"></select>
+            </label>
+            <label>Floor material
+              <select id="mat-floor"></select>
+            </label>
+            <label>Ceiling material
+              <select id="mat-ceiling"></select>
+            </label>
+          </section>
+
+          <section class="card">
+            <h2>Convolution</h2>
+            <label>Dry/Wet <input id="drywet" type="range" min="0" max="1" step="0.01" value="0.5" /></label>
+            <label>Pre-delay (ms) <input id="predelay" type="range" min="0" max="200" step="1" value="0" /></label>
+            <label>Damping trim <input id="damping" type="range" min="0" max="1" step="0.01" value="0.5" /></label>
+            <label>Stereo width <input id="width" type="range" min="0" max="2" step="0.01" value="1" /></label>
+          </section>
+
+          <section class="card">
+            <h2>Diagnostics</h2>
+            <div id="metrics"></div>
+            <canvas id="freq-plot" width="320" height="120"></canvas>
+            <div id="advisor"></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+  </body>
+</html>

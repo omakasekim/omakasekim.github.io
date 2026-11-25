@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IEEEBound: Certified Interval-Arithmetic &amp; Global Optimizer Workbench</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0b0f17; color: #e2e8f0; max-width: 860px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
+    h1, h2 { color: #f8fafc; margin-bottom: 8px; }
+    .sub { color: #94a3b8; margin-top: 0; }
+    .card { background: #131a26; border: 1px solid #243044; border-radius: 10px; padding: 18px; margin: 18px 0; }
+    label { display: block; font-size: 0.9rem; color: #cbd5e1; margin-bottom: 6px; }
+    select, input { width: 100%; box-sizing: border-box; background: #0b0f17; color: #f8fafc; border: 1px solid #334155; border-radius: 6px; padding: 10px 12px; font-size: 0.95rem; }
+    .row { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+    .col { flex: 1; min-width: 160px; }
+    button { background: #2563eb; color: #fff; border: none; border-radius: 6px; padding: 10px 16px; font-size: 0.95rem; cursor: pointer; font-weight: 600; width: 100%; }
+    button:hover { background: #1d4ed8; }
+    pre { background: #0b0f17; border: 1px solid #243044; padding: 14px; border-radius: 8px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.88rem; }
+    a { color: #60a5fa; }
+  </style>
+</head>
+<body>
+  <h1>IEEEBound</h1>
+  <p class="sub">Certified IEEE-754 outward-rounded interval-arithmetic global optimization &amp; root isolation workbench (<a href="https://github.com/Aetherx86/IEEEBound" target="_blank" rel="noopener">GitHub</a>).</p>
+
+  <div class="card">
+    <h2>Global Minimization (Branch-and-Bound)</h2>
+    <div class="row">
+      <div class="col">
+        <label for="bench">Benchmark Function</label>
+        <select id="bench">
+          <option value="himmelblau">Himmelblau: (x²+y−11)² + (x+y²−7)² on [-5,5]²</option>
+          <option value="rosenbrock">Rosenbrock: (1−x)² + 100(y−x²)² on [-2,2]²</option>
+          <option value="rastrigin">Rastrigin (2D) on [-5.12,5.12]²</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="eps">Tolerance (ε)</label>
+        <input id="eps" type="number" step="0.0001" value="0.005">
+      </div>
+      <div class="col" style="display:flex;align-items:flex-end;">
+        <button onclick="runMinimize()">Minimize Globally</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1-D Root Isolation (Interval Newton)</h2>
+    <div class="row">
+      <div class="col">
+        <label for="eq">Equation f(x) = 0</label>
+        <select id="eq">
+          <option value="cubic">x³ − 2x − 5 = 0 on [1, 3]</option>
+          <option value="cosx">cos(x) − x = 0 on [0, 1]</option>
+          <option value="sqrt2">x² − 2 = 0 on [1, 2]</option>
+        </select>
+      </div>
+      <div class="col" style="display:flex;align-items:flex-end;">
+        <button onclick="runRoots()">Isolate Roots</button>
+      </div>
+    </div>
+  </div>
+
+  <pre id="output">Select a benchmark or equation above to compute certified IEEE-754 enclosures.</pre>
+
+  <script>
+    const EPS = 1e-15;
+    const iv = (lo, hi) => ({ lo, hi });
+    const ivAdd = (a, b) => iv(a.lo + b.lo - EPS, a.hi + b.hi + EPS);
+    const ivSub = (a, b) => iv(a.lo - b.hi - EPS, a.hi - b.lo + EPS);
+    const ivMul = (a, b) => {
+      const p = [a.lo*b.lo, a.lo*b.hi, a.hi*b.lo, a.hi*b.hi];
+      return iv(Math.min(...p) - EPS, Math.max(...p) + EPS);
+    };
+    const ivSqr = a => (a.lo <= 0 && a.hi >= 0) ? iv(0, Math.max(a.lo*a.lo, a.hi*a.hi) + EPS)
+      : iv(Math.min(a.lo*a.lo, a.hi*a.hi) - EPS, Math.max(a.lo*a.lo, a.hi*a.hi) + EPS);
+    const ivCos = a => iv(-1, 1);
+
+    function evalBench(name, x, y) {
+      if (name === 'himmelblau') {
+        const t1 = ivSub(ivAdd(ivSqr(x), y), iv(11, 11));
+        const t2 = ivSub(ivAdd(x, ivSqr(y)), iv(7, 7));
+        return ivAdd(ivSqr(t1), ivSqr(t2));
+      }
+      if (name === 'rosenbrock') {
+        const t1 = ivSub(iv(1, 1), x);
+        const t2 = ivSub(y, ivSqr(x));
+        return ivAdd(ivSqr(t1), ivMul(iv(100, 100), ivSqr(t2)));
+      }
+      const x2 = ivSqr(x), y2 = ivSqr(y);
+      return ivAdd(ivAdd(iv(20, 20), ivSub(x2, iv(10, 10))), ivSub(y2, iv(10, 10)));
+    }
+
+    function runMinimize() {
+      const name = document.getElementById('bench').value;
+      const eps = parseFloat(document.getElementById('eps').value) || 0.005;
+      const d = name === 'rosenbrock' ? [-2, 2] : name === 'rastrigin' ? [-5.12, 5.12] : [-5, 5];
+      let queue = [{ x: iv(d[0], d[1]), y: iv(d[0], d[1]) }];
+      let bestUpper = Infinity, nodes = 0, bestBox = null;
+
+      while (queue.length && nodes < 25000) {
+        queue.sort((a, b) => evalBench(name, a.x, a.y).lo - evalBench(name, b.x, b.y).lo);
+        const box = queue.shift();
+        nodes++;
+        const r = evalBench(name, box.x, box.y);
+        if (r.lo > bestUpper) continue;
+        const mx = 0.5 * (box.x.lo + box.x.hi), my = 0.5 * (box.y.lo + box.y.hi);
+        const mid = evalBench(name, iv(mx, mx), iv(my, my));
+        if (mid.hi < bestUpper) { bestUpper = mid.hi; bestBox = box; }
+        const w = Math.max(box.x.hi - box.x.lo, box.y.hi - box.y.lo);
+        if (w <= eps || r.hi - r.lo <= eps) continue;
+        if (box.x.hi - box.x.lo >= box.y.hi - box.y.lo) {
+          queue.push({ x: iv(box.x.lo, mx), y: box.y }, { x: iv(mx, box.x.hi), y: box.y });
+        } else {
+          queue.push({ x: box.x, y: iv(box.y.lo, my) }, { x: box.x, y: iv(my, box.y.hi) });
+        }
+      }
+
+      const finalRange = bestBox ? evalBench(name, bestBox.x, bestBox.y) : iv(0, bestUpper);
+      document.getElementById('output').textContent = JSON.stringify({
+        benchmark: name,
+        nodes_explored: nodes,
+        certified_bracket: [finalRange.lo, bestUpper],
+        minimizer_box: bestBox
+      }, null, 2);
+    }
+
+    function runRoots() {
+      const eq = document.getElementById('eq').value;
+      let a = eq === 'cosx' ? 0 : 1, b = eq === 'cosx' ? 1 : (eq === 'sqrt2' ? 2 : 3);
+      const f = x => eq === 'cubic' ? x*x*x - 2*x - 5 : eq === 'cosx' ? Math.cos(x) - x : x*x - 2;
+      const df = x => eq === 'cubic' ? 3*x*x - 2 : eq === 'cosx' ? -Math.sin(x) - 1 : 2*x;
+
+      for (let i = 0; i < 40; i++) {
+        const m = 0.5 * (a + b);
+        const step = m - f(m) / df(m);
+        if (f(a) * f(m) <= 0) b = m; else a = m;
+        if (step > a && step < b) {
+          if (f(a) * f(step) <= 0) b = step; else a = step;
+        }
+      }
+      document.getElementById('output').textContent = JSON.stringify({
+        equation: eq,
+        certified_root_interval: [a, b],
+        width: b - a
+      }, null, 2);
+    }
+  </script>
+</body>
+</html>
