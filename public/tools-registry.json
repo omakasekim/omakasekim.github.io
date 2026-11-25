@@ -1,7 +1,7 @@
 {
   "version": 3,
   "updatedAt": "2026-11-25",
-  "description": "Single source of truth for Aetherx86 interactive developer workbenches and plugins. Append a new entry to tools[] to automatically register it in the right-aligned Labs / Plugins header dropdown and page grid.",
+  "description": "Single source of truth for omakasekim interactive developer workbenches and plugins. Append a new entry to tools[] to automatically register it in the right-aligned Labs / Plugins header dropdown and page grid.",
   "tools": [
     {
       "id": "list-radar",
@@ -13,8 +13,8 @@
       "ecosystems": ["sindresorhus/awesome", "public-apis", "github/gitignore", "awesome-compose"],
       "stack": ["Chrome MV3", "React", "TypeScript", "Zod", "Docker"],
       "installType": "Chrome Extension + Web",
-      "repoUrl": "https://github.com/Aetherx86/list-radar",
-      "demoUrl": "https://aetherx86.github.io/list-radar/",
+      "repoUrl": "https://github.com/omakasekim/list-radar",
+      "demoUrl": "https://omakasekim.github.io/list-radar/",
       "modes": ["GitHub List Overlay", "Inline API Sandbox", "Compose & .gitignore"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -29,8 +29,8 @@
       "ecosystems": ["openclaw", "opencode", "anthropic/skills", "karpathy-guidelines", "rea"],
       "stack": ["Agent SKILL.md", "Node CLI", "React", "TypeScript"],
       "installType": "Agent Skill + CLI + Web",
-      "repoUrl": "https://github.com/Aetherx86/agent-hud",
-      "demoUrl": "https://aetherx86.github.io/agent-hud/",
+      "repoUrl": "https://github.com/omakasekim/agent-hud",
+      "demoUrl": "https://omakasekim.github.io/agent-hud/",
       "modes": ["Action & RE Trace HUD", "Skill Conflict Topology", "Guardrail & Flamegraph"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -45,8 +45,8 @@
       "ecosystems": ["developer-roadmap", "ossu/computer-science", "build-your-own-x", "TheAlgorithms"],
       "stack": ["Chrome MV3", "Node CLI", "React", "SVG DAG"],
       "installType": "Chrome Extension + CLI + Web",
-      "repoUrl": "https://github.com/Aetherx86/learn-graph",
-      "demoUrl": "https://aetherx86.github.io/learn-graph/",
+      "repoUrl": "https://github.com/omakasekim/learn-graph",
+      "demoUrl": "https://omakasekim.github.io/learn-graph/",
       "modes": ["Curriculum DAG", "Skill-Gap Scanner", "Algo & Big-O Lab"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -61,8 +61,8 @@
       "ecosystems": ["system-design-primer", "n8n", "firecrawl", "awesome-scalability"],
       "stack": ["Chrome MV3", "Node CLI", "React", "Queuing Sim"],
       "installType": "Chrome Extension + CLI + Web",
-      "repoUrl": "https://github.com/Aetherx86/sysdesign-lab",
-      "demoUrl": "https://aetherx86.github.io/sysdesign-lab/",
+      "repoUrl": "https://github.com/omakasekim/sysdesign-lab",
+      "demoUrl": "https://omakasekim.github.io/sysdesign-lab/",
       "modes": ["Traffic & Bottlenecks", "n8n Payload Drift", "DNS / TLS & Firecrawl"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -77,8 +77,8 @@
       "ecosystems": ["facebook/react", "torvalds/linux", "flutter", "tensorflow", "You-Dont-Know-JS", "996.ICU"],
       "stack": ["Chrome MV3", "Node CLI", "React", "TypeScript"],
       "installType": "Chrome Extension + CLI + Web",
-      "repoUrl": "https://github.com/Aetherx86/code-pulse-ext",
-      "demoUrl": "https://aetherx86.github.io/code-pulse-ext/",
+      "repoUrl": "https://github.com/omakasekim/code-pulse-ext",
+      "demoUrl": "https://omakasekim.github.io/code-pulse-ext/",
       "modes": ["Blast-Radius & Tensor", "JS Scope / Closure X-Ray", "Cadence & 996 Heatmap"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -93,8 +93,8 @@
       "ecosystems": ["ollama", "ohmyzsh", "vscode", "markitdown", "yt-dlp", "bootstrap"],
       "stack": ["Node CLI", "React", "TypeScript", "Tailwind"],
       "installType": "Node CLI + Web",
-      "repoUrl": "https://github.com/Aetherx86/cli-workbench",
-      "demoUrl": "https://aetherx86.github.io/cli-workbench/",
+      "repoUrl": "https://github.com/omakasekim/cli-workbench",
+      "demoUrl": "https://omakasekim.github.io/cli-workbench/",
       "modes": ["Ollama VRAM Matrix", "Zsh & VS Code Flamegraph", "markitdown · yt-dlp · Grid"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -109,8 +109,8 @@
       "ecosystems": ["git", "openapi", "graphql", "typescript"],
       "stack": ["React", "TypeScript", "Git AST", "OpenAPI"],
       "installType": "Node CLI + Web",
-      "repoUrl": "https://github.com/Aetherx86/diffcanvas",
-      "demoUrl": "https://aetherx86.github.io/diffcanvas/",
+      "repoUrl": "https://github.com/omakasekim/diffcanvas",
+      "demoUrl": "https://omakasekim.github.io/diffcanvas/",
       "modes": ["Git & Code Flow", "PR Health Radar", "Schema Drift + Adapter"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -125,8 +125,8 @@
       "ecosystems": ["claude-code", "codex", "mcp", "cursor"],
       "stack": ["React", "TypeScript", "JSONL", "MCP"],
       "installType": "Node CLI + Web",
-      "repoUrl": "https://github.com/Aetherx86/agent-replay",
-      "demoUrl": "https://aetherx86.github.io/agent-replay/",
+      "repoUrl": "https://github.com/omakasekim/agent-replay",
+      "demoUrl": "https://omakasekim.github.io/agent-replay/",
       "modes": ["Session Time-Travel", "Context Budget X-Ray", "MCP Tool Radar"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -141,8 +141,8 @@
       "ecosystems": ["sse", "webhooks", "oauth2", "jwt"],
       "stack": ["React", "TypeScript", "WebCrypto", "SSE/JWT"],
       "installType": "Web Workbench",
-      "repoUrl": "https://github.com/Aetherx86/wiretrace",
-      "demoUrl": "https://aetherx86.github.io/wiretrace/",
+      "repoUrl": "https://github.com/omakasekim/wiretrace",
+      "demoUrl": "https://omakasekim.github.io/wiretrace/",
       "modes": ["SSE Stream Lab", "HMAC Webhook Replay", "JWT & PKCE X-Ray"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -157,8 +157,8 @@
       "ecosystems": ["docker", "git-worktree", "dotenv", "localhost"],
       "stack": ["Node.js", "React", "SSE", "Docker"],
       "installType": "Node CLI + Web",
-      "repoUrl": "https://github.com/Aetherx86/portmap",
-      "demoUrl": "https://aetherx86.github.io/portmap/",
+      "repoUrl": "https://github.com/omakasekim/portmap",
+      "demoUrl": "https://omakasekim.github.io/portmap/",
       "modes": ["Ports & .env Map", "Git Worktree Deck", "Layer Bloat & Cleanup"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -173,8 +173,8 @@
       "ecosystems": ["github-actions", "postgresql", "benchmarks"],
       "stack": ["React", "TypeScript", "Flamegraph", "SQL EXPLAIN"],
       "installType": "Web Workbench",
-      "repoUrl": "https://github.com/Aetherx86/perf-xray",
-      "demoUrl": "https://aetherx86.github.io/perf-xray/",
+      "repoUrl": "https://github.com/omakasekim/perf-xray",
+      "demoUrl": "https://omakasekim.github.io/perf-xray/",
       "modes": ["CI Actions Flamegraph", "SQL EXPLAIN Flow", "Benchmark CI Gate"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -189,8 +189,8 @@
       "ecosystems": ["tailwindcss", "css", "dom-3d"],
       "stack": ["React", "TypeScript", "3D CSS", "Tailwind"],
       "installType": "Web Workbench",
-      "repoUrl": "https://github.com/Aetherx86/css-xray",
-      "demoUrl": "https://aetherx86.github.io/css-xray/",
+      "repoUrl": "https://github.com/omakasekim/css-xray",
+      "demoUrl": "https://omakasekim.github.io/css-xray/",
       "modes": ["3D Isometric DOM", "Specificity Duel", "Tailwind Audit"],
       "featured": true,
       "addedAt": "2026-11-25"
@@ -205,8 +205,8 @@
       "ecosystems": ["npm", "pnpm", "sbom", "license-audit"],
       "stack": ["React", "TypeScript", "Canvas", "SBOM"],
       "installType": "Web Workbench",
-      "repoUrl": "https://github.com/Aetherx86/dep-radar",
-      "demoUrl": "https://aetherx86.github.io/dep-radar/",
+      "repoUrl": "https://github.com/omakasekim/dep-radar",
+      "demoUrl": "https://omakasekim.github.io/dep-radar/",
       "modes": ["Gravity Force Graph", "Supply-Chain Telemetry", "PR Diff & Policy"],
       "featured": true,
       "addedAt": "2026-11-25"

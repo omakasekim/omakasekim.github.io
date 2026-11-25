@@ -1,5 +1,5 @@
 {
-  "$schema": "https://aetherx86.github.io/schemas/release-manifest.v1.json",
+  "$schema": "https://omakasekim.github.io/schemas/release-manifest.v1.json",
   "updated_at": "2026-11-09T05:00:00Z",
   "organization_id": "9ebf8af0-a566-4fa7-8869-07fff0b13c7a",
   "products": {
@@ -10,7 +10,7 @@
       "release_date": "2026-11-08",
       "price": "$39.99",
       "polar_checkout_url": "https://7497950237241.gumroad.com/l/cnogyy",
-      "download_url": "https://aetherx86.github.io/releases/sentinel-kit-v1.0.2.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/sentinel-kit-v1.0.2.tar.gz",
       "changelog": "High-assurance AST pruner, secret scrubber, and Polar.sh + Ed25519 licensing guard.",
       "min_license_version": "1.0.0",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/l/cnogyy"
@@ -22,7 +22,7 @@
       "release_date": "2026-11-08",
       "price": "$24.99",
       "polar_checkout_url": "https://7497950237241.gumroad.com/l/cvjce",
-      "download_url": "https://aetherx86.github.io/releases/hexane-v1.0.0.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/hexane-v1.0.0.tar.gz",
       "changelog": "High-performance Carbon language toolchain & distributed 4-tier telemetry engine.",
       "min_license_version": "1.0.0",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/l/cvjce"
@@ -34,7 +34,7 @@
       "release_date": "2026-11-08",
       "price": "$69.99",
       "polar_checkout_url": "https://7497950237241.gumroad.com/l/llpvi",
-      "download_url": "https://aetherx86.github.io/releases/medcrypto-v1.0.0.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/medcrypto-v1.0.0.tar.gz",
       "changelog": "HIPAA/GDPR-compliant homomorphic RNS-CKKS encrypted clinical telemetry and EMR analytics pipeline.",
       "min_license_version": "1.0.0",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/l/llpvi"
@@ -46,7 +46,7 @@
       "release_date": "2026-11-08",
       "price": "$99.99",
       "polar_checkout_url": "https://7497950237241.gumroad.com/l/bndufv",
-      "download_url": "https://aetherx86.github.io/releases/vmp-devirt-v1.0.0.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/vmp-devirt-v1.0.0.tar.gz",
       "changelog": "64-bit binary devirtualization, VMProtect 3.x/Themida lifting, Z3 SMT solving, and clean LLVM IR recompilation.",
       "min_license_version": "1.0.0",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/l/bndufv"
@@ -58,7 +58,7 @@
       "release_date": "2026-11-08",
       "price": "$149.99",
       "polar_checkout_url": "https://7497950237241.gumroad.com/l/dlanpu",
-      "download_url": "https://aetherx86.github.io/releases/zk-hypervm-v1.0.0.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/zk-hypervm-v1.0.0.tar.gz",
       "changelog": "Verifiable hardware-assisted virtualization via lookup-accelerated IVC folding over EPT & VMCS transitions.",
       "min_license_version": "1.0.0",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/l/dlanpu"
@@ -70,7 +70,7 @@
       "release_date": "2026-11-08",
       "price": "$59.99",
       "polar_checkout_url": "https://7497950237241.gumroad.com/l/znvck",
-      "download_url": "https://aetherx86.github.io/releases/rusty-chain-kit-v0.1.1.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/rusty-chain-kit-v0.1.1.tar.gz",
       "changelog": "Unified Ethereum command center: dynamic fuzzing, invariant verification, EVM decompilation, and MEV mempool simulator.",
       "min_license_version": "0.1.0",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/l/znvck"
@@ -82,7 +82,7 @@
       "release_date": "2026-11-08",
       "price": "Bundle Discount",
       "polar_checkout_url": "https://7497950237241.gumroad.com/",
-      "download_url": "https://aetherx86.github.io/releases/aether-security-bundle-2026.11.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/aether-security-bundle-2026.11.tar.gz",
       "changelog": "Complete commercial suite: Sentinel Kit, Hexane, REA 7.0, MedCrypto, VMP_DEVIRT, zk-HyperVM, and Rusty Chain Kit.",
       "min_license_version": "1.0.0",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/"
@@ -94,7 +94,7 @@
       "release_date": "2026-11-08",
       "price": "$49.99",
       "polar_checkout_url": "https://7497950237241.gumroad.com/l/hyyezm",
-      "download_url": "https://aetherx86.github.io/releases/rea-v7.0.3.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/rea-v7.0.3.tar.gz",
       "changelog": "13-crate native Rust reverse-engineering platform, 302 MCP tools, multi-architecture disassembler & Pseudo-C decompiler.",
       "min_license_version": "7.0.0",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/l/hyyezm"
@@ -106,7 +106,7 @@
       "release_date": "2026-11-09",
       "price": "$9.99",
       "polar_checkout_url": "https://7497950237241.gumroad.com/l/vgmjtb",
-      "download_url": "https://aetherx86.github.io/releases/aether-v0.1.2.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/aether-v0.1.2.tar.gz",
       "changelog": "Native Sovereign Document Subsystem: In-process Korean HWP3-5, HWPX, DOCX, XLSX, PPTX, and PDF parsing with top-tier OCR on HWPX and PDF, lossless HWPX roundtrip form-filling, PII redaction, semantic diffing, and RAG chunking.",
       "min_license_version": "0.1.0",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/l/vgmjtb"
@@ -118,7 +118,7 @@
       "release_date": "2026-11-09",
       "price": "$28.99",
       "polar_checkout_url": "https://7497950237241.gumroad.com/l/bqlvjw",
-      "download_url": "https://aetherx86.github.io/releases/jadeite-v0.0.1.tar.gz",
+      "download_url": "https://omakasekim.github.io/releases/jadeite-v0.0.1.tar.gz",
       "changelog": "On-device 3D surgical anatomy board: operating room mode, 3D trench incisions, vascular clamping, cath lab PCI, voice navigation, and deterministic clinical cases.",
       "min_license_version": "0.0.1",
       "gumroad_checkout_url": "https://7497950237241.gumroad.com/l/bqlvjw"

@@ -1723,7 +1723,7 @@ async function fetchLiveCveFeed() {
 
 async function updateDynamicRepoCount() {
   try {
-    const res = await fetch('https://api.github.com/users/Aetherx86');
+    const res = await fetch('https://api.github.com/users/omakasekim');
     if (res.ok) {
       const data = await res.json();
       if (typeof data.public_repos === 'number') {

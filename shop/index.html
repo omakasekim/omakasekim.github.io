@@ -708,7 +708,7 @@ function openCheckout(productId, name, price) {
       },
       onApprove: function(data, actions) {
         return actions.order.capture().then(function(details) {
-          const payerEmail = details.payer?.email_address || 'customer@aetherx86.com';
+          const payerEmail = details.payer?.email_address || 'customer@omakasekim.com';
           const dummyToken = 'AETH-LIC.' + btoa(payerEmail).replace(/=/g,'') + '.' + productId + '.' + Date.now();
           currentToken = dummyToken;
           document.getElementById('checkoutView').style.display = 'none';

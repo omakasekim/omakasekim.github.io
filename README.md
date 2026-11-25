@@ -1,6 +1,6 @@
-# aetherx86.github.io
+# omakasekim.github.io
 
-Source code and assets for the official landing portal of **Aether Systems & Research Lab** (`https://aetherx86.github.io`).
+Source code and assets for the official landing portal of **Aether Systems & Research Lab** (`https://omakasekim.github.io`).
 
 ## Features
 - Pure HTML5/CSS/JavaScript with zero external runtime dependencies.
