@@ -1350,34 +1350,52 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
       </div>
 
       <p style="color: var(--text); font-size: 0.95rem; line-height: 1.7; margin-bottom: 16px;">
-        An all-in-one developer command center and unified Ethereum toolchain. Provides a high-performance native Rust CLI (<code>para</code> / <code>rusty-chain-kit</code>) and interactive web GUI uniting smart contract compilation, formal invariant verification, stateful dynamic fuzzing, EVM bytecode decompilation, revert autopsies, and reactor-grade multi-hop taint flow graphs.
+        An all-in-one developer command center and unified Ethereum toolchain (<code>v0.4.0</code>). Provides a high-performance native Rust CLI (<code>para</code> / <code>rusty-chain-kit</code>) and interactive web GUI uniting real <code>solc --standard-json</code> differential benchmarking, MPT proof verification, EIP-7702 / ERC-4337 codecs, Cancun EVM bytecode security &amp; ERC standard fingerprinting, storage bin-packing &amp; ERC-7201 slot calculation, revert autopsies, stateful invariant fuzzing, and reactor-grade multi-hop taint flow graphs.
       </p>
 
-      <!-- INTERACTIVE WATERED-DOWN TESTBED -->
+      <!-- INTERACTIVE LIVE WASM TESTBED -->
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Live Testbed: EVM Bytecode Inspector</span>
-            <span class="sandbox-badge">rusty-chain-kit 0.2.0</span>
+            <span>⚡ Live Testbed: EVM Bytecode, Storage &amp; Revert Autopsy Engine</span>
+            <span class="sandbox-badge">rusty-chain-kit 0.4.0 WASM</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">rusty-chain-kit's bytecode module (evmole ABI recovery, proxy detection, CFG) compiled to WebAssembly. The fuzzer, RPC and forensics need a node and stay in the desktop kit.</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Real rusty-chain-kit Rust modules (bytecode.rs + evmole 0.10.1, storage.rs, trace.rs) compiled to WebAssembly. Zero private source exposed.</div>
         </div>
-        <div class="sandbox-controls">
-          <button class="btn-sample" onclick="loadChainTest('token')">Contract 1: ERC-20 style token</button>
-          <button class="btn-sample" onclick="loadChainTest('vault')">Contract 2: ETH vault</button>
-          <button class="btn-sample" onclick="loadChainTest('clone')">Contract 3: EIP-1167 minimal proxy</button>
+        <div class="sandbox-controls" id="chain-mode-bar">
+          <button class="btn-sample" id="chain-tab-bytecode" onclick="setChainMode('bytecode')" style="border-color: #38bdf8; color: #f8fafc;">01: Bytecode, Standards &amp; Security</button>
+          <button class="btn-sample" id="chain-tab-storage" onclick="setChainMode('storage')">02: Storage Packing, Diff &amp; ERC-7201</button>
+          <button class="btn-sample" id="chain-tab-autopsy" onclick="setChainMode('autopsy')">03: Revert Autopsy &amp; Custom Errors</button>
         </div>
-        <textarea id="chain-input" class="sandbox-editor" placeholder="Deployed runtime bytecode as hex (0x6080...), e.g. from eth_getCode or forge inspect &lt;Contract&gt; deployedBytecode" spellcheck="false"></textarea>
+        <div class="sandbox-controls" id="chain-presets-bytecode">
+          <button class="btn-sample" onclick="loadChainTest('token')">ERC-20 Token (solc 0.8.26)</button>
+          <button class="btn-sample" onclick="loadChainTest('vault')">ETH Vault (CALL + SSTORE)</button>
+          <button class="btn-sample" onclick="loadChainTest('clone')">EIP-1167 Minimal Proxy</button>
+          <button class="btn-sample" onclick="loadChainTest('eip7702')">EIP-7702 Delegated Account</button>
+          <button class="btn-sample" onclick="loadChainTest('metamorphic')">Metamorphic CREATE2+SELFDESTRUCT</button>
+        </div>
+        <div class="sandbox-controls" id="chain-presets-storage" style="display:none;">
+          <button class="btn-sample" onclick="loadChainTest('pack_opt')">Unpacked Vault (Bin-Pack + ERC-7201)</button>
+          <button class="btn-sample" onclick="loadChainTest('upgrade_collision')">Faulty Proxy Upgrade (SlotShift + TypeMutation)</button>
+          <button class="btn-sample" onclick="loadChainTest('upgrade_safe')">Safe Append-Only Proxy Upgrade</button>
+        </div>
+        <div class="sandbox-controls" id="chain-presets-autopsy" style="display:none;">
+          <button class="btn-sample" onclick="loadChainTest('err_erc20')">ERC20InsufficientBalance</button>
+          <button class="btn-sample" onclick="loadChainTest('err_access')">AccessControlUnauthorizedAccount</button>
+          <button class="btn-sample" onclick="loadChainTest('err_erc4626')">ERC4626ExceededMaxDeposit</button>
+          <button class="btn-sample" onclick="loadChainTest('err_panic')">Solidity Panic(0x11) Overflow</button>
+        </div>
+        <textarea id="chain-input" class="sandbox-editor" placeholder="Deployed runtime bytecode (0x6080...), Solidity contract(s) separated by ---V2---, or revert hex data" spellcheck="false"></textarea>
         <button class="btn-run-sandbox" onclick="runChainSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Inspect Bytecode
+          <span id="chain-run-label">Inspect Bytecode (WASM)</span>
         </button>
-        <div id="chain-output" class="sandbox-output">Pick a sample (compiled with solc 0.8.26) or paste runtime bytecode, then run.</div>
+        <div id="chain-output" class="sandbox-output">Pick a mode and preset, then run. Bytecode ABI/standards/security, storage packing/collisions/ERC-7201, and revert autopsy all execute locally in WebAssembly.</div>
       </div>
 
       <div class="cta-row">
         <div style="font-size: 0.84rem; color: var(--text-dim); font-family: var(--mono);">
-          Artifact: <code style="color: #38bdf8;">rusty-chain-kit-v0.1.1.tar.gz</code> &bull; SHA-256 Verified
+          Artifact: <code style="color: #38bdf8;">rusty-chain-kit-v0.4.0.tar.gz</code> &bull; SHA-256 Verified
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <a href="https://7497950237241.gumroad.com/l/znvck" target="_blank" class="btn-gumroad-checkout">
@@ -1771,14 +1789,52 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
       }
     }
 
-    // 7. Rusty Chain Kit
+    // 7. Rusty Chain Kit (v0.4.0 WASM Multi-Tool Workbench)
+    let chainMode = 'bytecode';
     const chainPresets = {
       token: '0x608060405234801561000f575f80fd5b5060043610610060575f3560e01c8063095ea7b31461006457806318160ddd1461008c57806323b872dd146100a357806370a08231146100b6578063a9059cbb146100d5578063dd62ed3e146100e8575b5f80fd5b61007761007236600461024f565b610112565b60405190151581526020015b60405180910390f35b61009560025481565b604051908152602001610083565b6100776100b1366004610277565b61013f565b6100956100c43660046102b1565b5f6020819052908152604090205481565b6100776100e336600461024f565b6101da565b6100956100f63660046102d1565b600160209081525f928352604080842090915290825290205481565b335f9081526001602081815260408084206001600160a01b03871685529091529091208290555b92915050565b6001600160a01b0383165f908152600160209081526040808320338452909152812080548391908390610173908490610316565b90915550506001600160a01b0384165f908152602081905260408120805484929061019f908490610316565b90915550506001600160a01b0383165f90815260208190526040812080548492906101cb908490610329565b90915550600195945050505050565b335f908152602081905260408120805483919083906101fa908490610316565b90915550506001600160a01b0383165f9081526020819052604081208054849290610226908490610329565b909155506001949350505050565b80356001600160a01b038116811461024a575f80fd5b919050565b5f8060408385031215610260575f80fd5b61026983610234565b946020939093013593505050565b5f805f60608486031215610289575f80fd5b61029284610234565b92506102a060208501610234565b929592945050506040919091013590565b5f602082840312156102c1575f80fd5b6102ca82610234565b9392505050565b5f80604083850312156102e2575f80fd5b6102eb83610234565b91506102f960208401610234565b90509250929050565b634e487b7160e01b5f52601160045260245ffd5b8181038181111561013957610139610302565b808201808211156101395761013961030256',
       vault: '0x608060405260043610610033575f3560e01c806327e235e3146100375780633ccfd60b14610074578063d0e30db01461008a575b5f80fd5b348015610042575f80fd5b50610062610051366004610126565b5f6020819052908152604090205481565b60405190815260200160405180910390f35b34801561007f575f80fd5b50610088610092565b005b610088610101565b335f818152602081905260408082205490519192918381818185875af1925050503d805f81146100dd576040519150601f19603f3d011682016040523d82523d5f602084013e6100e2565b606091505b50509050806100ef575f80fd5b50335f90815260208190526040812055565b335f908152602081905260408120805434929061011f908490610153565b9091555050565b5f60208284031215610136575f80fd5b81356001600160a01b038116811461014c575f80fd5b9392505050565b8082018082111561017257634e487b7160e01b5f52601160045260245ffd5b9291505056',
-      clone: '0x363d3d373d3d3d363d73bebebebebebebebebebebebebebebebebebebebe5af43d82803e903d91602b57fd5bf3'
+      clone: '0x363d3d373d3d3d363d73bebebebebebebebebebebebebebebebebebebebe5af43d82803e903d91602b57fd5bf3',
+      eip7702: '0xef0100d8da6bf26964af9d7eed9e03e53415d37aa96045',
+      metamorphic: '0x323b425d005bf5ff',
+      pack_opt: '// ERC7201: example.main\ncontract UnpackedVault {\n    bool public paused;\n    uint256 public totalSupply;\n    address public owner;\n    uint256[4] private __gap;\n    uint8 public decimals;\n    uint64 public unlockAt;\n}',
+      upgrade_collision: '// ERC7201: aether.vault.v2\ncontract VaultV1 {\n    address public owner;\n    uint256 public totalDeposits;\n    bool public paused;\n}\n---V2---\ncontract VaultV2 {\n    address public guardian;\n    address public owner;\n    uint128 public totalDeposits;\n    bool public paused;\n}',
+      upgrade_safe: '// ERC7201: aether.vault.v2\ncontract VaultV1 {\n    address public owner;\n    uint256 public totalDeposits;\n}\n---V2---\ncontract VaultV2 {\n    address public owner;\n    uint256 public totalDeposits;\n    bool public paused;\n    uint64 public lastRebalance;\n}',
+      err_erc20: '0xe450d38c0000000000000000000000001111111111111111111111111111111111111111000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000fa',
+      err_access: '0xe2517d3f000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045a49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775',
+      err_erc4626: '0x79012fb2000000000000000000000000222222222222222222222222222222222222222200000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000fa',
+      err_panic: '0x4e487b710000000000000000000000000000000000000000000000000000000000000011'
     };
 
+    function setChainMode(mode) {
+      chainMode = mode;
+      ['bytecode', 'storage', 'autopsy'].forEach((m) => {
+        const tab = document.getElementById('chain-tab-' + m);
+        const bar = document.getElementById('chain-presets-' + m);
+        if (tab) {
+          tab.style.borderColor = m === mode ? '#38bdf8' : '';
+          tab.style.color = m === mode ? '#f8fafc' : '';
+        }
+        if (bar) bar.style.display = m === mode ? 'flex' : 'none';
+      });
+      const labels = {
+        bytecode: 'Inspect Bytecode (WASM)',
+        storage: 'Inspect Storage & Packing (WASM)',
+        autopsy: 'Run Revert Autopsy (WASM)'
+      };
+      document.getElementById('chain-run-label').textContent = labels[mode];
+      const defaults = { bytecode: 'token', storage: 'upgrade_collision', autopsy: 'err_access' };
+      loadChainTest(defaults[mode]);
+    }
+
     function loadChainTest(k) {
+      if (['pack_opt', 'upgrade_collision', 'upgrade_safe'].includes(k) && chainMode !== 'storage') {
+        chainMode = 'storage';
+      } else if (k.startsWith('err_') && chainMode !== 'autopsy') {
+        chainMode = 'autopsy';
+      } else if (['token', 'vault', 'clone', 'eip7702', 'metamorphic'].includes(k) && chainMode !== 'bytecode') {
+        chainMode = 'bytecode';
+      }
       document.getElementById('chain-input').value = chainPresets[k];
     }
 
@@ -1795,29 +1851,72 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
     let chainEngine = null;
     async function runChainSandbox() {
       const out = document.getElementById('chain-output');
+      const raw = document.getElementById('chain-input').value;
+      if (!raw.trim()) { out.textContent = 'Pick a preset or paste input first.'; return; }
       try {
         if (!chainEngine) {
           const m = await import('./testbeds/chain/chain.js');
           await m.default({ module_or_path: new URL('./testbeds/chain/chain_bg.wasm', document.baseURI) });
           chainEngine = m;
         }
-        const r = JSON.parse(chainEngine.analyze(document.getElementById('chain-input').value));
-        if (r.error) { out.textContent = 'Rejected: ' + r.error; return; }
-        const ops = {};
-        for (const b of r.cfg.blocks) for (const ins of b.instructions) { const op = ins.replace(/^0x[0-9a-f]+:\s*/, '').split(' ')[0]; ops[op] = (ops[op] || 0) + 1; }
-        const watch = ['CALL', 'DELEGATECALL', 'STATICCALL', 'CALLCODE', 'SELFDESTRUCT', 'SSTORE', 'CREATE', 'CREATE2'].filter((o) => ops[o]).map((o) => o + ' x' + ops[o]);
-        const lines = [r.bytes + ' bytes · ' + r.cfg.total_instructions + ' instructions · ' + r.cfg.blocks.length + ' basic blocks (' + r.cfg.terminal_blocks + ' terminal) · ' + r.cfg.jump_destinations.length + ' JUMPDESTs', ''];
-        lines.push('Proxy: ' + (r.proxy.is_proxy ? r.proxy.kind + ' -> ' + r.proxy.details : 'no (' + r.proxy.details + ')'), '');
-        lines.push('Functions recovered from the dispatcher (' + r.functions.length + '):');
-        for (const f of r.functions) {
-          const known = knownSelectors[f.selector];
-          lines.push('  ' + f.selector + '  ' + f.state_mutability.padEnd(10) + ' ' + (known ? known : (f.signature || '').replace(/^function_[0-9a-f]+/, '<unknown>')));
+
+        if (chainMode === 'bytecode') {
+          const r = JSON.parse(chainEngine.analyze(raw));
+          if (r.error) { out.textContent = 'Rejected: ' + r.error; return; }
+          const stds = (r.standards && r.standards.length) ? r.standards.join(', ') : 'none detected';
+          const lines = [
+            r.bytes + ' bytes · ' + r.cfg.total_instructions + ' insns · ' + r.cfg.blocks.length + ' CFG blocks (' + r.cfg.terminal_blocks + ' terminal, ' + r.unreachable_blocks + ' unreachable) · risk ' + r.security.risk_score + '/100 · SARIF results: ' + r.sarif_count,
+            'Standards fingerprinted: ' + stds,
+            'Proxy: ' + (r.proxy.is_proxy ? r.proxy.kind + ' -> ' + r.proxy.details : 'no (' + r.proxy.details + ')'),
+            ''
+          ];
+          if (r.security.findings.length) {
+            lines.push('Static bytecode security findings (' + r.security.findings.length + '):');
+            for (const f of r.security.findings) lines.push('  [' + f.severity.toUpperCase() + '] ' + f.rule_id + ' (' + f.opcode + ' @ pc 0x' + f.pc.toString(16).padStart(4, '0') + '): ' + f.message);
+            lines.push('');
+          }
+          lines.push('Functions recovered from dispatcher (' + r.functions.length + '):');
+          for (const f of r.functions) {
+            const known = knownSelectors[f.selector];
+            lines.push('  ' + f.selector + '  ' + f.state_mutability.padEnd(10) + ' ' + (known ? known : (f.signature || '').replace(/^function_[0-9a-f]+/, '<unknown>')));
+          }
+          if (!r.functions.length) lines.push('  none found');
+          out.textContent = lines.join('\n');
+          return;
         }
-        if (!r.functions.length) lines.push('  none found');
-        lines.push('', 'Opcodes worth reviewing: ' + (watch.join(', ') || 'none'));
+
+        if (chainMode === 'storage') {
+          const nsMatch = /\/\/\s*ERC7201:\s*([^\s\r\n]+)/i.exec(raw);
+          const ns = nsMatch ? nsMatch[1] : 'example.main';
+          const parts = raw.split(/---V2---/i);
+          const r = JSON.parse(chainEngine.inspect_storage_source(parts[0] || '', parts[1] || '', ns));
+          if (r.error) { out.textContent = 'Rejected: ' + r.error; return; }
+          const lines = [
+            'Contract: ' + r.layout.contract_name + ' · Slots used: ' + r.layout.total_slots_used + ' · Wasted bytes in packed slots: ' + r.layout.wasted_bytes_in_packed_slots,
+            'Bin-Packing Optimizer (FFD): ' + r.packing.original_slots + ' -> ' + r.packing.optimized_slots + ' slots (saves ' + r.packing.slots_saved + ' slot(s), ~' + r.packing.estimated_sstore_gas_saved + ' cold SSTORE gas)'
+          ];
+          if (r.erc7201) lines.push('ERC-7201 (' + r.erc7201.namespace + '): ' + r.erc7201.slot);
+          lines.push('', 'State layout:');
+          for (const s of r.layout.slots) lines.push('  slot ' + String(s.slot).padStart(2) + ' +' + String(s.offset).padStart(2) + 'B  ' + (s.type_name + ' ' + s.var_name).padEnd(32) + ' (' + s.size_bytes + 'B)');
+          if (r.upgrade) {
+            lines.push('', 'Upgrade Diff (' + r.upgrade.contract_v1 + ' -> ' + r.upgrade.contract_v2 + '): ' + (r.upgrade.is_safe_to_upgrade ? 'SAFE (append-only)' : 'UNSAFE COLLISION DETECTED') + ' · SARIF results: ' + r.sarif_count);
+            for (const c of r.upgrade.collisions) lines.push('  [COLLISION] ' + c.type + ': ' + JSON.stringify(c.details));
+            for (const rec of r.upgrade.recommendations) lines.push('  Hint: ' + rec);
+          }
+          out.textContent = lines.join('\n');
+          return;
+        }
+
+        const r = JSON.parse(chainEngine.autopsy_revert_hex(raw.trim(), 48210n));
+        const lines = [
+          'Error Class: ' + r.error_type + ' · ' + r.error_name,
+          'Decoded Detail: ' + (r.message || 'none'),
+          'Failing Opcode: ' + (r.failing_opcode || 'REVERT') + ' · Gas Consumed: ' + r.gas_consumed,
+          'Remediation: ' + r.remedy_hint
+        ];
         out.textContent = lines.join('\n');
       } catch (e) {
-        out.textContent = 'The inspector could not run: ' + (e && e.message ? e.message : e);
+        out.textContent = 'The WASM engine could not run: ' + (e && e.message ? e.message : e);
       }
     }
   </script>
