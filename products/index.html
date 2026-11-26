@@ -1005,7 +1005,7 @@ Skip 58% Runner Minutes               Zero-Downtime Safe Rewrites          > 95 
       </div>
 
       <p style="color: var(--text); font-size: 0.95rem; line-height: 1.7; margin-bottom: 16px;">
-        Zero-dependency, pure-Rust implementation of the Carbon programming language toolchain. Builds from source in under 3.0 seconds, compiles Carbon source to SemIR in 1.4 milliseconds, and emits standalone native executables with <code>-O3</code> optimizations. Complete with direct interpreter, C99/C++ transpiler, and 4-tier distributed log analytics engine.
+        Zero-dependency, pure-Rust implementation of the Carbon programming language toolchain (<code>v0.5.0</code>). Builds from source in under 3.0 seconds, compiles Carbon source to optimized SemIR in 1.4 milliseconds (iterative constant folding, algebraic simplification, dead-branch pruning &amp; DCE via <code>--opt</code>), emits standalone native executables (<code>-O3</code>), hardened CFF VM bytecode (<code>revirt</code>), verifiable <code>zk-HyperVM</code> execution traces, SARIF 2.1.0 diagnostics, and a 4-tier distributed telemetry engine.
       </p>
 
       <div class="table-responsive">
@@ -1018,7 +1018,7 @@ Skip 58% Runner Minutes               Zero-Downtime Safe Rewrites          > 95 
             <tr><td><strong>Compilation Latency</strong></td><td><strong>1.4 ms / unit</strong></td><td>240 ms / unit</td><td>42.0 ms / unit</td></tr>
             <tr><td><strong>Peak Memory RSS</strong></td><td><strong>0.8 MB</strong></td><td>184 MB</td><td>64.2 MB</td></tr>
             <tr><td><strong>Memory Safety</strong></td><td><strong style="color: var(--accent);">100% Safe Rust (0 UB)</strong></td><td>C++ (Potential Segfaults)</td><td>C++ (Potential Segfaults)</td></tr>
-            <tr><td><strong>Standalone Native Assembly</strong></td><td><strong>YES (.s emission)</strong></td><td>NO (Bytecode only)</td><td>YES</td></tr>
+            <tr><td><strong>SemIR <code>--opt</code> + CFF VM + zk-VM</strong></td><td><strong>YES (Built-in)</strong></td><td>NO</td><td>LLVM IR only</td></tr>
           </tbody>
         </table>
       </div>
@@ -1027,27 +1027,36 @@ Skip 58% Runner Minutes               Zero-Downtime Safe Rewrites          > 95 
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Interactive Testbed: Carbon Checker, SemIR, C99 Transpiler &amp; Interpreter</span>
-            <span class="sandbox-badge">Hexane 0.4.0 compiled to WebAssembly</span>
+            <span>⚡ Interactive Testbed: SemIR Optimizer, C99 Transpiler, VMP Re-Virt, zk-HyperVM &amp; SARIF</span>
+            <span class="sandbox-badge">Hexane 0.5.0 compiled to WebAssembly</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Pure-Rust wasm32</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Pure-Rust wasm32 &bull; 4 live modes</div>
+        </div>
+        <div class="sandbox-controls" id="hexane-mode-controls" style="margin-bottom: 8px;">
+          <button class="btn-sample" data-hexane-mode="compile" style="border-color: var(--primary); color: var(--primary);" onclick="setHexaneMode('compile')">Mode 1: Compiler + SemIR --opt + C99</button>
+          <button class="btn-sample" data-hexane-mode="revirt_zk" onclick="setHexaneMode('revirt_zk')">Mode 2: VMP Re-Virt + zk-HyperVM</button>
+          <button class="btn-sample" data-hexane-mode="sarif" onclick="setHexaneMode('sarif')">Mode 3: Check SARIF 2.1.0 / JSON</button>
+          <button class="btn-sample" data-hexane-mode="format" onclick="setHexaneMode('format')">Mode 4: Formatter + --check</button>
         </div>
         <div class="sandbox-controls">
+          <button class="btn-sample" onclick="loadHexaneTest('opt_demo')">Sample: SemIR --opt Folding &amp; Pruning</button>
           <button class="btn-sample" onclick="loadHexaneTest('sieve')">Sample: Sieve of Eratosthenes</button>
           <button class="btn-sample" onclick="loadHexaneTest('fib')">Sample: Recursive Fibonacci</button>
           <button class="btn-sample" onclick="loadHexaneTest('class')">Sample: Carbon Class Struct</button>
+          <button class="btn-sample" onclick="loadHexaneTest('messy')">Sample: Unformatted (fmt --check)</button>
+          <button class="btn-sample" onclick="loadHexaneTest('diag_err')">Sample: Semantic Error (SARIF HX0300)</button>
         </div>
         <textarea id="hexane-input" class="sandbox-editor" placeholder="Enter Carbon source code..."></textarea>
-        <button class="btn-run-sandbox" onclick="runHexaneSandbox()">
+        <button class="btn-run-sandbox" id="hexane-run-btn" onclick="runHexaneSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Check, Emit SemIR, Transpile C99 &amp; Run
+          Run Hexane 0.5.0 WebAssembly Engine
         </button>
-        <div id="hexane-output" class="sandbox-output">[HEXANE] Ready. Click a Carbon sample above or type Carbon code, then run Hexane 0.4.0 (loads WebAssembly on first run).</div>
+        <div id="hexane-output" class="sandbox-output">[HEXANE] Ready. Pick a mode and Carbon sample above, then run Hexane 0.5.0 (loads WebAssembly on first run).</div>
       </div>
 
       <div class="cta-row">
         <div style="font-size: 0.84rem; color: var(--text-dim); font-family: var(--mono);">
-          Artifact: <code style="color: #38bdf8;">hexane-toolchain-v0.4.0.tar.gz</code> &bull; Native x86_64 / ARM64
+          Artifact: <code style="color: #38bdf8;">hexane-toolchain-v0.5.0.tar.gz</code> &bull; Native x86_64 / ARM64
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <a href="https://7497950237241.gumroad.com/l/cvjce" target="_blank" class="btn-gumroad-checkout">
@@ -1552,13 +1561,35 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
       }
     }
 
-    // 2. Hexane
+    // 2. Hexane 0.5.0
     const hexanePresets = {
-      sieve: 'package Math api;\n\nfn CountPrimes(limit: i32) -> i32 {\n  var is_prime: array(bool, 100);\n  var i: i32 = 0;\n  while (i < limit) {\n    is_prime[i] = true;\n    i = i + 1;\n  }\n  var count: i32 = 0;\n  var p: i32 = 2;\n  while (p < limit) {\n    if (is_prime[p]) {\n      count = count + 1;\n      var m: i32 = p * 2;\n      while (m < limit) {\n        is_prime[m] = false;\n        m = m + p;\n      }\n    }\n    p = p + 1;\n  }\n  return count;\n}\n\nfn Run() -> i32 {\n  return CountPrimes(50);\n}',
-      fib: 'package Algorithms api;\n\nfn Fibonacci(n: i32) -> i32 {\n  if (n <= 1) {\n    return n;\n  }\n  return Fibonacci(n - 1) + Fibonacci(n - 2);\n}\n\nfn Run() -> i32 {\n  return Fibonacci(12);\n}',
-      class: 'package Geometry api;\n\nclass Vec3 {\n  var x: i32;\n  var y: i32;\n  var z: i32;\n\n  fn Make(x: i32, y: i32, z: i32) -> Vec3 {\n    returned var v: Vec3;\n    v.x = x;\n    v.y = y;\n    v.z = z;\n    return var;\n  }\n\n  fn NormSq(self) -> i32 {\n    return self.x * self.x + self.y * self.y + self.z * self.z;\n  }\n}\n\nfn Run() -> i32 {\n  var v: Vec3 = Vec3.Make(3, 4, 12);\n  return v.NormSq();\n}'
+      opt_demo: {
+        mode: 'compile',
+        code: 'package OptDemo api;\n\nfn Main() -> i32 {\n  var seed: i32 = (6 * 7) + (100 / 25) - (1 << 2);\n  var folded: i32 = (seed + 0) * 1 + (seed * 0);\n  if (10 + 2 == 12) {\n    return folded;\n  } else {\n    var dead1: i32 = 999 * 77;\n    var dead2: i32 = dead1 + 123;\n    return dead2;\n  }\n}'
+      },
+      sieve: {
+        mode: 'compile',
+        code: 'package Math api;\n\nfn CountPrimes(limit: i32) -> i32 {\n  var is_prime: array(bool, 100);\n  var i: i32 = 0;\n  while (i < limit) {\n    is_prime[i] = true;\n    i = i + 1;\n  }\n  var count: i32 = 0;\n  var p: i32 = 2;\n  while (p < limit) {\n    if (is_prime[p]) {\n      count = count + 1;\n      var m: i32 = p * 2;\n      while (m < limit) {\n        is_prime[m] = false;\n        m = m + p;\n      }\n    }\n    p = p + 1;\n  }\n  return count;\n}\n\nfn Run() -> i32 {\n  return CountPrimes(50);\n}'
+      },
+      fib: {
+        mode: 'revirt_zk',
+        code: 'package Algorithms api;\n\nfn Main() -> i32 {\n  var sum: i32 = 0;\n  var i: i32 = 1;\n  while (i <= 10) {\n    sum += (i * 1) + 0;\n    i += 1;\n  }\n  return sum;\n}'
+      },
+      class: {
+        mode: 'compile',
+        code: 'package Geometry api;\n\nclass Vec3 {\n  var x: i32;\n  var y: i32;\n  var z: i32;\n\n  fn Make(x: i32, y: i32, z: i32) -> Vec3 {\n    returned var v: Vec3;\n    v.x = x;\n    v.y = y;\n    v.z = z;\n    return var;\n  }\n\n  fn NormSq(self) -> i32 {\n    return self.x * self.x + self.y * self.y + self.z * self.z;\n  }\n}\n\nfn Run() -> i32 {\n  var v: Vec3 = Vec3.Make(3, 4, 12);\n  return v.NormSq();\n}'
+      },
+      messy: {
+        mode: 'format',
+        code: 'package   MessyStyle   api ;\nvar   Bias : i32 = 10 ;\nfn   Adjust ( x : i32 ) -> i32 {\nvar y:i32=(- -x)+Bias;\nif(y>0){return y;}else if(y==0){return 0;}else{return -y;}\n}'
+      },
+      diag_err: {
+        mode: 'sarif',
+        code: 'package Broken api;\n\nfn CheckTypes(x: i32) -> i32 {\n  var total: i32 = x + undeclared_value;\n  return total;\n}'
+      }
     };
 
+    let hexaneMode = 'compile';
     let hexaneWasmPromise = null;
     async function loadHexaneWasm() {
       if (!hexaneWasmPromise) {
@@ -1571,8 +1602,20 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
       return hexaneWasmPromise;
     }
 
+    function setHexaneMode(mode) {
+      hexaneMode = mode;
+      document.querySelectorAll('#hexane-mode-controls [data-hexane-mode]').forEach((btn) => {
+        const active = btn.getAttribute('data-hexane-mode') === mode;
+        btn.style.borderColor = active ? 'var(--primary)' : '';
+        btn.style.color = active ? 'var(--primary)' : '';
+      });
+    }
+
     function loadHexaneTest(k) {
-      document.getElementById('hexane-input').value = hexanePresets[k];
+      const preset = hexanePresets[k];
+      if (!preset) return;
+      document.getElementById('hexane-input').value = preset.code;
+      if (preset.mode) setHexaneMode(preset.mode);
     }
 
     async function runHexaneSandbox() {
@@ -1582,10 +1625,18 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
         out.textContent = "[ERROR] Input empty. Please select a preset Carbon code sample above.";
         return;
       }
-      out.textContent = "[HEXANE] Loading Hexane 0.4.0 WebAssembly module...";
+      out.textContent = "[HEXANE] Loading Hexane 0.5.0 WebAssembly module...";
       try {
         const mod = await loadHexaneWasm();
-        out.textContent = mod.compile_carbon(v);
+        if (hexaneMode === 'revirt_zk') {
+          out.textContent = mod.revirt_and_zk(v);
+        } else if (hexaneMode === 'sarif') {
+          out.textContent = mod.check_sarif(v);
+        } else if (hexaneMode === 'format') {
+          out.textContent = mod.format_carbon(v);
+        } else {
+          out.textContent = mod.compile_carbon(v);
+        }
       } catch (err) {
         hexaneWasmPromise = null;
         out.textContent = "[HEXANE ERROR] " + (err && err.message ? err.message : String(err));
