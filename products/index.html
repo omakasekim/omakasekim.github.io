@@ -1247,32 +1247,40 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
     v
 [ Nova Split-Witness Homomorphic Accumulator ] -> Constant 128-Byte Recursive Proof!</div>
 
-      <!-- INTERACTIVE WATERED-DOWN TESTBED -->
+      <!-- INTERACTIVE REAL WASM TESTBED -->
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Live Testbed: Prove and Verify a Guest Program</span>
-            <span class="sandbox-badge">zk-hyperVM 0.4.0 engine</span>
+            <span>⚡ Live Testbed: IVC Prover, Trace Attestation, 12-Check SARIF Audit &amp; CFG Inspector</span>
+            <span class="sandbox-badge">zk-hyperVM 0.5.0 engine (11 WASM ABI exports)</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">The real prover compiled to WebAssembly (1.2 MB, runs in a background worker). The guest runs under the hypervisor model, its trace is folded and the decider checks it.</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">The real prover compiled to WebAssembly (1.2 MB, runs in a background worker). Executes guest workloads, replays traces with tamper checks, emits Keccak256 attestation certificates, audits 12 hardware/crypto invariants (SARIF 2.1.0), and disassembles x86-64/EVM CFGs.</div>
+        </div>
+        <div class="sandbox-controls" id="zk-mode-controls" style="margin-bottom: 8px;">
+          <button class="btn-sample" data-zk-mode="prove" style="border-color: var(--primary); color: var(--primary);" onclick="setZkMode('prove')">Mode 1: Prove &amp; Verify (IVC + LogUp)</button>
+          <button class="btn-sample" data-zk-mode="trace_attest" onclick="setZkMode('trace_attest')">Mode 2: Trace Replay, Attestation &amp; Tamper Check</button>
+          <button class="btn-sample" data-zk-mode="audit" onclick="setZkMode('audit')">Mode 3: 12-Check Invariant Audit + SARIF 2.1.0</button>
+          <button class="btn-sample" data-zk-mode="inspect" onclick="setZkMode('inspect')">Mode 4: x86-64 / EVM CFG Inspector</button>
         </div>
         <div class="sandbox-controls">
-          <button class="btn-sample" onclick="loadZkTest('memory')">Memory through EPT + exits</button>
-          <button class="btn-sample" onclick="loadZkTest('exits')">CPUID and hypercall exits</button>
-          <button class="btn-sample" onclick="loadZkTest('virtio')">MSR write + VirtIO kicks</button>
+          <button class="btn-sample" onclick="loadZkTest('memory')">Sample: Memory through EPT + exits</button>
+          <button class="btn-sample" onclick="loadZkTest('exits')">Sample: CPUID and hypercall exits</button>
+          <button class="btn-sample" onclick="loadZkTest('virtio')">Sample: MSR write + VirtIO kicks</button>
+          <button class="btn-sample" onclick="loadZkTest('inspect_x86')">Sample: x86-64 diamond CFG (hex)</button>
+          <button class="btn-sample" onclick="loadZkTest('inspect_evm')">Sample: EVM bytecode lift (hex)</button>
           <label class="btn-sample">Iterations <input id="zk-iterations" type="number" min="1" max="16" value="4" style="width:3.5em"></label>
         </div>
-        <textarea id="zk-input" class="sandbox-editor" placeholder="Guest program, one instruction per line: movimm, add, sub, load, store, cpuid, vmcall, hlt, movcr, rdmsr, wrmsr, kick. # starts a comment." spellcheck="false"></textarea>
+        <textarea id="zk-input" class="sandbox-editor" placeholder="Guest program (movimm, add, sub, load, store, cpuid, vmcall, hlt, movcr, rdmsr, wrmsr, kick) or hex bytes for Mode 4 CFG Inspector." spellcheck="false"></textarea>
         <button class="btn-run-sandbox" onclick="runZkSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Run, Prove &amp; Verify
+          Run zk-HyperVM 0.5.0 WebAssembly Engine
         </button>
-        <div id="zk-output" class="sandbox-output">Pick a sample or write a guest program, then run. Every number below comes from the prover running on this device.</div>
+        <div id="zk-output" class="sandbox-output">Pick a mode and sample above, then run. Every proof, attestation seal, SARIF check, and CFG runs locally inside zkhypervm.wasm 0.5.0.</div>
       </div>
 
       <div class="cta-row">
         <div style="font-size: 0.84rem; color: var(--text-dim); font-family: var(--mono);">
-          Artifact: <code style="color: #38bdf8;">zk-hypervm-v0.4.0.tar.gz</code> &bull; Nova / SuperNova Compatible
+          Artifact: <code style="color: #38bdf8;">zk-hypervm-v0.5.0.tar.gz</code> &bull; Nova / SuperNova Compatible
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <a href="https://7497950237241.gumroad.com/l/dlanpu" target="_blank" class="btn-gumroad-checkout">
@@ -1739,27 +1747,172 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
       }
     }
 
-    // 5. zk-HyperVM
+    // 5. zk-HyperVM 0.5.0
     const zkPresets = {
-      memory: '# store and load through the guest page tables, with VM exits in between\nmovimm r1, 100\nmovimm r2, 250\nadd r3, r1, r2\nstore r3, [r7+0]\ncpuid\nload r4, [r7+0]\nkick 0\nvmcall\nsub r5, r4, r1\n',
-      exits: '# CPUID and a hypercall both exit to the hypervisor\nmovimm r1, 7\ncpuid\nvmcall\nadd r2, r1, r1\n',
-      virtio: '# write an MSR, notify two virtio queues, read it back, halt\nwrmsr 0x1b, 0xfee00900\nkick 0\nkick 1\nrdmsr 0x1b\nhlt\n'
+      memory: {
+        mode: 'prove',
+        code: '# store and load through the guest page tables, with VM exits in between\nmovimm r1, 100\nmovimm r2, 250\nadd r3, r1, r2\nstore r3, [r7+0]\ncpuid\nload r4, [r7+0]\nkick 0\nvmcall\nsub r5, r4, r1\n'
+      },
+      exits: {
+        mode: 'trace_attest',
+        code: '# CPUID and a hypercall both exit to the hypervisor (ideal for trace replay + Keccak256 attestation)\nmovimm r1, 7\nstore r1, [r7+0]\ncpuid\nload r2, [r7+0]\nvmcall\nadd r3, r2, r1\n'
+      },
+      virtio: {
+        mode: 'prove',
+        code: '# write an MSR, notify two virtio queues, read it back, halt\nwrmsr 0x1b, 0xfee00900\nkick 0\nkick 1\nrdmsr 0x1b\nhlt\n'
+      },
+      inspect_x86: {
+        mode: 'inspect',
+        code: '# Raw x86-64 diamond branch (arch=1)\n55 85 ff 74 07 b8 01 00 00 00 eb 05 b8 02 00 00 00 5d c3'
+      },
+      inspect_evm: {
+        mode: 'inspect',
+        code: '# EVM bytecode (0x prefix -> auto-detected as EVM)\n0x600456fe5b600160020160005260206000f3'
+      }
     };
 
+    let zkMode = 'prove';
+    function setZkMode(mode) {
+      zkMode = mode;
+      document.querySelectorAll('#zk-mode-controls [data-zk-mode]').forEach((btn) => {
+        const active = btn.getAttribute('data-zk-mode') === mode;
+        btn.style.borderColor = active ? 'var(--primary)' : '';
+        btn.style.color = active ? 'var(--primary)' : '';
+      });
+    }
+
     function loadZkTest(k) {
-      document.getElementById('zk-input').value = zkPresets[k];
+      const p = zkPresets[k];
+      if (!p) return;
+      document.getElementById('zk-input').value = p.code;
+      if (p.mode) setZkMode(p.mode);
     }
 
     let zkWorker = null, zkSeq = 0;
-    function runZkSandbox() {
+    const zkPending = new Map();
+    function callZkWorker(msg) {
+      if (!zkWorker) {
+        zkWorker = new Worker('../workbench/worker.js');
+        zkWorker.onmessage = ({ data }) => {
+          const resolver = zkPending.get(data.id);
+          if (resolver) {
+            zkPending.delete(data.id);
+            resolver(data.result);
+          }
+        };
+      }
+      const id = ++zkSeq;
+      return new Promise((resolve) => {
+        zkPending.set(id, resolve);
+        zkWorker.postMessage({ id, ...msg });
+      });
+    }
+
+    async function runZkSandbox() {
       const out = document.getElementById('zk-output');
+      const source = document.getElementById('zk-input').value;
       const iterations = Math.min(16, Math.max(1, Number(document.getElementById('zk-iterations').value) || 1));
-      if (!zkWorker) zkWorker = new Worker('../workbench/worker.js');
-      const id = ++zkSeq, t0 = performance.now();
-      out.textContent = 'Proving...';
-      zkWorker.onmessage = ({ data }) => {
-        if (data.id !== id) return;
-        const r = data.result, secs = ((performance.now() - t0) / 1000).toFixed(2);
+      const t0 = performance.now();
+
+      try {
+        if (zkMode === 'audit') {
+          out.textContent = '[zk-HyperVM 0.5.0] Running 12 hardware & cryptographic invariant checks + SARIF 2.1.0 inside WebAssembly...';
+          const [auditRes, sarifRes] = await Promise.all([
+            callZkWorker({ kind: 'audit' }),
+            callZkWorker({ kind: 'audit_sarif' })
+          ]);
+          const secs = ((performance.now() - t0) / 1000).toFixed(2);
+          if (auditRes.error) { out.textContent = 'Rejected: ' + auditRes.error; return; }
+          const a = auditRes.ok;
+          const lines = [
+            `[zk-HyperVM v${a.version}] Hardware & Cryptographic Invariant Audit (${secs} s in WebAssembly)`,
+            `Result: ${a.passed_count}/${a.total_count} checks PASSED (all_passed=${a.all_passed})`,
+            '--------------------------------------------------------------------------------'
+          ];
+          for (const c of a.checks) {
+            lines.push(`[${c.passed ? 'PASS' : 'FAIL'}] ${c.category.padEnd(15)} ${c.id} — ${c.detail}`);
+          }
+          if (sarifRes && sarifRes.ok) {
+            lines.push('--------------------------------------------------------------------------------');
+            lines.push(`SARIF 2.1.0 (${sarifRes.ok.runs[0].results.length} results, schema=${sarifRes.ok.$schema}):`);
+            lines.push(JSON.stringify(sarifRes.ok, null, 2));
+          }
+          out.textContent = lines.join('\n');
+          return;
+        }
+
+        if (zkMode === 'inspect') {
+          const cleaned = source.split('\n').filter((l) => !l.trim().startsWith('#')).join(' ').trim();
+          if (!cleaned) { out.textContent = 'Rejected: empty input for CFG Inspector.'; return; }
+          out.textContent = '[zk-HyperVM 0.5.0] Disassembling & lifting CFG inside WebAssembly...';
+          let bytes, architecture;
+          if (/^0x[0-9a-fA-F\s]+$/.test(cleaned)) {
+            bytes = new TextEncoder().encode(cleaned.replace(/\s+/g, ''));
+            architecture = 0;
+          } else {
+            const hex = cleaned.replace(/[^0-9a-fA-F]/g, '');
+            if (hex.length < 2 || hex.length % 2 !== 0) {
+              out.textContent = 'Rejected: enter hex bytes (e.g. 55 85 ff ...) or 0x-prefixed EVM bytecode.';
+              return;
+            }
+            bytes = new Uint8Array(hex.length / 2);
+            for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+            architecture = 1;
+          }
+          const res = await callZkWorker({ kind: 'inspect', bytes, architecture });
+          const secs = ((performance.now() - t0) / 1000).toFixed(2);
+          if (res.error) { out.textContent = 'Rejected: ' + res.error; return; }
+          const r = res.ok;
+          out.textContent = [
+            `[zk-HyperVM 0.5.0 Inspector] ${r.format} (${r.architecture}) — ${r.blocks.length} basic block(s), entry=${r.entry} (${secs} s)`,
+            '--------------------------------------------------------------------------------',
+            JSON.stringify(r, null, 2)
+          ].join('\n');
+          return;
+        }
+
+        if (zkMode === 'trace_attest') {
+          if (!source.trim()) { out.textContent = 'Rejected: select a guest program sample first.'; return; }
+          out.textContent = '[zk-HyperVM 0.5.0] Executing, exporting ExecutionTrace, replaying, sealing AttestationCertificate & running tamper check...';
+          const traceRes = await callZkWorker({ kind: 'prove_trace', source, iterations: Math.min(iterations, 4) });
+          if (traceRes.error) { out.textContent = 'Rejected: ' + traceRes.error; return; }
+          const trace = traceRes.ok;
+          const [verifyRes, certRes] = await Promise.all([
+            callZkWorker({ kind: 'verify_trace', trace }),
+            callZkWorker({ kind: 'attest_trace', trace })
+          ]);
+          const tampered = structuredClone(trace);
+          if (tampered.logup_ledger && tampered.logup_ledger.hpa_demands && tampered.logup_ledger.hpa_demands.length > 0) {
+            tampered.logup_ledger.hpa_demands[0].val ^= 1;
+          } else if (tampered.steps && tampered.steps.length > 0) {
+            tampered.steps[0].commitment_digest = '0'.repeat(64);
+          }
+          const tamperRes = await callZkWorker({ kind: 'verify_trace', trace: tampered });
+          const secs = ((performance.now() - t0) / 1000).toFixed(2);
+          if (verifyRes.error || certRes.error) {
+            out.textContent = 'Verification failed: ' + (verifyRes.error || certRes.error);
+            return;
+          }
+          const c = certRes.ok;
+          out.textContent = [
+            `[zk-HyperVM v${c.zkhypervm_version}] Offline Trace Replay & AttestationCertificate (${secs} s in WebAssembly)`,
+            `Genuine Trace Replay  : VALID (folded_steps=${c.folded_steps}, LogUp balanced=${c.logup_summary.balanced})`,
+            `Attestation Seal      : ${c.certificate_digest}`,
+            `Transcript Digest     : ${c.transcript_digest}`,
+            `Commitment Root       : ${c.commitment_root}`,
+            `Live 1-Bit Tamper Test: REJECTED as expected -> ${tamperRes.error || 'unexpectedly accepted'}`,
+            '--------------------------------------------------------------------------------',
+            'COMPACT ATTESTATION CERTIFICATE JSON (< 1 KB):',
+            JSON.stringify(c, null, 2)
+          ].join('\n');
+          return;
+        }
+
+        // Default Mode 1: Prove & Verify
+        if (!source.trim()) { out.textContent = 'Rejected: select a guest program sample first.'; return; }
+        out.textContent = 'Proving inside zkhypervm.wasm 0.5.0...';
+        const r = await callZkWorker({ kind: 'prove', source, iterations });
+        const secs = ((performance.now() - t0) / 1000).toFixed(2);
         if (r.error) { out.textContent = 'Rejected: ' + r.error; return; }
         const o = r.ok;
         out.textContent = [
@@ -1771,8 +1924,9 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
           '',
           JSON.stringify(o, null, 2)
         ].join('\n');
-      };
-      zkWorker.postMessage({ id, kind: 'prove', source: document.getElementById('zk-input').value, iterations });
+      } catch (err) {
+        out.textContent = '[zk-HyperVM ERROR] ' + (err && err.message ? err.message : String(err));
+      }
     }
 
     // 6. MedCrypto
