@@ -1,5 +1,5 @@
 /**
- * Disassembles and lifts raw code. `arch`: x86, x86_64, arm, aarch64, riscv32, riscv64.
+ * Disassembles, extracts CFG/call-graph edges, and lifts raw code. `arch`: x86, x86_64, arm, aarch64, riscv32, riscv64.
  * @param {string} arch
  * @param {string} base
  * @param {string} hex
