@@ -920,44 +920,62 @@ Monorepo Diff Impact                  Postgres AST Lock Hazards            Offli
 Wilson Flake Dampening                Blocking Lock Modes (Exclusive)      Zero-Backtracking DFA
 Skip 58% Runner Minutes               Zero-Downtime Safe Rewrites          > 95 MB/s Wasm Kernel</div>
 
-      <h3 style="font-size: 1.15rem; color: #f8fafc; margin: 24px 0 12px;">Included Toolchain Packages</h3>
+      <h3 style="font-size: 1.15rem; color: #f8fafc; margin: 24px 0 12px;">Included Toolchain Packages (v1.4.0)</h3>
       <ul style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.75; padding-left: 20px; margin-bottom: 20px;">
-        <li><strong style="color: #f1f5f9;">01-matrix-pruner:</strong> Monorepo diff impact pruner &amp; superseded-run canceller. Meters skipped runner minutes, damping flaky test noise with Wilson score bounds.</li>
-        <li><strong style="color: #f1f5f9;">02-drift-sentinel:</strong> Pre-flight database migration checker for Prisma, Alembic, and Flyway. Catches table rewrites and <code>ACCESS EXCLUSIVE</code> lock hazards before production deployment.</li>
-        <li><strong style="color: #f1f5f9;">03-clinic-preauth:</strong> Browser intake normalizer, ANSI X12 270/271 eligibility parser, and NCCI rule checker.</li>
-        <li><strong style="color: #f1f5f9;">04-soc2-collector:</strong> Read-only IAM/MDM posture evaluator writing AES-256-GCM hash chains and standalone audit binders.</li>
-        <li><strong style="color: #f1f5f9;">05-stock-sentinel:</strong> High-frequency inventory and price change monitor with CDN flap hysteresis and HMAC-signed webhooks.</li>
-        <li><strong style="color: #f1f5f9;">06-local-redactor:</strong> Offline PII scanner and PDF redactor with WebAssembly checksum validation (>95 MB/s).</li>
-        <li><strong style="color: #f1f5f9;">07-repo-guard:</strong> Dependency-free Python supply chain scanner for invisible Unicode, install hooks, and committed credentials.</li>
+        <li><strong style="color: #f1f5f9;">01-matrix-pruner:</strong> Monorepo diff impact pruner &amp; superseded-run canceller. Damps flaky test noise with Wilson score bounds and emits native GitHub Actions <code>strategy.matrix</code> JSON and Markdown job summaries.</li>
+        <li><strong style="color: #f1f5f9;">02-drift-sentinel:</strong> Pre-flight PostgreSQL 11–17 migration checker for Prisma, Alembic, and Flyway. Catches table rewrites, <code>VACUUM FULL</code>/<code>CLUSTER</code>, inline <code>UNIQUE</code>/<code>PRIMARY KEY</code> locks, unsafe <code>SET NOT NULL</code>, and breaking renames with SARIF 2.1.0 and multi-phase zero-downtime remediation plans.</li>
+        <li><strong style="color: #f1f5f9;">03-clinic-preauth:</strong> Browser intake normalizer, ANSI X12 270/271 eligibility parser, NCCI rule checker, batch revenue pre-validator, and zero-PHI SARIF 2.1.0 audit export.</li>
+        <li><strong style="color: #f1f5f9;">04-soc2-collector:</strong> Read-only IAM/MDM posture evaluator with SARIF 2.1.0 export, posture regression diffing, AES-256-GCM hash-chained vault key rotation, and standalone PDF 1.4 audit binders.</li>
+        <li><strong style="color: #f1f5f9;">05-stock-sentinel:</strong> High-frequency inventory and price change monitor with CDN flap hysteresis, multi-tick capture replay, Markdown digests, and HMAC-SHA256 signed webhook verification.</li>
+        <li><strong style="color: #f1f5f9;">06-local-redactor:</strong> Offline PII scanner and PDF content-stream redactor with built-in HIPAA, PCI-DSS, Secrets, and Legal rule packs, ReDoS protection, overlap-aware streaming, zero-plaintext SARIF, and a <code>wasip1</code> WebAssembly checksum kernel (&gt;95 MB/s).</li>
+        <li><strong style="color: #f1f5f9;">07-repo-guard:</strong> Dependency-free Python supply chain scanner with incremental <code>--diff</code>/<code>--staged</code> modes, Dockerfile checks, custom JSON policies, and SARIF 2.1.0 output.</li>
       </ul>
 
-      <!-- INTERACTIVE WATERED-DOWN TESTBED -->
+      <!-- INTERACTIVE LIVE TESTBED (OBFUSCATED DIST BUNDLES) -->
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Live Testbed: PostgreSQL Migration Lock Analyzer</span>
-            <span class="sandbox-badge">drift-sentinel 1.2.0</span>
+            <span>⚡ Live Testbed: Sentinel Kit Multi-Tool Engine</span>
+            <span class="sandbox-badge">sentinel-kit 1.4.0</span>
           </div>
-          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">The shipped drift-sentinel analyzer (fast mode), bundled for the browser. Your SQL stays in this page.</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Runs the shipped obfuscated 02-drift-sentinel, 06-local-redactor &amp; 01-matrix-pruner bundles locally in your browser. Zero network calls.</div>
         </div>
-        <div class="sandbox-controls">
-          <button class="btn-sample" onclick="loadSentinelTest('lock')">Hazard 1: AccessExclusive Column Add</button>
-          <button class="btn-sample" onclick="loadSentinelTest('rewrite')">Hazard 2: Volatile Default Table Rewrite</button>
-          <button class="btn-sample" onclick="loadSentinelTest('index')">Hazard 3: Index Without CONCURRENTLY</button>
-          <button class="btn-sample" onclick="loadSentinelTest('safe')">Safe: Expand-and-Backfill Pattern</button>
-          <label class="btn-sample">PostgreSQL <select id="sentinel-pg" aria-label="PostgreSQL version"><option>11</option><option>12</option><option>13</option><option>14</option><option selected>15</option><option>16</option><option>17</option></select></label>
+        <div class="sandbox-controls" id="sentinel-mode-bar">
+          <button class="btn-sample" id="sentinel-tab-drift" onclick="setSentinelMode('drift')" style="border-color: #38bdf8; color: #f8fafc;">02: PG DDL Lock Analyzer</button>
+          <button class="btn-sample" id="sentinel-tab-redact" onclick="setSentinelMode('redact')">06: Offline PII Redactor</button>
+          <button class="btn-sample" id="sentinel-tab-prune" onclick="setSentinelMode('prune')">01: CI Matrix Pruner</button>
+          <label class="btn-sample" id="sentinel-pg-wrap">PostgreSQL <select id="sentinel-pg" aria-label="PostgreSQL version"><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option selected>16</option><option>17</option></select></label>
+          <label class="btn-sample" id="sentinel-pack-wrap" style="display:none;">Rule Pack <select id="sentinel-pack" aria-label="Redactor rule pack"><option value="all" selected>All Built-In</option><option value="hipaa">HIPAA</option><option value="pci-dss">PCI-DSS</option><option value="legal">Legal / Tax</option><option value="secrets">Secrets</option></select></label>
         </div>
-        <textarea id="sentinel-input" class="sandbox-editor" placeholder="Paste a PostgreSQL migration (one or more statements)" spellcheck="false"></textarea>
+        <div class="sandbox-controls" id="sentinel-presets-drift">
+          <button class="btn-sample" onclick="loadSentinelTest('lock')">NOT NULL Add</button>
+          <button class="btn-sample" onclick="loadSentinelTest('unique')">UNIQUE + SET NOT NULL</button>
+          <button class="btn-sample" onclick="loadSentinelTest('maint')">VACUUM FULL + RENAME</button>
+          <button class="btn-sample" onclick="loadSentinelTest('rewrite')">Volatile Default Rewrite</button>
+          <button class="btn-sample" onclick="loadSentinelTest('index')">Non-Concurrent Index</button>
+          <button class="btn-sample" onclick="loadSentinelTest('safe')">Safe PG 16 Rollout</button>
+        </div>
+        <div class="sandbox-controls" id="sentinel-presets-redact" style="display:none;">
+          <button class="btn-sample" onclick="loadSentinelTest('hipaa')">HIPAA Clinical Intake</button>
+          <button class="btn-sample" onclick="loadSentinelTest('pci')">PCI-DSS Payment Log</button>
+          <button class="btn-sample" onclick="loadSentinelTest('legal')">Legal / Tax Workpaper</button>
+        </div>
+        <div class="sandbox-controls" id="sentinel-presets-prune" style="display:none;">
+          <button class="btn-sample" onclick="loadSentinelTest('monorepo')">Core Crypto Diff (Transitive)</button>
+          <button class="btn-sample" onclick="loadSentinelTest('docs')">Docs-Only Diff (Smoke Anchor)</button>
+          <button class="btn-sample" onclick="loadSentinelTest('lockfile')">Lockfile Touch (Global)</button>
+        </div>
+        <textarea id="sentinel-input" class="sandbox-editor" placeholder="Paste a PostgreSQL migration, text to redact, or changed file paths (one per line)" spellcheck="false"></textarea>
         <button class="btn-run-sandbox" onclick="runSentinelSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Run Local Preflight Evaluation
+          <span id="sentinel-run-label">Run Local Preflight Evaluation</span>
         </button>
-        <div id="sentinel-output" class="sandbox-output">Pick a sample or paste a migration, then run. Lock modes, hazards and the safe rollout plan come from the drift-sentinel analyzer.</div>
+        <div id="sentinel-output" class="sandbox-output">Pick a tool tab and sample preset, then run. All SQL lock evaluation, PII checksum redaction, and monorepo matrix pruning execute locally inside your browser.</div>
       </div>
 
       <div class="cta-row">
         <div style="font-size: 0.84rem; color: var(--text-dim); font-family: var(--mono);">
-          Artifact: <code style="color: #38bdf8;">sentinel-kit-v1.2.0.tar.gz</code> &bull; SHA-256 Verified
+          Artifact: <code style="color: #38bdf8;">sentinel-kit-v1.4.0.tar.gz</code> &bull; SHA-256 Verified
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <a href="https://7497950237241.gumroad.com/l/cnogyy" target="_blank" class="btn-gumroad-checkout">
@@ -1383,39 +1401,136 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
   <script>
     // --- PRESET TEST VECTORS & SANDBOX LOGIC ---
 
-    // 1. Sentinel Kit
+    // 1. Sentinel Kit (v1.4.0 Multi-Tool Engine: 02-drift-sentinel, 06-local-redactor, 01-matrix-pruner)
+    let sentinelMode = 'drift';
     const sentinelPresets = {
       lock: "ALTER TABLE users ADD COLUMN phone_number VARCHAR(32) NOT NULL;",
+      unique: "SET lock_timeout = '3s';\nALTER TABLE users ADD CONSTRAINT uq_users_email UNIQUE (email);\nALTER TABLE users ALTER COLUMN email SET NOT NULL;",
+      maint: "SET lock_timeout = '3s';\nVACUUM FULL orders;\nALTER TABLE users RENAME COLUMN bio TO profile_summary;",
       rewrite: "ALTER TABLE audit_records ADD COLUMN event_uuid UUID DEFAULT gen_random_uuid();",
       index: "CREATE INDEX idx_orders_user ON orders (user_id);",
-      safe: "SET lock_timeout = '3s';\nALTER TABLE users ADD COLUMN phone_number VARCHAR(32);\nCREATE INDEX CONCURRENTLY idx_users_phone ON users (phone_number);"
+      safe: "SET lock_timeout = '3s';\nALTER TABLE users ADD CONSTRAINT chk_users_email_nn CHECK (email IS NOT NULL) NOT VALID;\nALTER TABLE users VALIDATE CONSTRAINT chk_users_email_nn;\nALTER TABLE users ALTER COLUMN email SET NOT NULL;\nALTER TABLE users ADD CONSTRAINT uq_users_email UNIQUE USING INDEX idx_users_email;",
+      hipaa: "Patient Intake Summary\nSSN: 123-45-6789 | DOB: 1984-07-19 | MRN: MRN-88412A\nAttending Provider NPI: 1234567893 (ISO 80840 Luhn valid)\nInvalid Typos (must NOT match): NPI 1234567890, SSN 666-12-3456\nContact: elena.vance@clinic.example / (512) 555-0148",
+      pci: "Settlement Batch #4092\nCard PAN: 4111-1111-1111-1111 (CVV: 482) -> Luhn valid\nCorrupted PAN typo: 4111-1111-1111-1112 (must NOT redact)\nACH Routing ABA: 021000021 | IBAN: DE89370400440532013000",
+      legal: "Tax Workpaper — Case No. 1:25-cv-04821\nTaxpayer ITIN: 912-70-4321 | Corporate EIN: 94-3124567\nCounsel Contact: counsel@firm.example | Client: ACME-994102",
+      monorepo: "packages/core-crypto/src/hmac.ts\npackages/core-crypto/test/hmac.test.ts",
+      docs: "README.md\ndocs/architecture-and-internals.md",
+      lockfile: "packages/auth/src/session.ts\npnpm-lock.yaml"
     };
 
+    const sentinelDemoPackages = [
+      { name: '@acme/core-crypto', path: 'packages/core-crypto', dependencies: [] },
+      { name: '@acme/auth', path: 'packages/auth', dependencies: ['@acme/core-crypto'] },
+      { name: '@acme/api', path: 'packages/api', dependencies: ['@acme/auth'] },
+      { name: '@acme/billing', path: 'packages/billing', dependencies: [] },
+      { name: '@acme/reporting', path: 'packages/reporting', dependencies: ['@acme/billing'] }
+    ];
+
+    const sentinelDemoMatrix = sentinelDemoPackages.flatMap((pkg) => {
+      const slug = pkg.name.replace('@acme/', '');
+      return [
+        { id: slug + '-linux-x64-unit', os: 'linux', arch: 'x64', runtime: '22', suite: 'unit', targetPackage: pkg.name, estimatedMinutes: 6, variables: { os: 'ubuntu-latest', node: 22, pkg: pkg.name } },
+        { id: slug + '-macos-arm64-unit', os: 'macos', arch: 'arm64', runtime: '22', suite: 'unit', targetPackage: pkg.name, estimatedMinutes: 8, variables: { os: 'macos-14', node: 22, pkg: pkg.name } },
+        { id: slug + '-windows-x64-unit', os: 'windows', arch: 'x64', runtime: '22', suite: 'unit', targetPackage: pkg.name, estimatedMinutes: 10, variables: { os: 'windows-latest', node: 22, pkg: pkg.name } }
+      ];
+    });
+
+    function setSentinelMode(mode) {
+      sentinelMode = mode;
+      ['drift', 'redact', 'prune'].forEach((m) => {
+        const tab = document.getElementById('sentinel-tab-' + m);
+        const bar = document.getElementById('sentinel-presets-' + m);
+        if (tab) {
+          tab.style.borderColor = m === mode ? '#38bdf8' : '';
+          tab.style.color = m === mode ? '#f8fafc' : '';
+        }
+        if (bar) bar.style.display = m === mode ? 'flex' : 'none';
+      });
+      document.getElementById('sentinel-pg-wrap').style.display = mode === 'drift' ? 'inline-flex' : 'none';
+      document.getElementById('sentinel-pack-wrap').style.display = mode === 'redact' ? 'inline-flex' : 'none';
+      const labels = {
+        drift: 'Run Local Preflight Evaluation',
+        redact: 'Run Offline PII Redaction',
+        prune: 'Compute Pruned CI Matrix'
+      };
+      document.getElementById('sentinel-run-label').textContent = labels[mode];
+      const defaults = { drift: 'unique', redact: 'hipaa', prune: 'monorepo' };
+      loadSentinelTest(defaults[mode]);
+    }
+
     function loadSentinelTest(k) {
+      if (['hipaa', 'pci', 'legal'].includes(k) && sentinelMode !== 'redact') {
+        sentinelMode = 'redact';
+      } else if (['monorepo', 'docs', 'lockfile'].includes(k) && sentinelMode !== 'prune') {
+        sentinelMode = 'prune';
+      } else if (['lock', 'unique', 'maint', 'rewrite', 'index', 'safe'].includes(k) && sentinelMode !== 'drift') {
+        sentinelMode = 'drift';
+      }
       document.getElementById('sentinel-input').value = sentinelPresets[k];
     }
 
     let sentinelEngine = null;
     async function runSentinelSandbox() {
       const out = document.getElementById('sentinel-output');
-      const sql = document.getElementById('sentinel-input').value;
-      if (!sql.trim()) { out.textContent = 'Paste a migration first.'; return; }
+      const raw = document.getElementById('sentinel-input').value;
+      if (!raw.trim()) { out.textContent = 'Paste input or pick a sample preset first.'; return; }
       try {
         if (!sentinelEngine) sentinelEngine = await import('./testbeds/sentinel/sentinel.mjs');
-        const { report, plan } = sentinelEngine.analyze(sql, Number(document.getElementById('sentinel-pg').value));
-        const lines = ['Severity ' + report.severity + ' (exit code ' + report.exitCode + ') · ' + report.statementCount + ' statement(s) · PostgreSQL ' + report.engineVersion, ''];
-        for (const st of report.statements) lines.push('  [' + st.lockMode + '] ' + (st.statement.sql || '').replace(/\s+/g, ' ').slice(0, 110));
-        lines.push('');
-        if (!report.hazards.length) lines.push('No lock hazards found.');
-        for (const h of report.hazards) {
-          lines.push(h.severity + '  ' + h.code + '  line ' + h.line + (h.tableName ? '  table ' + h.tableName : ''));
-          lines.push('  ' + h.message);
-          lines.push('  Fix: ' + h.remediation, '');
+
+        if (sentinelMode === 'drift') {
+          const { report, plan, sarif } = sentinelEngine.analyze(raw, Number(document.getElementById('sentinel-pg').value));
+          const sarifCount = sarif && sarif.runs && sarif.runs[0] ? sarif.runs[0].results.length : 0;
+          const lines = [
+            'Severity ' + report.severity + ' (exit code ' + report.exitCode + ') · ' + report.statementCount + ' statement(s) · PostgreSQL ' + report.engineVersion + ' · SARIF 2.1.0 results: ' + sarifCount,
+            ''
+          ];
+          for (const st of report.statements) lines.push('  [' + st.lockMode + '] ' + (st.statement.sql || '').replace(/\s+/g, ' ').slice(0, 110));
+          lines.push('');
+          if (!report.hazards.length) lines.push('No lock hazards found.');
+          for (const h of report.hazards) {
+            lines.push(h.severity + '  ' + h.code + '  line ' + h.line + (h.tableName ? '  table ' + h.tableName : '') + (h.columnName ? '.' + h.columnName : ''));
+            lines.push('  ' + h.message);
+            lines.push('  Fix: ' + h.remediation, '');
+          }
+          if (plan && plan.hasHazards && plan.renderedSql) lines.push('Safe zero-downtime rollout plan:', plan.renderedSql);
+          out.textContent = lines.join('\n');
+          return;
         }
-        if (plan && plan.hasHazards && plan.renderedSql) lines.push('Safe rollout plan:', plan.renderedSql);
+
+        if (sentinelMode === 'redact') {
+          const pack = document.getElementById('sentinel-pack').value;
+          const { result, sarif, packs } = sentinelEngine.redact(raw, pack, 'strict');
+          const counts = Object.entries(result.categoryCounts || {}).map(([k, v]) => k + '=' + v).join(', ') || 'none';
+          const sarifCount = sarif && sarif.runs && sarif.runs[0] ? sarif.runs[0].results.length : 0;
+          const lines = [
+            '06-local-redactor 1.4.0 · Packs: [' + packs.join(', ') + '] · Total redactions: ' + result.totalRedactions + ' (' + counts + ') · Zero-plaintext SARIF results: ' + sarifCount,
+            '',
+            '--- Redacted Output ---',
+            result.redactedText,
+            '',
+            '--- Detected Spans (Zero-Plaintext Audit Trail) ---',
+            ...result.spans.map((sp) => '  [' + sp.category + '] rule=' + sp.ruleId + ' offset=' + sp.start + '..' + sp.end + ' (' + (sp.end - sp.start) + ' chars) -> ' + sp.replacement)
+          ];
+          out.textContent = lines.join('\n');
+          return;
+        }
+
+        const changedFiles = raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+        const { plan, ghaMatrix } = sentinelEngine.prune(changedFiles, sentinelDemoMatrix, sentinelDemoPackages);
+        const lines = [
+          '01-matrix-pruner 1.4.0 · Change mode: ' + plan.changeMode + ' · Selected: ' + plan.summary.selectedCount + '/' + plan.summary.totalCells + ' cells (pruned ' + (plan.summary.pruneRatio * 100).toFixed(1) + '%)',
+          'Runner minutes saved: ' + plan.summary.savedMinutes.toFixed(1) + ' min · Estimated compute saved: $' + plan.summary.savedCostUsd.toFixed(4) + ' · Anchor: ' + (plan.anchorCellId || 'none'),
+          'Touched packages: ' + (plan.impact.directlyTouchedPackages.join(', ') || 'none') + ' · Transitive: ' + (plan.impact.transitivelyImpactedPackages.join(', ') || 'none'),
+          '',
+          '--- Cell Decisions ---',
+          ...plan.decisions.map((d) => '  [' + d.action.padEnd(4) + '] ' + d.cell.id.padEnd(28) + ' reason=' + d.reason + ' risk=' + d.riskScore.toFixed(3) + ' est=' + d.estimatedMinutes + 'm'),
+          '',
+          '--- GitHub Actions strategy.matrix JSON (--gha-matrix) ---',
+          JSON.stringify({ include: ghaMatrix.include.map((c) => ({ cell_id: c.cell_id, os: c.os, arch: c.arch, target_package: c.target_package })) }, null, 2)
+        ];
         out.textContent = lines.join('\n');
       } catch (e) {
-        out.textContent = 'The analyzer could not run: ' + (e && e.message ? e.message : e);
+        out.textContent = 'The engine could not run: ' + (e && e.message ? e.message : e);
       }
     }
 
