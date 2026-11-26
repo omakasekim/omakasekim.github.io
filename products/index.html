@@ -1310,34 +1310,36 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
       </div>
 
       <p style="color: var(--text); font-size: 0.95rem; line-height: 1.7; margin-bottom: 16px;">
-        Enables hospital consortia to compute clinical cohort queries (e.g. average diabetic HbA1c, survival rates) across multiple institutions without any hospital or third party ever seeing another institution's raw patient records. Integrates directly with HL7 FHIR, encrypts with RNS-CKKS and BFV, signs with post-quantum ML-DSA-65, and proves validity with zero-knowledge range proofs resting solely on SHA-256.
+        Enables hospital consortia to compute clinical cohort queries (e.g. average diabetic HbA1c, oncology survival variance, exact BFV integer risk scoring) across multiple institutions without any hospital or third party ever seeing another institution's raw patient records (<code>v0.6.0</code>). Integrates directly with HL7 FHIR R4, encrypts with RNS-CKKS and RNS-BFV, signs verifiable k-of-n quorum transcripts with post-quantum ML-DSA-65 + Ed25519, emits SARIF 2.1.0 post-quantum compliance reports, and proves validity with zero-knowledge range proofs resting solely on SHA-256.
       </p>
 
       <!-- INTERACTIVE TESTBED -->
       <div class="sandbox-box">
         <div class="sandbox-header">
           <div class="sandbox-title">
-            <span>⚡ Interactive Testbed: RNS-CKKS Threshold Aggregator &amp; SHA-256 Range Proof</span>
-            <span class="sandbox-badge">medcrypto-fhe &amp; medcrypto-pq 0.5.0 compiled to WebAssembly</span>
+            <span>⚡ Interactive Testbed: RNS-CKKS, RNS-BFV Exact, FIPS 204 ML-DSA-65 &amp; SHA-256 Range Proof</span>
+            <span class="sandbox-badge">medcrypto-fhe &amp; medcrypto-pq 0.6.0 compiled to WebAssembly</span>
           </div>
           <div style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--mono);">Pure-Rust wasm32</div>
         </div>
         <div class="sandbox-controls">
-          <button class="btn-sample" onclick="loadMedTest('hba1c')">Cohort 1: 3-Hospital Diabetic HbA1c Aggregation</button>
-          <button class="btn-sample" onclick="loadMedTest('oncology')">Cohort 2: Oncology Survival Rate Variance</button>
-          <button class="btn-sample" onclick="loadMedTest('zkproof')">Proof 3: SHA-256 Lab Value Range Verification</button>
+          <button class="btn-sample" onclick="loadMedTest('hba1c')">Cohort 1: 3-Hospital CKKS HbA1c</button>
+          <button class="btn-sample" onclick="loadMedTest('oncology')">Cohort 2: Oncology CKKS Variance</button>
+          <button class="btn-sample" onclick="loadMedTest('bfv_exact')">Exact 3: RNS-BFV Integer Risk Score</button>
+          <button class="btn-sample" onclick="loadMedTest('pq_sign')">PQ 4: ML-DSA-65 + Ed25519 Hybrid Sign</button>
+          <button class="btn-sample" onclick="loadMedTest('zkproof')">Proof 5: SHA-256 Lab Range ZKP</button>
         </div>
-        <textarea id="med-input" class="sandbox-editor" placeholder="Enter JSON cohort values or range proof request..."></textarea>
+        <textarea id="med-input" class="sandbox-editor" placeholder="Enter JSON cohort values, BFV integer batch, ML-DSA-65 hybrid sign request, or range proof request..."></textarea>
         <button class="btn-run-sandbox" onclick="runMedSandbox()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Run Encrypted Aggregation / Range Proof
+          Run Cryptographic Pipeline in WebAssembly
         </button>
-        <div id="med-output" class="sandbox-output">[MEDCRYPTO] Ready. Select a cohort or range proof above (loads medcrypto-fhe + medcrypto-pq 0.5.0 WebAssembly on first run).</div>
+        <div id="med-output" class="sandbox-output">[MEDCRYPTO] Ready. Select a CKKS cohort, BFV exact integer risk score, ML-DSA-65 hybrid signature, or SHA-256 range proof above (loads medcrypto-fhe + medcrypto-pq 0.6.0 WebAssembly on first run).</div>
       </div>
 
       <div class="cta-row">
         <div style="font-size: 0.84rem; color: var(--text-dim); font-family: var(--mono);">
-          Artifact: <code style="color: #38bdf8;">medcrypto-suite-v1.0.tar.gz</code> &bull; Rust + Wasm Component
+          Artifact: <code style="color: #38bdf8;">medcrypto-suite-v0.6.0.tar.gz</code> &bull; Rust + Wasm Component + SARIF 2.1.0 PQ Audit
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <a href="https://7497950237241.gumroad.com/l/llpvi" target="_blank" class="btn-gumroad-checkout">
@@ -1950,6 +1952,23 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
           { name: "Clinic_2", values: [54.0, 60.0, 38.4, 46.1, 51.5] }
         ]
       }, null, 2),
+      bfv_exact: JSON.stringify({
+        mode: "bfv_exact",
+        study: "3-Site ICU Sepsis Cohort Event Counts & Linear Triage Score",
+        plain_bits: 24,
+        weights: [3, 5, 2, 7],
+        bias: 10,
+        sites: [
+          { name: "SNUH", counts: [14, 8, 22, 5] },
+          { name: "Severance", counts: [19, 11, 17, 6] },
+          { name: "Asan", counts: [12, 9, 25, 4] }
+        ]
+      }, null, 2),
+      pq_sign: JSON.stringify({
+        mode: "pq_sign",
+        context: "medcrypto-consortium-release-v0.6",
+        payload: "study=hba1c-2026Q4;cohort_n=1500;mean=7.106;min_cell_size=11;quorum=2-of-3"
+      }, null, 2),
       zkproof: JSON.stringify({
         mode: "range_proof",
         biomarker: "HbA1c x10 (4.0%..14.0%)",
@@ -1982,7 +2001,7 @@ VM Exit / Entry Event (VMCS Guest RIP / Extended Page Tables)
         out.textContent = "[ERROR] Input empty. Please select a cohort or range proof preset above.";
         return;
       }
-      out.textContent = "[MEDCRYPTO] Loading medcrypto-fhe + medcrypto-pq 0.5.0 WebAssembly...";
+      out.textContent = "[MEDCRYPTO] Loading medcrypto-fhe + medcrypto-pq 0.6.0 WebAssembly...";
       try {
         const mod = await loadMedWasm();
         const seed = new Uint8Array(32);
