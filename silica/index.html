@@ -184,11 +184,17 @@ ul { color: var(--muted); padding-left: 20px; }
 
     <div class="life-row" role="group" aria-label="Pattern presets">
       <span class="row-label">Presets</span>
-      <button type="button" class="pattern-preset" data-pattern="GLIDER">Glider</button>
-      <button type="button" class="pattern-preset" data-pattern="GOSPER_GUN">Gosper glider gun</button>
-      <button type="button" class="pattern-preset" data-pattern="ACORN">Acorn</button>
-      <button type="button" class="pattern-preset" data-pattern="DIEHARD">Diehard</button>
+      <button type="button" class="pattern-preset" data-pattern="GLIDER" data-rule="B3/S23">Glider</button>
+      <button type="button" class="pattern-preset" data-pattern="LWSS" data-rule="B3/S23">LWSS</button>
+      <button type="button" class="pattern-preset" data-pattern="PULSAR" data-rule="B3/S23">Pulsar</button>
+      <button type="button" class="pattern-preset" data-pattern="PENTADECATHLON" data-rule="B3/S23">Pentadecathlon</button>
+      <button type="button" class="pattern-preset" data-pattern="GOSPER_GUN" data-rule="B3/S23">Gosper gun</button>
+      <button type="button" class="pattern-preset" data-pattern="ACORN" data-rule="B3/S23">Acorn</button>
+      <button type="button" class="pattern-preset" data-pattern="DIEHARD" data-rule="B3/S23">Diehard</button>
+      <button type="button" class="pattern-preset" data-pattern="REPLICATOR" data-rule="B36/S23">HighLife Replicator</button>
+      <button type="button" id="life-classify">Classify pattern</button>
     </div>
+    <div id="classify-feedback" class="feedback" role="status" aria-live="polite"></div>
   </section>
 
   <canvas id="view" width="240" height="150" aria-label="Simulation canvas"></canvas>
@@ -209,6 +215,7 @@ ul { color: var(--muted); padding-left: 20px; }
   <p class="note">What makes it work:</p>
   <ul>
     <li><strong>Life</strong> updates every cell at once with any Life-like <code>B/S</code> (or legacy <code>S/B</code>) rule, reading one buffer and writing another before swapping.</li>
+    <li><strong>Pattern classifier (v0.3.0)</strong> steps the current cells on an unbounded sparse plane and normalizes each generation's bounding box to detect still lifes, oscillators, spaceships (with reduced velocity like <code>c/4 diagonal</code> or <code>c/2 orthogonal</code>), and extinctions.</li>
     <li><strong>RLE</strong> imports and exports standard run-length encoded patterns with header rules, comments, 70-character line wrapping, and size limits matching Silica's Kotlin core.</li>
     <li><strong>Sand</strong> moves matter in place, scanning from the bottom up with the direction alternating each frame. A clock bit in each cell stops a particle moving twice in one frame.</li>
     <li><strong>Sleeping regions</strong>: a 16 by 16 chunk where nothing moved is skipped on the next frame, which the status line counts.</li>

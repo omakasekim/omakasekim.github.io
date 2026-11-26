@@ -330,6 +330,11 @@ export const Patterns = {
   GLIDER: "bob$2bo$3o!",
   BLINKER: "3o!",
   BLOCK: "2o$2o!",
+  BEACON: "2o$2o$2b2o$2b2o!",
+  TOAD: "b3o$3o!",
+  LWSS: "bo2bo$o$o3bo$4o!",
+  PENTADECATHLON: "2bo4bo$2ob4ob2o$2bo4bo!",
+  REPLICATOR: "2b3o$bo2bo$o3bo$o2bo$3o!",
   R_PENTOMINO: "b2o$2o$bo!",
   PULSAR:
     "2b3o3b3o2$o4bobo4bo$o4bobo4bo$o4bobo4bo$2b3o3b3o2$2b3o3b3o$" +
@@ -340,6 +345,146 @@ export const Patterns = {
     "24bo$22bobo$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o$" +
     "2o8bo3bob2o4bobo$10bo5bo7bo$11bo3bo$12b2o!",
 };
+
+function gcdInt(a, b) {
+  let x = Math.abs(a);
+  let y = Math.abs(b);
+  while (y !== 0) {
+    const t = x % y;
+    x = y;
+    y = t;
+  }
+  return x || 1;
+}
+
+function formatVelocity(dx, dy, period) {
+  const adx = Math.abs(dx);
+  const ady = Math.abs(dy);
+  if (adx === 0 || ady === 0) {
+    const dist = Math.max(adx, ady);
+    const g = gcdInt(dist, period);
+    const num = dist / g;
+    const den = period / g;
+    return `${num === 1 ? "c" : `${num}c`}/${den} orthogonal`;
+  }
+  if (adx === ady) {
+    const g = gcdInt(adx, period);
+    const num = adx / g;
+    const den = period / g;
+    return `${num === 1 ? "c" : `${num}c`}/${den} diagonal`;
+  }
+  return `(${dx},${dy})/${period}c oblique`;
+}
+
+/**
+ * Exact, translation-invariant unbounded-plane pattern dynamics classifier.
+ * Mirrors Silica Kotlin core's PatternClassifier (v0.3.0).
+ */
+export function classifyLifePattern(cells, rule = Rule.CONWAY, maxGenerations = 400, maxCells = 12000) {
+  const activeRule = rule instanceof Rule ? rule : Rule.parse(rule);
+  if (activeRule.born(0)) {
+    throw new Error(`classifier does not support B0 rules: ${activeRule.notation}`);
+  }
+  if (!Number.isInteger(maxGenerations) || maxGenerations < 0) {
+    throw new Error(`maxGenerations must be a non-negative integer: ${maxGenerations}`);
+  }
+  const keyOf = (x, y) => `${x},${y}`;
+  let live = new Map();
+  for (const [x, y] of cells) {
+    live.set(keyOf(x, y), [x, y]);
+  }
+  const seen = new Map();
+  for (let gen = 0; gen <= maxGenerations; gen++) {
+    if (live.size === 0) {
+      return { rule: activeRule.notation, kind: "extinct", generation: gen };
+    }
+    if (live.size <= maxCells) {
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+      for (const [x, y] of live.values()) {
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+      const norm = [];
+      for (const [x, y] of live.values()) {
+        norm.push([x - minX, y - minY]);
+      }
+      norm.sort((a, b) => (a[1] - b[1]) || (a[0] - b[0]));
+      const shapeKey = `${maxX - minX + 1}x${maxY - minY + 1}:${norm.map(([x, y]) => `${x},${y}`).join(";")}`;
+      const prev = seen.get(shapeKey);
+      if (prev) {
+        const period = gen - prev.gen;
+        const dx = minX - prev.minX;
+        const dy = minY - prev.minY;
+        if (dx === 0 && dy === 0) {
+          if (period === 1) {
+            return { rule: activeRule.notation, kind: "still_life", onset: prev.gen, period: 1, population: live.size };
+          }
+          return { rule: activeRule.notation, kind: "oscillator", onset: prev.gen, period, population: live.size };
+        }
+        return {
+          rule: activeRule.notation,
+          kind: "spaceship",
+          onset: prev.gen,
+          period,
+          dx,
+          dy,
+          velocity: formatVelocity(dx, dy, period),
+          population: live.size,
+        };
+      }
+      seen.set(shapeKey, { gen, minX, minY });
+    }
+    if (gen === maxGenerations) break;
+    if (live.size > maxCells) {
+      return { rule: activeRule.notation, kind: "unsettled", generations: gen, population: live.size };
+    }
+    const counts = new Map();
+    for (const [x, y] of live.values()) {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx;
+          const ny = y + dy;
+          const k = keyOf(nx, ny);
+          const entry = counts.get(k);
+          if (entry) entry[2]++;
+          else counts.set(k, [nx, ny, 1]);
+        }
+      }
+    }
+    const next = new Map();
+    for (const [k, [x, y]] of live.entries()) {
+      const entry = counts.get(k);
+      const n = entry ? entry[2] : 0;
+      if (activeRule.survives(n)) next.set(k, [x, y]);
+    }
+    for (const [k, [x, y, n]] of counts.entries()) {
+      if (!live.has(k) && activeRule.born(n)) next.set(k, [x, y]);
+    }
+    live = next;
+  }
+  return { rule: activeRule.notation, kind: "unsettled", generations: maxGenerations, population: live.size };
+}
+
+export function formatClassification(result) {
+  switch (result.kind) {
+    case "extinct":
+      return `Extinct at generation ${result.generation} (${result.rule})`;
+    case "still_life":
+      return `Still life — ${result.population} cells, onset ${result.onset} (${result.rule})`;
+    case "oscillator":
+      return `Oscillator — period ${result.period}, ${result.population} cells, onset ${result.onset} (${result.rule})`;
+    case "spaceship":
+      return `Spaceship — period ${result.period}, shift (${result.dx}, ${result.dy}), ${result.velocity}, ${result.population} cells (${result.rule})`;
+    default:
+      return `Unsettled after ${result.generations} generations (${result.population} cells, ${result.rule})`;
+  }
+}
 
 // Kept for backward compatibility with existing callers/tests.
 export const GOSPER_GUN = [
@@ -850,6 +995,8 @@ if (typeof document !== "undefined" && document.getElementById("view")) {
   const rlePanelEl = document.getElementById("rle-panel");
   const ruleInputEl = document.getElementById("rule-input");
   const ruleFeedbackEl = document.getElementById("rule-feedback");
+  const classifyBtnEl = document.getElementById("life-classify");
+  const classifyFeedbackEl = document.getElementById("classify-feedback");
   const rleTextEl = document.getElementById("rle-text");
   const rleFeedbackEl = document.getElementById("rle-feedback");
   const rulePresetButtons = [...document.querySelectorAll(".rule-preset")];
@@ -921,11 +1068,16 @@ if (typeof document !== "undefined" && document.getElementById("view")) {
     }
   };
 
-  const loadPreset = (key) => {
+  const loadPreset = (key, presetRule = "") => {
     const rle = Patterns[key];
     if (!rle) return;
+    if (presetRule) {
+      lifeWorld.setRule(Rule.parse(presetRule));
+      syncRuleUI();
+    }
     lifeWorld.loadRle(rle, { center: true, applyRule: false });
-    setFeedback(rleFeedbackEl, `Loaded preset ${key.toLowerCase().replace("_", " ")} (${lifeWorld.population()} cells).`, "ok");
+    if (classifyFeedbackEl) setFeedback(classifyFeedbackEl, "");
+    setFeedback(rleFeedbackEl, `Loaded preset ${key.toLowerCase().replace("_", " ")} (${lifeWorld.population()} cells, ${lifeWorld.rule.notation}).`, "ok");
     renderFrame();
   };
 
@@ -1038,7 +1190,17 @@ if (typeof document !== "undefined" && document.getElementById("view")) {
     btn.addEventListener("click", () => applyRuleText(btn.dataset.rule));
   }
   for (const btn of patternPresetButtons) {
-    btn.addEventListener("click", () => loadPreset(btn.dataset.pattern));
+    btn.addEventListener("click", () => loadPreset(btn.dataset.pattern, btn.dataset.rule || ""));
+  }
+  if (classifyBtnEl && classifyFeedbackEl) {
+    classifyBtnEl.addEventListener("click", () => {
+      try {
+        const res = classifyLifePattern(lifeWorld.cells(), lifeWorld.rule, 400);
+        setFeedback(classifyFeedbackEl, formatClassification(res), "ok");
+      } catch (err) {
+        setFeedback(classifyFeedbackEl, err.message, "error");
+      }
+    });
   }
 
   document.getElementById("rle-import").addEventListener("click", () => {

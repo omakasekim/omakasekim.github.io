@@ -5,6 +5,8 @@ import {
   Rule,
   Rle,
   Patterns,
+  classifyLifePattern,
+  formatClassification,
   GOSPER_GUN,
   SandWorld,
   SAND,
@@ -371,5 +373,27 @@ assert.equal(world.chunksUpdated, 0, "a settled world does no work");
 world.paint(10, 10, SAND);
 world.step();
 assert.ok(world.chunksUpdated > 0 && world.chunksUpdated < 12, "and a change wakes only what is near it");
+
+// Pattern dynamics classifier (v0.3.0): exact period, spaceship velocity, and extinction detection.
+assert.equal(classifyLifePattern(Rle.parse(Patterns.BLOCK)).kind, "still_life");
+const blinkerClass = classifyLifePattern(Rle.parse(Patterns.BLINKER));
+assert.equal(blinkerClass.kind, "oscillator");
+assert.equal(blinkerClass.period, 2);
+const pentaClass = classifyLifePattern(Rle.parse(Patterns.PENTADECATHLON));
+assert.equal(pentaClass.kind, "oscillator");
+assert.equal(pentaClass.period, 15);
+const gliderClass = classifyLifePattern(Rle.parse(Patterns.GLIDER));
+assert.equal(gliderClass.kind, "spaceship");
+assert.equal(gliderClass.period, 4);
+assert.equal(gliderClass.velocity, "c/4 diagonal");
+const lwssClass = classifyLifePattern(Rle.parse(Patterns.LWSS));
+assert.equal(lwssClass.kind, "spaceship");
+assert.equal(lwssClass.period, 4);
+assert.equal(lwssClass.velocity, "c/2 orthogonal");
+const diehardClass = classifyLifePattern(Rle.parse(Patterns.DIEHARD));
+assert.equal(diehardClass.kind, "extinct");
+assert.equal(diehardClass.generation, 130);
+assert.ok(formatClassification(lwssClass).includes("c/2 orthogonal"));
+assert.throws(() => classifyLifePattern(Rle.parse(Patterns.GLIDER), Rule.parse("B0/S8")));
 
 console.log("all silica checks passed");
