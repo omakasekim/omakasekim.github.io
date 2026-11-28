@@ -6,7 +6,22 @@ let exports_ = null;
 async function instance() {
   if (exports_) return exports_;
   const response = await fetch("zkhypervm.wasm");
-  const { instance } = await WebAssembly.instantiate(await response.arrayBuffer(), {});
+  let memory = null;
+  // The prover's blinding factors: 32 bytes of browser entropy keys its random generator.
+  const imports = {
+    env: {
+      zkhv_random_fill(pointer, length) {
+        try {
+          crypto.getRandomValues(new Uint8Array(memory.buffer, pointer, length));
+          return 0;
+        } catch {
+          return 1;
+        }
+      },
+    },
+  };
+  const { instance } = await WebAssembly.instantiate(await response.arrayBuffer(), imports);
+  memory = instance.exports.memory;
   exports_ = instance.exports;
   return exports_;
 }
@@ -70,6 +85,21 @@ self.onmessage = async ({ data }) => {
       result = readJson(ex, ex.zkhv_check_circom(a, data.r1cs.length, b, data.witness.length));
       ex.zkhv_free(a, data.r1cs.length);
       ex.zkhv_free(b, data.witness.length);
+    } else if (data.kind === "circom_prove") {
+      const a = copyIn(ex, data.r1cs);
+      const b = copyIn(ex, data.witness);
+      result = readJson(ex, ex.zkhv_prove_circom(a, data.r1cs.length, b, data.witness.length));
+      ex.zkhv_free(a, data.r1cs.length);
+      ex.zkhv_free(b, data.witness.length);
+    } else if (data.kind === "circom_verify") {
+      const proof = new TextEncoder().encode(
+        typeof data.proof === "string" ? data.proof : JSON.stringify(data.proof)
+      );
+      const a = copyIn(ex, data.r1cs);
+      const b = copyIn(ex, proof);
+      result = readJson(ex, ex.zkhv_verify_circom(a, data.r1cs.length, b, proof.length));
+      ex.zkhv_free(a, data.r1cs.length);
+      ex.zkhv_free(b, proof.length);
     } else {
       result = { error: `unknown worker request kind: ${data.kind}` };
     }
